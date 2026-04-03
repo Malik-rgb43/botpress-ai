@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
-import { sendMessage } from '@/services/channel-service'
 import type { AIContext } from '@/services/ai-engine'
 
 // Refresh Gmail access token using refresh token
@@ -267,19 +266,41 @@ export async function POST(request: NextRequest) {
             const businessEmail = business.contact_info?.email || ''
 
             if (needsEscalation) {
-              // ── ESCALATION: Send notification to business owner ──
+              // ── ESCALATION: Notify business owner via Gmail (not Resend) ──
               const escalationReason = aiContent.replace(/^ESCALATE\s*[-–—]?\s*/i, '').trim()
 
-              // Send notification email to business owner
-              await sendMessage({
-                to: businessEmail,
-                content: `📬 לקוח צריך מענה אנושי!\n\n👤 מאימייל: ${senderEmail}\n📋 נושא: ${email.subject}\n\n💬 ההודעה של הלקוח:\n"${email.body.slice(0, 500)}"\n\n🤖 הסיבה שהבוט לא ענה:\n${escalationReason}\n\n⚡ אנא ענה ללקוח ישירות מהאימייל שלך.`,
-                channel: 'email',
-                subject: `⚠️ צריך מענה אנושי — ${senderEmail} שאל על: ${email.subject}`,
-                businessName: business.name,
+              // Send notification to business owner via Gmail API (works for any email)
+              const notificationBody = [
+                `לקוח צריך מענה אנושי!`,
+                ``,
+                `מאימייל: ${senderEmail}`,
+                `נושא: ${email.subject}`,
+                ``,
+                `ההודעה של הלקוח:`,
+                `${email.body.slice(0, 500)}`,
+                ``,
+                `הסיבה שהבוט לא ענה:`,
+                `${escalationReason}`,
+                ``,
+                `אנא ענה ללקוח ישירות — פשוט תעביר את המייל הזה ותענה.`,
+              ].join('\n')
+
+              // Send self-email notification via Gmail API
+              const notifRaw = [
+                `To: ${businessEmail}`,
+                `Subject: =?UTF-8?B?${Buffer.from(`צריך מענה אנושי — ${senderEmail}`).toString('base64')}?=`,
+                'Content-Type: text/plain; charset=UTF-8',
+                '',
+                notificationBody,
+              ].join('\r\n')
+              const notifEncoded = Buffer.from(notifRaw).toString('base64url')
+              await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ raw: notifEncoded }),
               })
 
-              // Mark as read
+              // Mark original email as read
               await markAsRead(accessToken, email.id)
 
               // Save to DB as escalation
