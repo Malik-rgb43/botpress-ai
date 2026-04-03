@@ -164,32 +164,78 @@ export default function SettingsPage() {
             <CardTitle className="text-lg">עיצוב אימייל</CardTitle>
             <CardDescription>התאם את המראה של המיילים שהבוט שולח ללקוחות</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
+            {/* Template Picker */}
+            <div className="space-y-2">
+              <Label>בחר תבנית</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: 'modern' as const, label: 'מודרני', desc: 'גרדיאנט + צל', emoji: '✨' },
+                  { id: 'classic' as const, label: 'קלאסי', desc: 'נקי + פס צד', emoji: '📋' },
+                  { id: 'minimal' as const, label: 'מינימלי', desc: 'טקסט בלבד', emoji: '📝' },
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      const info = business?.contact_info || {}
+                      const supabase = createClient()
+                      supabase.from('businesses').update({
+                        contact_info: { ...info, email_template: t.id }
+                      }).eq('id', business!.id).then(() => {})
+                    }}
+                    className={`p-3 rounded-xl border text-center transition-all ${
+                      (business?.contact_info as Record<string, unknown>)?.email_template === t.id || (!((business?.contact_info as Record<string, unknown>)?.email_template) && t.id === 'modern')
+                        ? 'border-blue-500 bg-blue-50 shadow-sm'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="text-xl mb-1">{t.emoji}</div>
+                    <div className="text-xs font-medium">{t.label}</div>
+                    <div className="text-[10px] text-gray-400">{t.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Color */}
             <div className="space-y-2">
               <Label>צבע ראשי</Label>
               <div className="flex gap-2">
                 <Input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-12 h-10 p-1 cursor-pointer" />
                 <Input value={brandColor} onChange={e => setBrandColor(e.target.value)} dir="ltr" className="flex-1" />
               </div>
-              <p className="text-xs text-gray-400">הצבע שיופיע בכותרת האימייל</p>
             </div>
+
+            {/* Footer */}
             <div className="space-y-2">
-              <Label>טקסט תחתון (אופציונלי)</Label>
+              <Label>טקסט תחתון</Label>
               <Input value={emailFooter} onChange={e => setEmailFooter(e.target.value)} placeholder="למשל: טלפון: 050-1234567 | כתובת: רחוב הרצל 1" />
-              <p className="text-xs text-gray-400">יופיע בתחתית כל אימייל שנשלח ללקוחות</p>
             </div>
+
+            {/* White Label */}
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>White Label</Label>
+                <p className="text-xs text-gray-400">הסתר Powered by BotPress AI</p>
+              </div>
+              <Switch checked={false} disabled />
+            </div>
+
             {/* Preview */}
-            <div className="border border-blue-100 rounded-xl overflow-hidden">
-              <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}dd)` }} className="p-4 text-center">
-                {business?.logo_url && <img src={business.logo_url} alt="" className="w-10 h-10 rounded-lg mx-auto mb-2" />}
-                <p className="text-white font-bold text-sm">{name || 'שם העסק'}</p>
-              </div>
-              <div className="p-4 bg-white">
-                <p className="text-sm text-gray-600">זוהי דוגמה לתשובה שהבוט ישלח ללקוח באימייל...</p>
-              </div>
-              <div className="border-t border-gray-100 p-3 bg-gray-50 text-center">
-                {emailFooter && <p className="text-xs text-gray-500 mb-1">{emailFooter}</p>}
-                <p className="text-[10px] text-gray-400">הודעה זו נשלחה אוטומטית על ידי הבוט של {name || 'העסק'}</p>
+            <div>
+              <Label className="mb-2 block">תצוגה מקדימה</Label>
+              <div className="border border-blue-100 rounded-xl overflow-hidden shadow-sm">
+                <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}dd)` }} className="p-5 text-center">
+                  {business?.logo_url && <img src={business.logo_url} alt="" className="w-11 h-11 rounded-xl mx-auto mb-2 border-2 border-white/30" />}
+                  <p className="text-white font-bold">{name || 'שם העסק'}</p>
+                </div>
+                <div className="p-5 bg-white">
+                  <p className="text-sm text-gray-700 leading-relaxed">שלום! אנחנו פתוחים א׳-ה׳ 9:00-18:00, שישי 9:00-13:00. יש עוד משהו שאני יכול לעזור בו?</p>
+                </div>
+                <div className="border-t border-gray-100 p-3 bg-gray-50 text-center">
+                  {emailFooter && <p className="text-xs text-gray-500 mb-1">{emailFooter}</p>}
+                  <p className="text-[10px] text-gray-400">הודעה אוטומטית מ-{name || 'העסק'}</p>
+                </div>
               </div>
             </div>
           </CardContent>
