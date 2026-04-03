@@ -370,20 +370,65 @@ export default function LandingPage() {
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">מה אומרים הלקוחות</h2>
+            <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4 shadow-sm">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> ביקורות
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              עסקים אמיתיים, <span className="gradient-text">תוצאות אמיתיות</span>
+            </h2>
+            <p className="text-gray-500 text-lg">ראה מה אומרים בעלי עסקים שכבר משתמשים ב-BotPress AI</p>
           </div>
+
+          {/* Featured testimonial */}
+          <div className="mb-8 relative">
+            <div className="absolute inset-0 gradient-primary rounded-2xl blur-xl opacity-[0.06]" />
+            <div className="relative bg-white rounded-2xl border border-blue-200 p-8 md:p-10 hover-lift">
+              <div className="flex flex-col md:flex-row gap-6 items-start" dir="rtl">
+                <div className="flex-1">
+                  <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}</div>
+                  <p className="text-gray-700 text-lg leading-relaxed mb-4">&ldquo;מאז שהתחלנו להשתמש ב-BotPress AI, <strong className="text-gray-900">80% מהפניות נענות אוטומטית</strong>. חסכנו 3 שעות ביום של עבודה ידנית ושביעות הרצון של הלקוחות עלתה משמעותית.&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-xl">🍕</div>
+                    <div>
+                      <p className="font-bold">יוסי לוי</p>
+                      <p className="text-sm text-gray-500">בעלים, מסעדת הגג — תל אביב</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-4 md:gap-6 shrink-0">
+                  <div className="text-center">
+                    <p className="text-3xl font-extrabold gradient-text">80%</p>
+                    <p className="text-xs text-gray-400">פניות אוטומטיות</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-extrabold gradient-text">3 שע׳</p>
+                    <p className="text-xs text-gray-400">נחסכות ביום</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-extrabold gradient-text">4.9</p>
+                    <p className="text-xs text-gray-400">שביעות רצון</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other testimonials */}
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: "דנה כהן", role: "חנות פרחים", text: "הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות ואני יכולה להתמקד בעבודה.", avatar: "🌸" },
-              { name: "יוסי לוי", role: "מסעדה", text: "מאז שחיברנו את הבוט, 80% מהשאלות נענות אוטומטית. צמצמנו את הצורך בנציג.", avatar: "🍕" },
-              { name: "מיכל אברהם", role: "חנות אונליין", text: "ההגדרה הייתה קלה מאוד. תוך 10 דקות היה לי בוט שעונה על שאלות.", avatar: "🛍️" },
+              { name: "דנה כהן", role: "חנות הפרחים של דנה", text: "הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות על שעות פעילות ומשלוחים, ואני סוף סוף יכולה להתמקד בסידורי פרחים.", metric: "5 דק׳ הקמה", avatar: "🌸" },
+              { name: "מיכל אברהם", role: "ShopStyle — חנות אונליין", text: "ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה לגבי החזרות ומשלוחים. הלקוחות חושבים שזה נציג אמיתי.", metric: "10 דק׳ התקנה", avatar: "🛍️" },
+              { name: "אבי מזרחי", role: "סטודיו כושר FitZone", text: "מטורף כמה שיחות הבוט מטפל בשבילי. שאלות על מנויים, שעות פעילות, שיעורים — הכל אוטומטי. ממליץ לכל בעל עסק.", metric: "150+ שיחות/חודש", avatar: "💪" },
             ].map((t, i) => (
-              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover-lift">
+              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover-lift group">
                 <CardContent className="p-6">
-                  <div className="flex gap-0.5 mb-4">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
+                  <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
+                  <div className="bg-blue-50 rounded-lg px-3 py-2 mb-4 text-center">
+                    <p className="text-sm font-bold gradient-text">{t.metric}</p>
+                  </div>
                   <div className="flex items-center gap-3 border-t border-blue-50 pt-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-lg">{t.avatar}</div>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">{t.avatar}</div>
                     <div>
                       <p className="font-semibold text-sm">{t.name}</p>
                       <p className="text-xs text-gray-400">{t.role}</p>
