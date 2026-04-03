@@ -1,0 +1,147 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useBusiness } from '@/hooks/use-business'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Plus, Trash2, Pencil, Loader2, FileText } from 'lucide-react'
+import { toast } from 'sonner'
+import type { Policy } from '@/types/database'
+
+const POLICY_TYPES = [
+  { value: 'returns', label: 'החזרות והחלפות' },
+  { value: 'shipping', label: 'משלוחים' },
+  { value: 'hours', label: 'שעות פעילות' },
+  { value: 'payment', label: 'אמצעי תשלום' },
+  { value: 'custom', label: 'אחר' },
+]
+
+export default function PoliciesPage() {
+  const { business, loading: bizLoading } = useBusiness()
+  const [policies, setPolicies] = useState<Policy[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editing, setEditing] = useState<Policy | null>(null)
+  const [type, setType] = useState('returns')
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  useEffect(() => {
+    if (!business) return
+    loadPolicies()
+  }, [business])
+
+  async function loadPolicies() {
+    const supabase = createClient()
+    const { data } = await supabase.from('policies').select('*').eq('business_id', business!.id).order('created_at')
+    setPolicies(data || [])
+    setLoading(false)
+  }
+
+  function openCreate() {
+    setEditing(null); setType('returns'); setTitle(''); setContent('')
+    setDialogOpen(true)
+  }
+
+  function openEdit(p: Policy) {
+    setEditing(p); setType(p.type); setTitle(p.title); setContent(p.content)
+    setDialogOpen(true)
+  }
+
+  async function save() {
+    if (!title.trim() || !content.trim()) return
+    const supabase = createClient()
+    if (editing) {
+      await supabase.from('policies').update({ type, title, content }).eq('id', editing.id)
+      toast.success('המדיניות עודכנה')
+    } else {
+      await supabase.from('policies').insert({ business_id: business!.id, type, title, content })
+      toast.success('המדיניות נוספה')
+    }
+    setDialogOpen(false)
+    loadPolicies()
+  }
+
+  async function remove(id: string) {
+    const supabase = createClient()
+    await supabase.from('policies').delete().eq('id', id)
+    toast.success('המדיניות נמחקה')
+    loadPolicies()
+  }
+
+  if (bizLoading || loading) {
+    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">מדיניות העסק</h1>
+          <p className="text-gray-500 text-sm mt-1">הגדר מדיניות החזרות, משלוחים, שעות פעילות ועוד</p>
+        </div>
+        <Button onClick={openCreate}><Plus className="h-4 w-4 ml-1" />הוסף מדיניות</Button>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editing ? 'ערוך מדיניות' : 'מדיניות חדשה'}</DialogTitle></DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>סוג</Label>
+                <Select value={type} onValueChange={(v) => v && setType(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {POLICY_TYPES.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>כותרת *</Label>
+                <Input value={title} onChange={e => setTitle(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>תוכן *</Label>
+                <Textarea value={content} onChange={e => setContent(e.target.value)} rows={5} />
+              </div>
+              <Button onClick={save} className="w-full">{editing ? 'עדכן' : 'הוסף'}</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {policies.length === 0 ? (
+        <Card className="border-gray-100 shadow-none">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <FileText className="h-10 w-10 text-gray-300 mb-3" />
+            <p className="text-gray-500">עדיין אין מדיניות</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {policies.map(p => (
+            <Card key={p.id} className="border-gray-100 shadow-none">
+              <CardContent className="p-4 flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
+                    {POLICY_TYPES.find(pt => pt.value === p.type)?.label || p.type}
+                  </span>
+                  <p className="font-medium text-sm">{p.title}</p>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{p.content}</p>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil className="h-4 w-4 text-gray-400" /></Button>
+                  <Button variant="ghost" size="sm" onClick={() => remove(p.id)}><Trash2 className="h-4 w-4 text-gray-400" /></Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

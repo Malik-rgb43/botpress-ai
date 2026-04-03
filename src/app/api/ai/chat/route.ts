@@ -1,0 +1,140 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { detectIntent, detectSentiment, findFAQMatch, buildSystemPrompt } from '@/services/ai-engine'
+import type { AIContext } from '@/services/ai-engine'
+
+export async function POST(request: NextRequest) {
+  try {
+    const { message, businessId, conversationHistory = [] } = await request.json()
+
+    if (!message || !businessId) {
+      return NextResponse.json({ error: 'Missing message or businessId' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+
+    // Load business data
+    const [bizRes, faqRes, polRes, tmpRes] = await Promise.all([
+      supabase.from('businesses').select('*').eq('id', businessId).single(),
+      supabase.from('faqs').select('*').eq('business_id', businessId).order('order'),
+      supabase.from('policies').select('*').eq('business_id', businessId),
+      supabase.from('response_templates').select('*').eq('business_id', businessId),
+    ])
+
+    if (!bizRes.data) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+    }
+
+    const templates: Record<string, string> = {}
+    tmpRes.data?.forEach(t => { templates[t.type] = t.content })
+
+    // Layer 0: Intent + Sentiment
+    const intent = detectIntent(message)
+    const sentiment = detectSentiment(message)
+
+    // Direct agent request
+    if (intent === 'agent_request') {
+      return NextResponse.json({
+        content: templates.transfer || 'מעביר אותך לנציג שירות.',
+        layer: 'transfer',
+        intent,
+        sentiment,
+        confidence: 1,
+      })
+    }
+
+    // Layer 1: FAQ Match
+    const faqMatch = findFAQMatch(message, faqRes.data || [])
+    if (faqMatch && faqMatch.score > 0.6) {
+      return NextResponse.json({
+        content: faqMatch.faq.answer,
+        layer: 'faq',
+        intent,
+        sentiment,
+        confidence: faqMatch.score,
+      })
+    }
+
+    // Layer 2: AI Generated Response
+    const context: AIContext = {
+      business: bizRes.data,
+      faqs: faqRes.data || [],
+      policies: polRes.data || [],
+      templates,
+      conversationHistory,
+    }
+
+    const systemPrompt = buildSystemPrompt(context)
+
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...conversationHistory.map((m: { role: string; content: string }) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+      { role: 'user' as const, content: message },
+    ]
+
+    // Call OpenAI
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      // Fallback if no API key
+      return NextResponse.json({
+        content: templates.no_answer || 'מצטער, לא הצלחתי למצוא תשובה. אעביר אותך לנציג.',
+        layer: 'transfer',
+        intent,
+        sentiment,
+        confidence: 0,
+      })
+    }
+
+    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages,
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+    })
+
+    if (!aiRes.ok) {
+      return NextResponse.json({
+        content: templates.no_answer || 'מצטער, אירעה שגיאה. אעביר אותך לנציג.',
+        layer: 'transfer',
+        intent,
+        sentiment,
+        confidence: 0,
+      })
+    }
+
+    const aiData = await aiRes.json()
+    const aiContent = aiData.choices?.[0]?.message?.content
+
+    if (!aiContent) {
+      return NextResponse.json({
+        content: templates.transfer || 'מעביר אותך לנציג.',
+        layer: 'transfer',
+        intent,
+        sentiment,
+        confidence: 0,
+      })
+    }
+
+    return NextResponse.json({
+      content: aiContent,
+      layer: 'ai',
+      intent,
+      sentiment,
+      confidence: 0.8,
+    })
+
+  } catch (error) {
+    console.error('AI Chat error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
