@@ -2,7 +2,61 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageSquare, Mail, BarChart3, Shield, Zap, Users, Bot, ArrowLeft, Check, Sparkles, ChevronDown, Star, Clock, Globe, Play, Quote } from "lucide-react"
+import {
+  MessageSquare, Mail, BarChart3, Shield, Zap, Users, Bot, ArrowLeft,
+  Check, Sparkles, ChevronDown, Star, Clock, Globe, Play, Quote,
+  X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck
+} from "lucide-react"
+
+/* ── Mini Mockups ────────────────────────────────────── */
+
+function ChatMockup() {
+  return (
+    <div className="bg-gray-50 rounded-xl p-3 space-y-2 text-[11px]" dir="rtl">
+      <div className="flex justify-start"><div className="gradient-primary text-white px-3 py-1.5 rounded-xl rounded-tr-sm max-w-[80%]">מה שעות הפעילות שלכם?</div></div>
+      <div className="flex justify-end"><div className="bg-white border border-gray-200 px-3 py-1.5 rounded-xl rounded-tl-sm max-w-[80%]">אנחנו פתוחים א׳-ה׳ 9:00-18:00 ✨</div></div>
+      <div className="flex justify-start"><div className="gradient-primary text-white px-3 py-1.5 rounded-xl rounded-tr-sm max-w-[80%]">ומשלוחים?</div></div>
+      <div className="flex justify-end"><div className="bg-white border border-gray-200 px-3 py-1.5 rounded-xl rounded-tl-sm max-w-[80%]">משלוח חינם מעל 200₪, 2-3 ימי עסקים 🚚</div></div>
+    </div>
+  )
+}
+
+function AnalyticsMockup() {
+  return (
+    <div className="bg-gray-50 rounded-xl p-3 space-y-2" dir="rtl">
+      <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+        <span className="font-medium">שיחות השבוע</span>
+        <span className="text-green-500 font-medium">+23%</span>
+      </div>
+      <div className="flex items-end gap-1 h-16">
+        {[35, 52, 41, 68, 55, 73, 89].map((h, i) => (
+          <div key={i} className="flex-1 rounded-t-sm gradient-primary opacity-70" style={{ height: `${h}%` }} />
+        ))}
+      </div>
+      <div className="flex justify-between text-[9px] text-gray-400">
+        <span>א׳</span><span>ב׳</span><span>ג׳</span><span>ד׳</span><span>ה׳</span><span>ו׳</span><span>ש׳</span>
+      </div>
+    </div>
+  )
+}
+
+function NotificationMockup() {
+  return (
+    <div className="space-y-2" dir="rtl">
+      {[
+        { icon: "🔔", text: "לקוח חדש שאל על החזרות", time: "עכשיו", color: "bg-blue-50 border-blue-200" },
+        { icon: "✅", text: 'הבוט ענה ל-12 שאלות היום', time: "לפני שעה", color: "bg-green-50 border-green-200" },
+        { icon: "👤", text: "בקשה לנציג — מועברת אליך", time: "לפני 2 שעות", color: "bg-orange-50 border-orange-200" },
+      ].map((n, i) => (
+        <div key={i} className={`${n.color} border rounded-lg px-3 py-2 flex items-center gap-2 text-[11px]`}>
+          <span>{n.icon}</span>
+          <span className="flex-1 font-medium text-gray-700">{n.text}</span>
+          <span className="text-gray-400 text-[9px] shrink-0">{n.time}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   return (
@@ -16,64 +70,62 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   )
 }
 
+/* ── Page ────────────────────────────────────── */
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Floating Header */}
+    <div className="min-h-screen bg-[#f8fafd]">
+      {/* Header */}
       <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl">
-        <div className="glass border border-blue-100/60 rounded-2xl shadow-[0_2px_20px_rgba(59,130,246,0.1)] px-6 py-3 flex items-center justify-between">
+        <div className="bg-white/90 backdrop-blur-xl border border-blue-100/60 rounded-2xl shadow-[0_2px_20px_rgba(59,130,246,0.08)] px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
             <span className="text-lg font-bold tracking-tight">BotPress AI</span>
           </div>
           <nav className="hidden md:flex items-center gap-1">
-            <a href="#features" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">פיצ׳רים</a>
-            <a href="#how" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">איך זה עובד</a>
-            <a href="#pricing" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">תוכניות</a>
-            <a href="#faq" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">שאלות</a>
+            {[
+              { href: "#features", label: "פיצ׳רים" },
+              { href: "#how", label: "איך זה עובד" },
+              { href: "#pricing", label: "תוכניות" },
+              { href: "#faq", label: "שאלות" },
+            ].map((l) => (
+              <a key={l.href} href={l.href} className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50/50">{l.label}</a>
+            ))}
           </nav>
           <div className="flex items-center gap-2.5">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600">התחברות</Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm" className="rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all">התחל בחינם</Button>
-            </Link>
+            <Link href="/login"><Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600">התחברות</Button></Link>
+            <Link href="/signup"><Button size="sm" className="rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">התחל בחינם</Button></Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
+      {/* ───── Hero ───── */}
       <section className="relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-to-b from-blue-100/50 via-indigo-50/30 to-transparent rounded-full blur-3xl -z-10" />
-        <div className="absolute top-20 right-0 w-96 h-96 bg-violet-200/20 rounded-full blur-3xl -z-10" />
-        <div className="absolute top-40 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10" />
-
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-to-b from-blue-100/40 via-indigo-50/20 to-transparent rounded-full blur-3xl -z-10" />
         <div className="max-w-6xl mx-auto px-6 pt-32 pb-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6">
-            <Sparkles className="h-4 w-4" />
-            <span>הפלטפורמה #1 לבוטים חכמים לעסקים</span>
+          <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span>🚀 הפלטפורמה #1 לבוטים חכמים לעסקים</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
-            בוט AI שעונה
+            הפוך את השירות
             <br />
-            <span className="gradient-text">ללקוחות שלך 24/7</span>
+            <span className="gradient-text">לאוטומטי ✨ חכם</span>
           </h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            צור בוט בדקות, חבר לוואטסאפ ואימייל, והבוט עונה בשמך —
-            מותאם אישית לעסק שלך, בלי שורת קוד אחת.
+            בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
+            ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
           </p>
           <div className="flex items-center justify-center gap-4 mb-6">
             <Link href="/signup">
-              <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all text-lg">
-                צור בוט בחינם
+              <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/20 text-lg">
+                התחל בחינם
                 <ArrowLeft className="h-5 w-5 mr-2" />
               </Button>
             </Link>
             <Link href="#how">
-              <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 flex items-center gap-2">
-                <Play className="h-4 w-4" />
-                ראה איך זה עובד
+              <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 gap-2">
+                <Play className="h-4 w-4" /> ראה איך עובד
               </Button>
             </Link>
           </div>
@@ -96,95 +148,153 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="border-y border-blue-50 py-14 bg-gradient-to-r from-blue-50/30 via-white to-indigo-50/30">
+      <section className="py-14 bg-white border-y border-blue-50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: '500+', label: 'עסקים משתמשים', icon: Users },
-              { value: '50K+', label: 'הודעות בחודש', icon: MessageSquare },
-              { value: '4.9/5', label: 'שביעות רצון ממוצעת', icon: Star },
-              { value: '<2 דק׳', label: 'זמן תגובה ממוצע', icon: Clock },
-            ].map((stat, i) => (
+              { value: "500+", label: "עסקים משתמשים", emoji: "🏢" },
+              { value: "50K+", label: "הודעות בחודש", emoji: "💬" },
+              { value: "4.9/5", label: "שביעות רצון", emoji: "⭐" },
+              { value: "<2 דק׳", label: "זמן תגובה", emoji: "⚡" },
+            ].map((s, i) => (
               <div key={i} className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
-                  <stat.icon className="h-5 w-5 text-blue-500" />
-                </div>
-                <div className="text-3xl font-extrabold gradient-text mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-400">{stat.label}</div>
+                <span className="text-2xl mb-2">{s.emoji}</span>
+                <div className="text-3xl font-extrabold gradient-text mb-1">{s.value}</div>
+                <div className="text-sm text-gray-400">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
+      {/* ───── Features (Rich Cards with Mockups) ───── */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4">
-            <Zap className="h-4 w-4" />
-            פיצ׳רים
+          <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4 shadow-sm">
+            <Sparkles className="h-4 w-4" /> פיצ׳רים
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">הכל מה שהעסק שלך צריך</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            הכל מה שהעסק שלך צריך
+            <span className="gradient-text"> ✦ במקום אחד</span>
+          </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות — אוטומטית, חכם, מותאם</p>
         </div>
 
-        {/* Feature highlight with image */}
-        <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
-          <div className="order-2 md:order-1">
-            <div className="relative rounded-2xl overflow-hidden border border-blue-100 shadow-xl shadow-blue-500/5">
+        {/* Feature Row 1: Big card with mockup + 2 small */}
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">הכי פופולרי</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">בוט שעונה כמוך</h3>
+              <p className="text-gray-500 text-sm mb-4">הבוט לומד את הטון, המדיניות והשאלות הנפוצות. כשלקוח שואל — הבוט עונה בדיוק כמוך.</p>
+              <ChatMockup />
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+                  <BarChart3 className="h-4 w-4 text-white" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">אנליטיקס בזמן אמת</h3>
+              <p className="text-gray-500 text-sm mb-4">ראה מה שואלים, כמה שיחות, ניתוח רגש, ושביעות רצון — הכל בדשבורד אחד.</p>
+              <AnalyticsMockup />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Feature Row 2: 3 cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+            <CardContent className="p-6">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
+                <Bell className="h-4 w-4 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">התראות חכמות</h3>
+              <p className="text-gray-500 text-sm mb-3">קבל התראות בזמן אמת כשלקוח מבקש נציג או כשיש שאלה חדשה.</p>
+              <NotificationMockup />
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+            <CardContent className="p-6">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center mb-3">
+                <Zap className="h-4 w-4 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">AI ב-3 שכבות</h3>
+              <p className="text-gray-500 text-sm mb-3">חיפוש FAQ → תשובה AI → העברה לנציג. הבוט תמיד יודע מה לעשות.</p>
+              <div className="space-y-2">
+                {[
+                  { layer: "FAQ Match", pct: "60%", color: "bg-blue-400" },
+                  { layer: "AI Response", pct: "30%", color: "bg-indigo-400" },
+                  { layer: "Agent Transfer", pct: "10%", color: "bg-violet-400" },
+                ].map((l, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-[10px] text-gray-500 mb-0.5"><span>{l.layer}</span><span>{l.pct}</span></div>
+                    <div className="w-full bg-gray-100 rounded-full h-1.5"><div className={`${l.color} h-1.5 rounded-full`} style={{ width: l.pct }} /></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+            <CardContent className="p-6">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-3">
+                <Globe className="h-4 w-4 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">רב-שפתי</h3>
+              <p className="text-gray-500 text-sm mb-3">הבוט מזהה שפה אוטומטית ועונה בעברית, אנגלית וערבית.</p>
+              <div className="space-y-1.5">
+                {[
+                  { lang: "🇮🇱 עברית", ex: "שלום! איך אפשר לעזור?" },
+                  { lang: "🇬🇧 English", ex: "Hi! How can I help?" },
+                  { lang: "🇸🇦 العربية", ex: "!مرحبا! كيف يمكنني المساعدة" },
+                ].map((l, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg px-3 py-1.5 text-[11px]">
+                    <span className="font-medium text-gray-600">{l.lang}: </span>
+                    <span className="text-gray-400">{l.ex}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Feature Row 3: Full width with phone image */}
+        <div className="grid md:grid-cols-2 gap-8 items-center bg-white rounded-2xl border border-blue-100/60 p-8 md:p-12">
+          <div className="order-2 md:order-1 flex justify-center">
+            <div className="relative w-64 rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
               <Image src="/images/feature.png" alt="WhatsApp Bot" width={896} height={1120} className="w-full h-auto" />
             </div>
           </div>
-          <div className="order-1 md:order-2 space-y-6">
-            <h3 className="text-2xl font-bold text-gray-900">בוט שמדבר כמוך</h3>
-            <p className="text-gray-500 leading-relaxed">
-              הבוט לומד את הטון, המדיניות והשאלות הנפוצות של העסק שלך. כשלקוח שואל שאלה בוואטסאפ — הבוט עונה בדיוק כמו שאתה היית עונה.
-            </p>
-            <ul className="space-y-3">
-              {['תשובות מותאמות אישית לעסק', 'זיהוי שפה אוטומטי', 'העברה לנציג כשצריך', 'זיכרון שיחות ללקוחות חוזרים'].map((item, i) => (
+          <div className="order-1 md:order-2 space-y-5" dir="rtl">
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-3 py-1 text-xs text-green-600">
+              <Smartphone className="h-3 w-3" /> WhatsApp Ready
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">בוט שמדבר כמוך בוואטסאפ</h3>
+            <p className="text-gray-500 leading-relaxed">כשלקוח שולח הודעה בוואטסאפ, הבוט עונה מיד עם תשובה מותאמת אישית — על בסיס ה-FAQ, המדיניות, והטון שלך.</p>
+            <ul className="space-y-2.5">
+              {["תשובות מותאמות אישית לעסק", "זיכרון שיחות ללקוחות חוזרים", "העברה לנציג בלחיצה", "ניתוח רגש בזמן אמת"].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm">
-                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                    <Check className="h-3 w-3 text-blue-600" />
-                  </div>
+                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0"><Check className="h-3 w-3 text-blue-600" /></div>
                   <span className="text-gray-600">{item}</span>
                 </li>
               ))}
             </ul>
-            <Link href="/signup">
-              <Button className="gradient-primary border-0 shadow-md shadow-blue-500/25 mt-2">
-                נסה בחינם
-                <ArrowLeft className="h-4 w-4 mr-1" />
-              </Button>
-            </Link>
           </div>
-        </div>
-
-        {/* Feature cards */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { icon: MessageSquare, title: "בוט וואטסאפ", description: "הבוט עונה ללקוחות בוואטסאפ באופן אוטומטי, מותאם לעסק שלך", gradient: "from-blue-500 to-blue-600" },
-            { icon: Mail, title: "בוט אימייל", description: "תשובות אוטומטיות למיילים של לקוחות עם תוכן מותאם אישית", gradient: "from-indigo-500 to-indigo-600" },
-            { icon: BarChart3, title: "דשבורד וניתוח", description: "ראה מה שואלים, כמה שיחות, שביעות רצון וסיכומים אוטומטיים", gradient: "from-violet-500 to-violet-600" },
-            { icon: Shield, title: "מדיניות ו-FAQ", description: "הגדר שאלות נפוצות ומדיניות העסק והבוט ישתמש בהם לתשובות", gradient: "from-blue-600 to-indigo-500" },
-            { icon: Zap, title: "AI חכם ב-3 שכבות", description: "חיפוש FAQ, תשובה מבוססת AI, והעברה לנציג — הכל אוטומטי", gradient: "from-indigo-500 to-violet-500" },
-            { icon: Globe, title: "רב-שפתי", description: "הבוט מזהה את השפה ועונה בעברית, אנגלית וערבית אוטומטית", gradient: "from-violet-500 to-blue-500" },
-          ].map((feature, i) => (
-            <Card key={i} className="group border border-gray-100 shadow-none hover:border-blue-200 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <feature.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how" className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 gradient-primary-soft -z-10" />
+      {/* ───── How It Works (Numbered Steps) ───── */}
+      <section id="how" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">איך זה עובד?</h2>
@@ -192,92 +302,78 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "הירשם והגדר", description: "מלא את פרטי העסק, שאלות נפוצות ומדיניות דרך אשף פשוט. ה-AI יכול גם ליצור FAQ אוטומטית מהאתר שלך.", color: "from-blue-500 to-blue-600" },
-              { step: "02", title: "הבוט לומד", description: "ה-AI לומד את העסק שלך — את הטון, המדיניות, והתשובות. תוך דקות הוא מוכן לענות.", color: "from-indigo-500 to-indigo-600" },
-              { step: "03", title: "חבר ערוצים", description: "חבר וואטסאפ, אימייל, או שים צ׳אט באתר. הבוט מתחיל לעבוד 24/7.", color: "from-violet-500 to-violet-600" }
-            ].map((item, i) => (
-              <div key={i} className="bg-white rounded-2xl p-8 border border-blue-100/60 shadow-sm hover:shadow-lg hover:shadow-blue-500/5 transition-all">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-5 shadow-lg shadow-blue-500/20`}>
-                  <span className="text-lg font-bold text-white">{item.step}</span>
+              { step: "01", title: "הירשם והגדר", desc: "מלא פרטי עסק, FAQ ומדיניות דרך אשף פשוט. ה-AI גם יכול ליצור FAQ אוטומטית מהאתר שלך.", icon: "📝", color: "from-blue-500 to-blue-600" },
+              { step: "02", title: "הבוט לומד", desc: "ה-AI לומד את העסק שלך — הטון, המדיניות, והתשובות. תוך דקות הוא מוכן.", icon: "🤖", color: "from-indigo-500 to-indigo-600" },
+              { step: "03", title: "חבר ותתחיל", desc: "חבר וואטסאפ, אימייל, או צ׳אט באתר. הבוט מתחיל לעבוד 24/7.", icon: "🚀", color: "from-violet-500 to-violet-600" },
+            ].map((s, i) => (
+              <div key={i} className="relative bg-[#f8fafd] rounded-2xl p-8 border border-blue-100/60">
+                <div className={`absolute -top-5 right-6 w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-lg shadow-blue-500/20`}>
+                  <span className="text-sm font-bold text-white">{s.step}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{item.description}</p>
+                <div className="text-3xl mb-4 mt-2">{s.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">מה אומרים הלקוחות</h2>
-          <p className="text-gray-500 text-lg">עסקים שכבר משתמשים ב-BotPress AI</p>
+      {/* ───── Comparison Table ───── */}
+      <section className="max-w-4xl mx-auto px-6 py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            למה BotPress AI מנצח
+            <span className="gradient-text"> ✦ כל מתחרה</span>
+          </h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-2xl border border-blue-100/60 overflow-hidden">
+          <div className="grid grid-cols-3 text-center text-sm font-medium border-b border-blue-50 bg-blue-50/50">
+            <div className="p-4 text-gray-500">פיצ׳ר</div>
+            <div className="p-4 gradient-text font-bold">BotPress AI</div>
+            <div className="p-4 text-gray-400">אחרים</div>
+          </div>
           {[
-            { name: 'דנה כהן', role: 'חנות פרחים', text: 'הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות על משלוחים ושעות פעילות, ואני יכולה להתמקד בעבודה.', stars: 5 },
-            { name: 'יוסי לוי', role: 'מסעדה', text: 'מאז שחיברנו את הבוט, 80% מהשאלות נענות אוטומטית. צמצמנו את הצורך בנציג טלפוני.', stars: 5 },
-            { name: 'מיכל אברהם', role: 'חנות אונליין', text: 'ההגדרה הייתה קלה מאוד. תוך 10 דקות היה לי בוט שעונה על שאלות לגבי החזרות ומשלוחים.', stars: 5 },
-          ].map((t, i) => (
-            <Card key={i} className="border-blue-100/60 shadow-none hover:shadow-lg hover:shadow-blue-500/5 transition-all">
-              <CardContent className="p-6">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: t.stars }).map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <Quote className="h-6 w-6 text-blue-200 mb-2" />
-                <p className="text-gray-600 text-sm leading-relaxed mb-4">{t.text}</p>
-                <div className="border-t border-blue-50 pt-4">
-                  <p className="font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs text-gray-400">{t.role}</p>
-                </div>
-              </CardContent>
-            </Card>
+            { feature: "הקמה ב-5 דקות", us: true, them: false },
+            { feature: "AI ב-3 שכבות", us: true, them: false },
+            { feature: "תמיכה בעברית", us: true, them: false },
+            { feature: "זיכרון שיחות", us: true, them: false },
+            { feature: "ניתוח רגש", us: true, them: false },
+            { feature: "White Label", us: true, them: true },
+            { feature: "תוכנית חינם", us: true, them: false },
+          ].map((row, i) => (
+            <div key={i} className={`grid grid-cols-3 text-center text-sm border-b border-blue-50 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-blue-50/20"}`}>
+              <div className="p-3.5 text-gray-600 text-right pr-6">{row.feature}</div>
+              <div className="p-3.5"><Check className={`h-5 w-5 mx-auto ${row.us ? "text-blue-500" : "text-gray-300"}`} /></div>
+              <div className="p-3.5">{row.them ? <Check className="h-5 w-5 mx-auto text-gray-300" /> : <X className="h-5 w-5 mx-auto text-gray-300" />}</div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 gradient-primary-soft -z-10" />
+      {/* ───── Testimonials ───── */}
+      <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
-            <p className="text-gray-500 text-lg">התחל בחינם, שדרג כשהעסק גדל</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">מה אומרים הלקוחות</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: 'חינם', price: '0', features: ['100 הודעות/חודש', 'ערוץ אחד', 'FAQ + AI בסיסי', 'דשבורד בסיסי'] },
-              { name: 'בסיסי', price: '99', popular: true, features: ['1,000 הודעות/חודש', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים'] },
-              { name: 'פרימיום', price: '299', features: ['הודעות ללא הגבלה', 'כל הערוצים', 'White Label', 'תמיכה מועדפת', 'AI מתקדם + זיכרון'] },
-            ].map((plan, i) => (
-              <Card key={i} className={`shadow-none relative transition-all duration-300 hover:shadow-lg bg-white ${plan.popular ? 'border-2 border-blue-500 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 scale-[1.02]' : 'border-gray-100 hover:border-blue-200 hover:shadow-blue-500/5'}`}>
-                {plan.popular && (
-                  <div className="absolute -top-3 right-4">
-                    <span className="gradient-primary text-white text-xs px-3 py-1 rounded-full shadow-md shadow-blue-500/25">הכי פופולרי</span>
-                  </div>
-                )}
+              { name: "דנה כהן", role: "חנות פרחים", text: "הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות ואני יכולה להתמקד בעבודה.", avatar: "🌸" },
+              { name: "יוסי לוי", role: "מסעדה", text: "מאז שחיברנו את הבוט, 80% מהשאלות נענות אוטומטית. צמצמנו את הצורך בנציג.", avatar: "🍕" },
+              { name: "מיכל אברהם", role: "חנות אונליין", text: "ההגדרה הייתה קלה מאוד. תוך 10 דקות היה לי בוט שעונה על שאלות.", avatar: "🛍️" },
+            ].map((t, i) => (
+              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className={`text-4xl font-extrabold ${plan.popular ? 'gradient-text' : ''}`}>{plan.price === '0' ? 'חינם' : `₪${plan.price}`}</span>
-                    {plan.price !== '0' && <span className="text-gray-400 text-sm">/חודש</span>}
+                  <div className="flex gap-0.5 mb-4">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-3 border-t border-blue-50 pt-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-lg">{t.avatar}</div>
+                    <div>
+                      <p className="font-semibold text-sm">{t.name}</p>
+                      <p className="text-xs text-gray-400">{t.role}</p>
+                    </div>
                   </div>
-                  <ul className="space-y-2.5 mb-6">
-                    {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-center gap-2 text-sm text-gray-600">
-                        <Check className="h-4 w-4 text-blue-500 shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/signup">
-                    <Button className={`w-full ${plan.popular ? 'gradient-primary border-0 shadow-md shadow-blue-500/25' : ''}`} variant={plan.popular ? 'default' : 'outline'}>
-                      {plan.price === '0' ? 'התחל בחינם' : 'שדרג עכשיו'}
-                    </Button>
-                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -285,41 +381,70 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="max-w-3xl mx-auto px-6 py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">שאלות נפוצות</h2>
-          <p className="text-gray-500 text-lg">תשובות לשאלות שנשאלות הכי הרבה</p>
+      {/* ───── Pricing ───── */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
+          <p className="text-gray-500 text-lg">התחל בחינם, שדרג כשהעסק גדל</p>
         </div>
-        <div className="space-y-3">
-          <FAQItem q="האם צריך ידע טכני כדי להשתמש?" a="בכלל לא! המערכת בנויה לבעלי עסקים ללא רקע טכני. אשף ההגדרה מנחה אותך צעד אחרי צעד, ותוך 5 דקות הבוט שלך מוכן." />
-          <FAQItem q="איך הבוט יודע לענות על שאלות?" a="הבוט משתמש ב-3 שכבות: קודם מחפש בשאלות הנפוצות שהגדרת, אחר כך משתמש ב-AI עם כל המידע על העסק שלך, ואם עדיין לא מצליח — מעביר לנציג אנושי." />
-          <FAQItem q="אפשר לבדוק לפני שמחברים לוואטסאפ?" a="בהחלט! יש סימולטור מובנה שמאפשר לך לשלוח הודעות לבוט ולראות בדיוק איך הוא עונה, כולל מאיזו שכבה הגיעה התשובה." />
-          <FAQItem q="כמה עולה?" a="יש תוכנית חינמית עם 100 הודעות בחודש, מספיק כדי להתחיל ולבדוק. תוכניות משודרגות מתחילות מ-99₪ לחודש." />
-          <FAQItem q="באילו שפות הבוט תומך?" a="הבוט מזהה אוטומטית את שפת הלקוח ועונה באותה שפה. כרגע תומך בעברית, אנגלית וערבית." />
-          <FAQItem q="מה קורה כשהבוט לא יודע לענות?" a="הבוט מעביר את השיחה לנציג אנושי ומודיע לך בזמן אמת. אתה יכול לענות ישירות מהדשבורד." />
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { name: "חינם", price: "0", features: ["100 הודעות/חודש", "ערוץ אחד", "FAQ + AI בסיסי", "דשבורד בסיסי"] },
+            { name: "בסיסי", price: "99", popular: true, features: ["1,000 הודעות/חודש", "כל הערוצים", "AI מתקדם + זיכרון", "אנליטיקס מלא", "סיכומים אוטומטיים"] },
+            { name: "פרימיום", price: "299", features: ["הודעות ללא הגבלה", "כל הערוצים", "White Label", "תמיכה מועדפת", "AI מתקדם + זיכרון"] },
+          ].map((plan, i) => (
+            <Card key={i} className={`shadow-none relative bg-white transition-all duration-300 hover:shadow-lg ${plan.popular ? "border-2 border-blue-500 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 scale-[1.02]" : "border-blue-100/60 hover:border-blue-200"}`}>
+              {plan.popular && <div className="absolute -top-3 right-4"><span className="gradient-primary text-white text-xs px-3 py-1 rounded-full shadow-md shadow-blue-500/25">הכי פופולרי 🔥</span></div>}
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
+                <div className="mb-4">
+                  <span className={`text-4xl font-extrabold ${plan.popular ? "gradient-text" : ""}`}>{plan.price === "0" ? "חינם" : `₪${plan.price}`}</span>
+                  {plan.price !== "0" && <span className="text-gray-400 text-sm">/חודש</span>}
+                </div>
+                <ul className="space-y-2.5 mb-6">{plan.features.map((f, j) => <li key={j} className="flex items-center gap-2 text-sm text-gray-600"><Check className="h-4 w-4 text-blue-500 shrink-0" />{f}</li>)}</ul>
+                <Link href="/signup"><Button className={`w-full ${plan.popular ? "gradient-primary border-0 shadow-md shadow-blue-500/25" : ""}`} variant={plan.popular ? "default" : "outline"}>{plan.price === "0" ? "התחל בחינם" : "שדרג עכשיו"}</Button></Link>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* ───── FAQ ───── */}
+      <section id="faq" className="py-24 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              שאלות <span className="gradient-text">✦ נפוצות</span>
+            </h2>
+          </div>
+          <div className="space-y-3">
+            <FAQItem q="האם צריך ידע טכני?" a="בכלל לא! אשף ההגדרה מנחה אותך צעד אחרי צעד, ותוך 5 דקות הבוט מוכן." />
+            <FAQItem q="איך הבוט יודע לענות?" a="3 שכבות: קודם FAQ, אחר כך AI עם כל המידע על העסק, ואם לא מצליח — מעביר לנציג." />
+            <FAQItem q="אפשר לבדוק לפני שמחברים?" a="יש סימולטור מובנה — שלח הודעות וראה איך הבוט עונה, כולל מאיזו שכבה." />
+            <FAQItem q="כמה עולה?" a="יש תוכנית חינם עם 100 הודעות. תוכניות משודרגות מ-99₪/חודש." />
+            <FAQItem q="באילו שפות הבוט תומך?" a="עברית, אנגלית וערבית — הבוט מזהה אוטומטית ועונה באותה שפה." />
+            <FAQItem q="מה כשהבוט לא יודע?" a="מעביר לנציג ומודיע לך בזמן אמת. אתה עונה ישירות מהדשבורד." />
+          </div>
+        </div>
+      </section>
+
+      {/* ───── CTA ───── */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="relative rounded-3xl overflow-hidden p-12 md:p-16 text-center">
           <div className="absolute inset-0 gradient-primary -z-10" />
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl -z-[5]" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl -z-[5]" />
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">מוכן לתת ללקוחות שלך שירות 24/7?</h2>
-          <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום עם BotPress AI</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">מוכן לשדרג את השירות? 🚀</h2>
+          <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום</p>
           <Link href="/signup">
             <Button size="lg" className="text-base px-10 py-7 bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg text-lg font-semibold">
-              התחל עכשיו בחינם
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              התחל עכשיו בחינם <ArrowLeft className="h-5 w-5 mr-2" />
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-blue-50 py-12">
+      {/* ───── Footer ───── */}
+      <footer className="border-t border-blue-50 py-12 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
@@ -329,33 +454,11 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">בוטים חכמים מבוססי AI לעסקים. תשובות מיידיות, 24/7.</p>
             </div>
-            <div>
-              <h4 className="font-medium text-sm mb-3">מוצר</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#features" className="hover:text-blue-500 transition-colors">פיצ׳רים</a></li>
-                <li><a href="#pricing" className="hover:text-blue-500 transition-colors">מחירים</a></li>
-                <li><a href="#faq" className="hover:text-blue-500 transition-colors">שאלות נפוצות</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-sm mb-3">חברה</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><span className="hover:text-blue-500 transition-colors cursor-pointer">אודות</span></li>
-                <li><span className="hover:text-blue-500 transition-colors cursor-pointer">בלוג</span></li>
-                <li><span className="hover:text-blue-500 transition-colors cursor-pointer">צור קשר</span></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-sm mb-3">משפטי</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><span className="hover:text-blue-500 transition-colors cursor-pointer">תנאי שימוש</span></li>
-                <li><span className="hover:text-blue-500 transition-colors cursor-pointer">פרטיות</span></li>
-              </ul>
-            </div>
+            <div><h4 className="font-medium text-sm mb-3">מוצר</h4><ul className="space-y-2 text-sm text-gray-400"><li><a href="#features" className="hover:text-blue-500">פיצ׳רים</a></li><li><a href="#pricing" className="hover:text-blue-500">מחירים</a></li><li><a href="#faq" className="hover:text-blue-500">שאלות נפוצות</a></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">חברה</h4><ul className="space-y-2 text-sm text-gray-400"><li><span className="cursor-pointer hover:text-blue-500">אודות</span></li><li><span className="cursor-pointer hover:text-blue-500">בלוג</span></li><li><span className="cursor-pointer hover:text-blue-500">צור קשר</span></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">משפטי</h4><ul className="space-y-2 text-sm text-gray-400"><li><span className="cursor-pointer hover:text-blue-500">תנאי שימוש</span></li><li><span className="cursor-pointer hover:text-blue-500">פרטיות</span></li></ul></div>
           </div>
-          <div className="border-t border-blue-50 pt-6 text-center text-sm text-gray-400">
-            © 2026 BotPress AI. כל הזכויות שמורות.
-          </div>
+          <div className="border-t border-blue-50 pt-6 text-center text-sm text-gray-400">© 2026 BotPress AI. כל הזכויות שמורות.</div>
         </div>
       </footer>
     </div>
