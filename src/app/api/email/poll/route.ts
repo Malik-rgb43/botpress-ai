@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import { sendMessage } from '@/services/channel-service'
 import type { AIContext } from '@/services/ai-engine'
@@ -141,14 +141,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
-    // Get all businesses with Gmail connected
-    const { data: businesses } = await supabase
-      .from('businesses')
-      .select('*')
+    // Get Gmail-connected businesses via SECURITY DEFINER function (bypasses RLS)
+    const { data: rpcData } = await supabase.rpc('get_gmail_businesses')
+    let connectedBusinesses = (rpcData || []).filter((b: Record<string, unknown>) => {
+      const info = b.contact_info as Record<string, unknown> | null
+      return info?.gmail_refresh_token
+    })
 
-    const connectedBusinesses = businesses?.filter(b => b.contact_info?.gmail_connected && b.contact_info?.gmail_refresh_token) || []
+    // Fallback to direct query if RPC returns nothing
+    if (connectedBusinesses.length === 0) {
+      const { data: allBiz } = await supabase.from('businesses').select('*')
+      connectedBusinesses = (allBiz || []).filter((b: Record<string, unknown>) => {
+        const info = b.contact_info as Record<string, unknown> | null
+        return info?.gmail_connected && info?.gmail_refresh_token
+      })
+    }
 
     if (connectedBusinesses.length === 0) {
       return NextResponse.json({ message: 'No connected businesses', processed: 0 })
