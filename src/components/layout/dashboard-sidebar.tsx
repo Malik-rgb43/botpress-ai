@@ -38,11 +38,11 @@ export default function DashboardSidebar() {
   const { signOut } = useAuth()
 
   return (
-    <aside className="w-64 bg-white border-l border-gray-100 flex flex-col h-screen sticky top-0">
+    <aside className="w-64 bg-white border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
       {/* Logo */}
-      <div className="p-4 border-b border-gray-100">
+      <div className="p-4 border-b border-blue-100/60">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Bot className="h-7 w-7" />
+          <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center"><Bot className="h-5 w-5 text-white" /></div>
           <span className="text-lg font-bold">BotPress AI</span>
         </Link>
       </div>
@@ -59,8 +59,8 @@ export default function DashboardSidebar() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 isActive
-                  ? 'bg-gray-100 text-black font-medium'
-                  : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                  ? 'bg-blue-50 text-blue-600 font-medium'
+                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
               )}
             >
               <item.icon className="h-4 w-4 shrink-0" />
@@ -71,12 +71,12 @@ export default function DashboardSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-100">
+      <div className="p-3 border-t border-blue-100/60">
         <Button
           variant="ghost"
           size="sm"
           onClick={signOut}
-          className="w-full justify-start text-gray-500 hover:text-black"
+          className="w-full justify-start text-gray-500 hover:text-blue-600"
         >
           <LogOut className="h-4 w-4 ml-2" />
           התנתק

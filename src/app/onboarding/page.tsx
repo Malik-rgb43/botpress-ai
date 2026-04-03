@@ -180,7 +180,9 @@ export default function OnboardingPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-2">
-          <Bot className="h-6 w-6" />
+          <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+            <Bot className="h-5 w-5 text-white" />
+          </div>
           <span className="font-bold">BotPress AI</span>
           <span className="text-gray-300 mx-2">|</span>
           <span className="text-gray-500 text-sm">הגדרת העסק שלך</span>
@@ -195,7 +197,7 @@ export default function OnboardingPage() {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   step >= s.number
-                    ? 'bg-black text-white'
+                    ? 'gradient-primary text-white'
                     : 'bg-gray-200 text-gray-400'
                 }`}
               >
@@ -209,7 +211,7 @@ export default function OnboardingPage() {
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1 mt-4">
           <div
-            className="bg-black h-1 rounded-full transition-all"
+            className="gradient-primary h-1 rounded-full transition-all"
             style={{ width: `${((step) / 7) * 100}%` }}
           />
         </div>
@@ -235,11 +237,11 @@ export default function OnboardingPage() {
             הקודם
           </Button>
           {step < 7 ? (
-            <Button onClick={() => setStep(s => s + 1)}>
+            <Button onClick={() => setStep(s => s + 1)} className="gradient-primary border-0">
               הבא
             </Button>
           ) : (
-            <Button onClick={handleFinish} disabled={saving}>
+            <Button onClick={handleFinish} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
               {saving ? 'שומר...' : 'סיים והתחל'}
             </Button>
           )}
