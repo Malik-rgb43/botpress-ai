@@ -17,8 +17,10 @@ import {
   Bot,
   LogOut,
   Users,
+  Sparkles,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 
 const NAV_ITEMS = [
@@ -37,6 +39,7 @@ const NAV_ITEMS = [
 export default function DashboardSidebar() {
   const pathname = usePathname()
   const { signOut } = useAuth()
+  const { business, loading: bizLoading } = useBusiness()
 
   return (
     <aside className="w-64 bg-white border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
@@ -70,6 +73,18 @@ export default function DashboardSidebar() {
           )
         })}
       </nav>
+
+      {/* Setup CTA */}
+      {!bizLoading && !business && (
+        <div className="px-3 pb-3">
+          <Link href="/onboarding">
+            <Button className="w-full gradient-animated border-0 text-white shadow-md shadow-blue-500/20 text-sm">
+              <Sparkles className="h-4 w-4 ml-1" />
+              הגדר את העסק שלך
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="p-3 border-t border-blue-100/60">

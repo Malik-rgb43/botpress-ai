@@ -59,11 +59,33 @@ export default function DashboardOverview() {
 
   return (
     <div>
+      {/* Welcome banner for new users */}
+      {!business && (
+        <div className="mb-8 relative rounded-2xl overflow-hidden p-8">
+          <div className="absolute inset-0 gradient-animated opacity-[0.08] -z-10" />
+          <div className="absolute inset-0 mesh-gradient -z-10" />
+          <h1 className="text-2xl font-bold mb-2">ברוכים הבאים ל-BotPress AI! 🚀</h1>
+          <p className="text-gray-600 mb-4 max-w-lg">
+            הפלטפורמה שעוזרת לך לשפר את חוויית הלקוח עם בוט AI חכם.
+            הבוט עונה ללקוחות 24/7, מטפל בשאלות נפוצות, ומעביר לנציג כשצריך —
+            כדי שאתה תוכל להתמקד בעסק.
+          </p>
+          <Link href="/onboarding">
+            <Button className="gradient-primary border-0 shadow-md shadow-blue-500/20">
+              <Sparkles className="h-4 w-4 ml-1" />
+              התחל להגדיר את הבוט שלך
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">{business?.name ? `שלום, ${business.name}` : 'שלום'} 👋</h1>
-        <p className="text-gray-500 mt-1">הנה סקירה מהירה של הפעילות</p>
-      </div>
+      {business && (
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">שלום, {business.name} 👋</h1>
+          <p className="text-gray-500 mt-1">הנה סקירה מהירה של הפעילות</p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
