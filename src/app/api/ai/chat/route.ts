@@ -90,10 +90,9 @@ export async function POST(request: NextRequest) {
       { role: 'user' as const, content: message },
     ]
 
-    // Call OpenAI
-    const apiKey = process.env.OPENAI_API_KEY
+    // Call Gemini AI
+    const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      // Fallback if no API key
       return NextResponse.json({
         content: templates.no_answer || 'מצטער, לא הצלחתי למצוא תשובה. אעביר אותך לנציג.',
         layer: 'transfer',
@@ -103,21 +102,44 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages,
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    })
+    // Convert messages to Gemini format
+    const geminiContents = []
+
+    // System instruction is separate in Gemini
+    const systemInstruction = systemPrompt
+
+    // Add conversation history + current message
+    for (const m of [...safeHistory, { role: 'user', content: message }]) {
+      geminiContents.push({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      })
+    }
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
+
+    const aiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemInstruction }] },
+          contents: geminiContents,
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 500,
+          },
+        }),
+      }
+    )
+
+    clearTimeout(timeout)
 
     if (!aiRes.ok) {
+      console.error('Gemini API error:', aiRes.status, await aiRes.text().catch(() => ''))
       return NextResponse.json({
         content: templates.no_answer || 'מצטער, אירעה שגיאה. אעביר אותך לנציג.',
         layer: 'transfer',
@@ -128,7 +150,7 @@ export async function POST(request: NextRequest) {
     }
 
     const aiData = await aiRes.json()
-    const aiContent = aiData.choices?.[0]?.message?.content
+    const aiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text
 
     if (!aiContent) {
       return NextResponse.json({

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Private URLs not allowed' }, { status: 400 })
     }
 
-    const apiKey = process.env.OPENAI_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
       return NextResponse.json({ error: 'AI not configured' }, { status: 500 })
     }
@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
     try {
       const res = await fetch(url, { headers: { 'User-Agent': 'BotPressAI/1.0' } })
       const html = await res.text()
-      // Simple HTML strip
       websiteContent = html
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -54,25 +53,25 @@ ${websiteContent}
 
 Return ONLY valid JSON array, no markdown, no explanation.`
 
-    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-      }),
-    })
+    const aiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
+        }),
+      }
+    )
 
     if (!aiRes.ok) {
+      console.error('Gemini FAQ error:', aiRes.status)
       return NextResponse.json({ error: 'AI generation failed' }, { status: 500 })
     }
 
     const data = await aiRes.json()
-    const content = data.choices?.[0]?.message?.content || '[]'
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
 
     // Parse JSON from response
     let faqs
