@@ -58,12 +58,14 @@ export async function POST(request: NextRequest) {
 
     const accessToken = tokens.access_token
 
-    // Get unread emails
+    // Get unread emails — simple filter, just exclude obvious bots
+    const q = encodeURIComponent('is:unread in:inbox -from:me -from:noreply -from:no-reply -from:mailer-daemon')
     const searchRes = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread -from:me -from:noreply -from:no-reply&maxResults=3`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${q}&maxResults=3`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     )
     const searchData = await searchRes.json()
+    console.log('Push: found', searchData.messages?.length || 0, 'unread emails')
 
     if (!searchData.messages || searchData.messages.length === 0) {
       return NextResponse.json({ status: 'no unread' })
@@ -92,7 +94,12 @@ export async function POST(request: NextRequest) {
       const from = headers.find((h: { name: string }) => h.name === 'From')?.value || ''
       const subject = headers.find((h: { name: string }) => h.name === 'Subject')?.value || ''
 
-      if (from.includes('noreply') || from.includes('no-reply') || from.includes('mailer-daemon')) continue
+      console.log('Push: processing email from', from.substring(0, 40), 'subject:', subject.substring(0, 30))
+
+      if (from.includes('noreply') || from.includes('no-reply') || from.includes('mailer-daemon')) {
+        console.log('Push: skipping noreply email')
+        continue
+      }
 
       // Extract body
       let emailBody = ''
@@ -152,6 +159,8 @@ export async function POST(request: NextRequest) {
       )
 
       if (!aiRes.ok) {
+        const errText = await aiRes.text().catch(() => '')
+        console.error('Push: Gemini error', aiRes.status, errText.substring(0, 200))
         await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}/modify`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -162,7 +171,11 @@ export async function POST(request: NextRequest) {
 
       const aiData = await aiRes.json()
       const aiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text
-      if (!aiContent) continue
+      if (!aiContent) {
+        console.log('Push: no AI content, skipping')
+        continue
+      }
+      console.log('Push: AI responded, length:', aiContent.length, 'escalate:', aiContent.startsWith('ESCALATE'))
 
       const needsEscalation = aiContent.trim().startsWith('ESCALATE')
 
