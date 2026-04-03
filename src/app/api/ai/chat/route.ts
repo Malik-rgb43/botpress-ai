@@ -43,11 +43,11 @@ export async function POST(request: NextRequest) {
     const templates: Record<string, string> = {}
     tmpRes.data?.forEach(t => { templates[t.type] = t.content })
 
-    // Layer 0: Intent + Sentiment
+    // Detect intent + sentiment (for metadata only)
     const intent = detectIntent(message)
     const sentiment = detectSentiment(message)
 
-    // Direct agent request
+    // Only auto-handle explicit agent requests
     if (intent === 'agent_request') {
       return NextResponse.json({
         content: templates.transfer || 'מעביר אותך לנציג שירות.',
@@ -58,19 +58,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Layer 1: FAQ Match
-    const faqMatch = findFAQMatch(message, faqRes.data || [])
-    if (faqMatch && faqMatch.score > 0.6) {
-      return NextResponse.json({
-        content: faqMatch.faq.answer,
-        layer: 'faq',
-        intent,
-        sentiment,
-        confidence: faqMatch.score,
-      })
-    }
-
-    // Layer 2: AI Generated Response
+    // ALL messages go through AI — Gemini decides the best answer
+    // using FAQ + policies + business info as context
     const context: AIContext = {
       business: bizRes.data,
       faqs: faqRes.data || [],

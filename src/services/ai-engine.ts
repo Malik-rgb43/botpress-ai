@@ -46,27 +46,53 @@ export function detectSentiment(message: string): 'positive' | 'neutral' | 'nega
   return 'neutral'
 }
 
-// Layer 1: FAQ Match
+// Hebrew/English stopwords to ignore in FAQ matching
+const STOPWORDS = new Set([
+  // Hebrew
+  'את', 'של', 'על', 'עם', 'מה', 'איך', 'כמה', 'זה', 'היא', 'הוא',
+  'אני', 'לי', 'שלי', 'אתם', 'הם', 'יש', 'אין', 'גם', 'רק', 'כל',
+  'לא', 'כן', 'או', 'אם', 'עוד', 'כבר', 'היה', 'הזה', 'הזאת', 'אותו',
+  'אותה', 'שאני', 'רוצה', 'צריך', 'יכול', 'אפשר', 'בבקשה', 'תודה',
+  'שלום', 'היי', 'לשאול', 'להגיד', 'לדעת',
+  // English
+  'the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but',
+  'in', 'to', 'for', 'of', 'with', 'how', 'what', 'when', 'where',
+  'can', 'do', 'does', 'your', 'you', 'my', 'this', 'that',
+])
+
+// Layer 1: FAQ Match — improved with stopword filtering and stricter scoring
 export function findFAQMatch(message: string, faqs: FAQ[]): { faq: FAQ; score: number } | null {
   if (faqs.length === 0) return null
 
   const lower = message.toLowerCase()
+  const messageWords = lower.split(/\s+/).filter(w => w.length > 1 && !STOPWORDS.has(w))
+
+  // If after removing stopwords there are no meaningful words, skip FAQ match
+  if (messageWords.length === 0) return null
+
   let bestMatch: { faq: FAQ; score: number } | null = null
 
   for (const faq of faqs) {
     const qLower = faq.question.toLowerCase()
-    const words = qLower.split(/\s+/).filter(w => w.length > 2)
-    const messageWords = lower.split(/\s+/)
+    const faqWords = qLower.split(/\s+/).filter(w => w.length > 2 && !STOPWORDS.has(w))
+
+    if (faqWords.length === 0) continue
 
     let matchCount = 0
-    for (const word of words) {
-      if (messageWords.some(mw => mw.includes(word) || word.includes(mw))) {
+    for (const faqWord of faqWords) {
+      // Require exact word match or very close match (not substring)
+      if (messageWords.some(mw => mw === faqWord || (mw.length > 4 && faqWord.length > 4 && (mw.startsWith(faqWord) || faqWord.startsWith(mw))))) {
         matchCount++
       }
     }
 
-    const score = words.length > 0 ? matchCount / words.length : 0
-    if (score > 0.5 && (!bestMatch || score > bestMatch.score)) {
+    // Score based on matched FAQ words AND coverage of message words
+    const faqCoverage = faqWords.length > 0 ? matchCount / faqWords.length : 0
+    const msgCoverage = messageWords.length > 0 ? matchCount / messageWords.length : 0
+    const score = (faqCoverage + msgCoverage) / 2 // Average of both directions
+
+    // Higher threshold: 0.7 for confident FAQ match
+    if (score > 0.7 && matchCount >= 2 && (!bestMatch || score > bestMatch.score)) {
       bestMatch = { faq, score }
     }
   }
@@ -109,12 +135,15 @@ ${business.story || 'לא סופק מידע נוסף'}
     })
   }
 
-  prompt += `\nהנחיות:
-- ענה רק על בסיס המידע שיש לך על העסק
-- אם אתה לא בטוח בתשובה, אמור שאתה מעביר לנציג
-- אם הלקוח מבקש נציג, העבר מיד
-- ענה בשפה שבה הלקוח פנה
-- תשובות קצרות וממוקדות`
+  prompt += `\nהנחיות חשובות:
+- קרא היטב את שאלת הלקוח והבן מה הוא באמת שואל לפני שאתה עונה
+- השתמש בשאלות הנפוצות ובמדיניות רק כשהן באמת רלוונטיות לשאלה
+- אם השאלה לא קשורה לאף FAQ או מדיניות, ענה על בסיס הידע הכללי שלך על העסק
+- אם אתה לא בטוח בתשובה או שהשאלה מחוץ לתחום העסק, אמור שאתה מעביר לנציג
+- ענה בשפה שבה הלקוח פנה (עברית, אנגלית, או ערבית)
+- תשובות קצרות, ממוקדות וידידותיות
+- אל תמציא מידע שלא קיים בנתונים שקיבלת
+- אל תענה על שאלות שלא קשורות לעסק`
 
   return prompt
 }
