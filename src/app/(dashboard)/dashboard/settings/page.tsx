@@ -72,14 +72,14 @@ export default function SettingsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">הגדרות</h1>
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
           שמור
         </Button>
       </div>
 
       <div className="space-y-6">
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-lg">פרטי העסק</CardTitle>
           </CardHeader>
@@ -113,7 +113,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-lg">סיכומים אוטומטיים</CardTitle>
             <CardDescription>קבל סיכומים תקופתיים על פעילות הבוט במייל</CardDescription>
@@ -145,7 +145,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-lg">ערוצים</CardTitle>
             <CardDescription>חבר את הבוט לערוצי תקשורת</CardDescription>

@@ -71,14 +71,14 @@ export default function TemplatesPage() {
           <h1 className="text-2xl font-bold">טון דיבור ותבניות</h1>
           <p className="text-gray-500 text-sm mt-1">קבע איך הבוט מדבר ומה הוא אומר</p>
         </div>
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
           שמור שינויים
         </Button>
       </div>
 
       <div className="space-y-6">
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-lg">טון דיבור</CardTitle>
             <CardDescription>בחר איך הבוט ידבר עם הלקוחות</CardDescription>
@@ -90,7 +90,7 @@ export default function TemplatesPage() {
                   key={t.value}
                   onClick={() => setTone(t.value)}
                   className={`p-3 rounded-lg border text-center transition-colors ${
-                    tone === t.value ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-200'
+                    tone === t.value ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-gray-200'
                   }`}
                 >
                   <div className="text-lg mb-1">{t.emoji}</div>
@@ -104,7 +104,7 @@ export default function TemplatesPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-lg">תבניות תשובה</CardTitle>
             <CardDescription>הודעות ברירת מחדל שהבוט משתמש בהן</CardDescription>

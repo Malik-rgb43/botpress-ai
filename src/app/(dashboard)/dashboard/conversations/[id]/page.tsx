@@ -74,7 +74,7 @@ export default function ConversationDetailPage() {
         <h1 className="text-2xl font-bold">פרטי שיחה</h1>
       </div>
 
-      <Card className="border-gray-100 shadow-none">
+      <Card className="border-blue-100/60 shadow-none">
         <CardContent className="p-0">
           <ScrollArea className="h-[500px] p-6">
             <div className="space-y-4">
@@ -87,7 +87,7 @@ export default function ConversationDetailPage() {
                       {msg.role === 'agent' && <><span className="text-xs text-gray-400">נציג</span><UserCheck className="h-3 w-3 text-green-500" /></>}
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
-                      msg.role === 'customer' ? 'bg-black text-white' :
+                      msg.role === 'customer' ? 'gradient-primary text-white' :
                       msg.role === 'agent' ? 'bg-green-50 text-green-900 border border-green-200' :
                       'bg-gray-100 text-gray-900'
                     }`}>

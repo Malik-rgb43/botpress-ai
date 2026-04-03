@@ -101,18 +101,18 @@ export default function PlaygroundPage() {
           </h1>
           <p className="text-gray-500 text-sm mt-1">שלח הודעות וראה איך הבוט עונה — כולל מאיזו שכבה הגיעה התשובה</p>
         </div>
-        <Button variant="outline" size="sm" onClick={reset}>
+        <Button variant="outline" size="sm" onClick={reset} className="border-blue-200 text-blue-600 hover:bg-blue-50">
           <RotateCcw className="h-4 w-4 ml-1" />
           התחל מחדש
         </Button>
       </div>
 
-      <Card className="border-gray-100 shadow-none">
+      <Card className="border-blue-100/60 shadow-none">
         <CardContent className="p-0">
           {/* Chat Area */}
           <ScrollArea className="h-[500px] p-6" ref={scrollRef}>
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full text-center text-gray-400">
+              <div className="flex flex-col items-center justify-center h-full text-center text-blue-400">
                 <Bot className="h-12 w-12 mb-3" />
                 <p className="text-lg">שלח הודעה כדי להתחיל</p>
                 <p className="text-sm">הבוט ישתמש ב-FAQ, מדיניות ו-AI לענות</p>
@@ -132,7 +132,7 @@ export default function PlaygroundPage() {
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
                       msg.role === 'user'
-                        ? 'bg-black text-white'
+                        ? 'gradient-primary text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}>
                       {msg.content}
@@ -182,7 +182,7 @@ export default function PlaygroundPage() {
                 disabled={loading}
                 className="flex-1"
               />
-              <Button type="submit" disabled={loading || !input.trim()}>
+              <Button type="submit" disabled={loading || !input.trim()} className="gradient-primary border-0">
                 <Send className="h-4 w-4" />
               </Button>
             </form>

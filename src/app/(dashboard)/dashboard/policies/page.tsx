@@ -86,7 +86,7 @@ export default function PoliciesPage() {
           <h1 className="text-2xl font-bold">מדיניות העסק</h1>
           <p className="text-gray-500 text-sm mt-1">הגדר מדיניות החזרות, משלוחים, שעות פעילות ועוד</p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4 ml-1" />הוסף מדיניות</Button>
+        <Button onClick={openCreate} className="gradient-primary border-0 shadow-md shadow-blue-500/25"><Plus className="h-4 w-4 ml-1" />הוסף מדיניות</Button>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? 'ערוך מדיניות' : 'מדיניות חדשה'}</DialogTitle></DialogHeader>
@@ -108,23 +108,23 @@ export default function PoliciesPage() {
                 <Label>תוכן *</Label>
                 <Textarea value={content} onChange={e => setContent(e.target.value)} rows={5} />
               </div>
-              <Button onClick={save} className="w-full">{editing ? 'עדכן' : 'הוסף'}</Button>
+              <Button onClick={save} className="w-full gradient-primary border-0">{editing ? 'עדכן' : 'הוסף'}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
       {policies.length === 0 ? (
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <FileText className="h-10 w-10 text-gray-300 mb-3" />
+            <FileText className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין מדיניות</p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-3">
           {policies.map(p => (
-            <Card key={p.id} className="border-gray-100 shadow-none">
+            <Card key={p.id} className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all">
               <CardContent className="p-4 flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
