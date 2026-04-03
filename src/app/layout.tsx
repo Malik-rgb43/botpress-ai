@@ -11,6 +11,9 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: "BotPress AI - בוטים חכמים לעסקים",
   description: "צור בוטים חכמים לוואטסאפ ואימייל שעונים ללקוחות שלך בצורה מותאמת אישית",
+  icons: {
+    icon: "/images/logo.png",
+  },
 }
 
 export default function RootLayout({
