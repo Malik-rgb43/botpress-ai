@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useBusiness } from '@/hooks/use-business'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MessageSquare, HelpCircle, UserX, TrendingUp, Loader2, TestTube, Plus, ArrowLeft, Sparkles } from 'lucide-react'
+import { MessageSquare, HelpCircle, UserX, TrendingUp, Loader2, TestTube, Plus, ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 
 interface Stats {
@@ -154,6 +154,26 @@ export default function DashboardOverview() {
           </Card>
         </Link>
       </div>
+
+      {/* Escalation Alert */}
+      {stats.totalEscalations > 0 && (
+        <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 shadow-none mb-4">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shrink-0">
+              <AlertTriangle className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm text-orange-800">יש {stats.totalEscalations} פניות שממתינות למענה אנושי</p>
+              <p className="text-xs text-orange-600">לקוחות ששאלו שאלות שהבוט לא ידע לענות עליהן — בדוק את המיילים המסומנים בכוכב</p>
+            </div>
+            <Link href="/dashboard/conversations">
+              <Button size="sm" variant="outline" className="border-orange-300 text-orange-700 hover:bg-orange-100 text-xs shrink-0">
+                צפה בשיחות
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Getting Started */}
       {stats.totalFaqs === 0 && (

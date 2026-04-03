@@ -355,8 +355,13 @@ export async function POST(request: NextRequest) {
                 body: JSON.stringify({ raw: notifEncoded }),
               })
 
-              // Mark original email as read
-              await markAsRead(accessToken, email.id)
+              // Star the email so business owner sees it immediately
+              await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${email.id}/modify`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addLabelIds: ['STARRED'], removeLabelIds: ['UNREAD'] }),
+              })
+              console.log('Starred escalated email from', senderEmail)
 
               // Save to DB via RPC (bypasses RLS)
               const { data: convId } = await supabase.rpc('insert_conversation', {
