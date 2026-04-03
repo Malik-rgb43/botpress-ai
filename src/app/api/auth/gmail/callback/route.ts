@@ -65,6 +65,28 @@ export async function GET(request: NextRequest) {
             gmail_token_expiry: Date.now() + (tokens.expires_in * 1000),
           }
         }).eq('id', business.id)
+
+        // Set up Gmail Push Notifications (watch for new emails)
+        try {
+          const topicName = process.env.GMAIL_PUBSUB_TOPIC
+          if (topicName) {
+            await fetch('https://gmail.googleapis.com/gmail/v1/users/me/watch', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${tokens.access_token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                topicName,
+                labelIds: ['INBOX'],
+              }),
+            })
+            console.log('Gmail watch set up for', profile.emailAddress)
+          }
+        } catch (watchError) {
+          console.error('Gmail watch setup error:', watchError)
+          // Non-critical — polling still works as fallback
+        }
       }
     }
 
