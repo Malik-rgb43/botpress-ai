@@ -41,7 +41,7 @@ export default function StepPolicies({ data, updateData }: Props) {
   }
 
   return (
-    <Card className="border-gray-100 shadow-sm">
+    <Card className="border-blue-100/60 shadow-sm">
       <CardHeader>
         <CardTitle>מדיניות העסק</CardTitle>
         <CardDescription>

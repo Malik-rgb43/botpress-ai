@@ -56,7 +56,7 @@ export default function StepFAQ({ data, updateData }: Props) {
   }
 
   return (
-    <Card className="border-gray-100 shadow-sm">
+    <Card className="border-blue-100/60 shadow-sm">
       <CardHeader>
         <CardTitle>שאלות נפוצות (FAQ)</CardTitle>
         <CardDescription>

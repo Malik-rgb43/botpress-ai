@@ -19,7 +19,7 @@ const TONE_LABELS: Record<string, string> = {
 
 export default function StepSummary({ data }: Props) {
   return (
-    <Card className="border-gray-100 shadow-sm">
+    <Card className="border-blue-100/60 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5 text-green-500" />

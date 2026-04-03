@@ -20,7 +20,7 @@ const TONES = [
 
 export default function StepTone({ data, updateData }: Props) {
   return (
-    <Card className="border-gray-100 shadow-sm">
+    <Card className="border-blue-100/60 shadow-sm">
       <CardHeader>
         <CardTitle>טון דיבור</CardTitle>
         <CardDescription>בחר איך הבוט ידבר עם הלקוחות שלך</CardDescription>

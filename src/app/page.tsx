@@ -5,8 +5,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   MessageSquare, Mail, BarChart3, Shield, Zap, Users, Bot, ArrowLeft,
   Check, Sparkles, ChevronDown, Star, Clock, Globe, Play, Quote,
-  X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck
+  X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck, Menu
 } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { AnimateOnScroll, AnimateCounter } from "@/components/ui/animate-on-scroll"
+import LiveChatDemo from "@/components/landing/live-chat-demo"
 
 /* ── Mini Mockups ────────────────────────────────────── */
 
@@ -93,8 +96,25 @@ export default function LandingPage() {
             ))}
           </nav>
           <div className="flex items-center gap-2.5">
-            <Link href="/login"><Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600">התחברות</Button></Link>
-            <Link href="/signup"><Button size="sm" className="rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">התחל בחינם</Button></Link>
+            <Link href="/login"><Button variant="ghost" size="sm" className="hidden md:inline-flex text-gray-500 hover:text-blue-600">התחברות</Button></Link>
+            <Link href="/signup"><Button size="sm" className="hidden md:inline-flex rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">התחל בחינם</Button></Link>
+            <Sheet>
+              <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-blue-600">
+                <Menu className="h-5 w-5" />
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <a href="#features" className="text-lg text-gray-700 hover:text-blue-600">פיצ׳רים</a>
+                  <a href="#how" className="text-lg text-gray-700 hover:text-blue-600">איך זה עובד</a>
+                  <a href="#pricing" className="text-lg text-gray-700 hover:text-blue-600">תוכניות</a>
+                  <a href="#faq" className="text-lg text-gray-700 hover:text-blue-600">שאלות</a>
+                  <div className="border-t border-blue-100 pt-4 mt-2 space-y-3">
+                    <Link href="/login"><Button variant="outline" className="w-full">התחברות</Button></Link>
+                    <Link href="/signup"><Button className="w-full gradient-primary border-0">התחל בחינם</Button></Link>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
@@ -182,7 +202,7 @@ export default function LandingPage() {
 
         {/* Feature Row 1: Big card with mockup + 2 small */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all overflow-hidden">
+          <Card className="border-blue-100/60 shadow-none bg-white hover-lift overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -196,7 +216,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all overflow-hidden">
+          <Card className="border-blue-100/60 shadow-none bg-white hover-lift overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
@@ -212,7 +232,7 @@ export default function LandingPage() {
 
         {/* Feature Row 2: 3 cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
                 <Bell className="h-4 w-4 text-white" />
@@ -223,7 +243,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center mb-3">
                 <Zap className="h-4 w-4 text-white" />
@@ -245,7 +265,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-3">
                 <Globe className="h-4 w-4 text-white" />
@@ -271,9 +291,7 @@ export default function LandingPage() {
         {/* Feature Row 3: Full width with phone image */}
         <div className="grid md:grid-cols-2 gap-8 items-center bg-white rounded-2xl border border-blue-100/60 p-8 md:p-12">
           <div className="order-2 md:order-1 flex justify-center">
-            <div className="relative w-64 rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
-              <Image src="/images/feature.png" alt="WhatsApp Bot" width={896} height={1120} className="w-full h-auto" />
-            </div>
+            <LiveChatDemo />
           </div>
           <div className="order-1 md:order-2 space-y-5" dir="rtl">
             <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-3 py-1 text-xs text-green-600">
@@ -363,7 +381,7 @@ export default function LandingPage() {
               { name: "יוסי לוי", role: "מסעדה", text: "מאז שחיברנו את הבוט, 80% מהשאלות נענות אוטומטית. צמצמנו את הצורך בנציג.", avatar: "🍕" },
               { name: "מיכל אברהם", role: "חנות אונליין", text: "ההגדרה הייתה קלה מאוד. תוך 10 דקות היה לי בוט שעונה על שאלות.", avatar: "🛍️" },
             ].map((t, i) => (
-              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover-lift">
                 <CardContent className="p-6">
                   <div className="flex gap-0.5 mb-4">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
@@ -431,7 +449,7 @@ export default function LandingPage() {
       {/* ───── CTA ───── */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <div className="relative rounded-3xl overflow-hidden p-12 md:p-16 text-center">
-          <div className="absolute inset-0 gradient-primary -z-10" />
+          <div className="absolute inset-0 gradient-animated -z-10" />
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl -z-[5]" />
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">מוכן לשדרג את השירות? 🚀</h2>
           <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום</p>
