@@ -13,33 +13,16 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-// Demo data for a professional-looking dashboard
-const DEMO_STATS = {
-  today: { conversations: 24, messages: 156, escalations: 3, satisfaction: 4.6, prevConversations: 18, prevMessages: 130, prevEscalations: 5, prevSatisfaction: 4.3 },
-  week: { conversations: 167, messages: 1089, escalations: 21, satisfaction: 4.5, prevConversations: 143, prevMessages: 980, prevEscalations: 28, prevSatisfaction: 4.2 },
-  month: { conversations: 682, messages: 4231, escalations: 78, satisfaction: 4.4, prevConversations: 590, prevMessages: 3800, prevEscalations: 95, prevSatisfaction: 4.1 },
+// Empty stats — real data will come from Supabase queries
+const EMPTY_STATS = {
+  today: { conversations: 0, messages: 0, escalations: 0, satisfaction: 0, prevConversations: 0, prevMessages: 0, prevEscalations: 0, prevSatisfaction: 0 },
+  week: { conversations: 0, messages: 0, escalations: 0, satisfaction: 0, prevConversations: 0, prevMessages: 0, prevEscalations: 0, prevSatisfaction: 0 },
+  month: { conversations: 0, messages: 0, escalations: 0, satisfaction: 0, prevConversations: 0, prevMessages: 0, prevEscalations: 0, prevSatisfaction: 0 },
 }
 
-const DEMO_TOP_QUESTIONS = [
-  { question: 'מה שעות הפעילות?', count: 89 },
-  { question: 'כמה עולה משלוח?', count: 67 },
-  { question: 'מה מדיניות ההחזרות?', count: 54 },
-  { question: 'איך עוקבים אחרי הזמנה?', count: 43 },
-  { question: 'האם יש הנחה לרכישה שנייה?', count: 38 },
-  { question: 'מתי המוצר יחזור למלאי?', count: 31 },
-  { question: 'איך יוצרים קשר עם נציג?', count: 28 },
-]
+const EMPTY_SENTIMENT = { positive: 0, neutral: 0, negative: 0, angry: 0 }
 
-const DEMO_UNANSWERED = [
-  { id: '1', question: 'האם אתם עושים התקנה בבית?', times_asked: 12 },
-  { id: '2', question: 'יש לכם שירות VIP?', times_asked: 8 },
-  { id: '3', question: 'מתי תהיה מבצע בלק פריידי?', times_asked: 6 },
-  { id: '4', question: 'האם אפשר לשלם בתשלומים?', times_asked: 5 },
-]
-
-const DEMO_SENTIMENT = { positive: 58, neutral: 28, negative: 10, angry: 4 }
-
-const DEMO_CHANNELS = { widget: 45, whatsapp: 35, email: 20 }
+const EMPTY_CHANNELS = { widget: 0, whatsapp: 0, email: 0 }
 
 type Period = 'today' | 'week' | 'month'
 
@@ -47,7 +30,7 @@ export default function AnalyticsPage() {
   const { business, loading: bizLoading } = useBusiness()
   const [period, setPeriod] = useState<Period>('week')
 
-  const stats = DEMO_STATS[period]
+  const stats = EMPTY_STATS[period]
 
   function pctChange(current: number, prev: number): { value: number; up: boolean } {
     if (prev === 0) return { value: 0, up: true }
@@ -60,7 +43,17 @@ export default function AnalyticsPage() {
   }
 
   if (bizLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+  }
+
+  if (!business) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <BarChart3 className="h-10 w-10 text-blue-300 mb-3" />
+        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
+        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+      </div>
+    )
   }
 
   const convChange = pctChange(stats.conversations, stats.prevConversations)
@@ -126,16 +119,10 @@ export default function AnalyticsPage() {
             <CardDescription>מה הלקוחות שואלים הכי הרבה</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {DEMO_TOP_QUESTIONS.map((q, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-sm font-medium text-gray-400 w-5">{i + 1}</span>
-                    <span className="text-sm truncate">{q.question}</span>
-                  </div>
-                  <Badge variant="secondary" className="text-xs shrink-0">{q.count}</Badge>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-8 text-center text-gray-400">
+              <BarChart3 className="h-8 w-8 text-blue-200 mb-2" />
+              <p className="text-sm">עדיין אין נתונים</p>
+              <p className="text-xs">שאלות נפוצות יופיעו כאן כשהבוט יתחיל לעבוד</p>
             </div>
           </CardContent>
         </Card>
@@ -147,19 +134,10 @@ export default function AnalyticsPage() {
             <CardDescription>שאלות שהבוט לא ידע לענות עליהן — הוסף ל-FAQ בלחיצה</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {DEMO_UNANSWERED.map((q) => (
-                <div key={q.id} className="flex items-center justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{q.question}</p>
-                    <p className="text-xs text-gray-400">נשאל {q.times_asked} פעמים</p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => addToFAQ(q.question)} className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                    <Plus className="h-3 w-3 ml-1" />
-                    הוסף ל-FAQ
-                  </Button>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-8 text-center text-gray-400">
+              <MessageSquare className="h-8 w-8 text-blue-200 mb-2" />
+              <p className="text-sm">עדיין אין שאלות ללא מענה</p>
+              <p className="text-xs">שאלות שהבוט לא ידע לענות יופיעו כאן</p>
             </div>
           </CardContent>
         </Card>
@@ -173,10 +151,10 @@ export default function AnalyticsPage() {
           <CardContent>
             <div className="space-y-4">
               {[
-                { label: 'חיובי', value: DEMO_SENTIMENT.positive, color: 'bg-green-400' },
-                { label: 'ניטרלי', value: DEMO_SENTIMENT.neutral, color: 'bg-gray-300' },
-                { label: 'שלילי', value: DEMO_SENTIMENT.negative, color: 'bg-orange-400' },
-                { label: 'כועס', value: DEMO_SENTIMENT.angry, color: 'bg-red-400' },
+                { label: 'חיובי', value: EMPTY_SENTIMENT.positive, color: 'bg-green-400' },
+                { label: 'ניטרלי', value: EMPTY_SENTIMENT.neutral, color: 'bg-gray-300' },
+                { label: 'שלילי', value: EMPTY_SENTIMENT.negative, color: 'bg-orange-400' },
+                { label: 'כועס', value: EMPTY_SENTIMENT.angry, color: 'bg-red-400' },
               ].map((s, i) => (
                 <div key={i}>
                   <div className="flex items-center justify-between text-sm mb-1">
@@ -201,9 +179,9 @@ export default function AnalyticsPage() {
           <CardContent>
             <div className="space-y-4">
               {[
-                { label: 'וידג׳ט באתר', value: DEMO_CHANNELS.widget, color: 'bg-blue-400' },
-                { label: 'וואטסאפ', value: DEMO_CHANNELS.whatsapp, color: 'bg-green-500' },
-                { label: 'אימייל', value: DEMO_CHANNELS.email, color: 'bg-purple-400' },
+                { label: 'וידג׳ט באתר', value: EMPTY_CHANNELS.widget, color: 'bg-blue-400' },
+                { label: 'וואטסאפ', value: EMPTY_CHANNELS.whatsapp, color: 'bg-green-500' },
+                { label: 'אימייל', value: EMPTY_CHANNELS.email, color: 'bg-purple-400' },
               ].map((c, i) => (
                 <div key={i}>
                   <div className="flex items-center justify-between text-sm mb-1">

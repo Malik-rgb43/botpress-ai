@@ -108,7 +108,7 @@
 
 /* Custom gradient utilities */
 .gradient-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 40%, #7c3aed 100%);
 }
 
 .gradient-primary-soft {
@@ -116,7 +116,7 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 40%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -199,7 +199,7 @@
 }
 
 .gradient-animated {
-  background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6, #3b82f6);
+  background: linear-gradient(135deg, #2563eb, #4f46e5, #7c3aed, #2563eb);
   background-size: 300% 300%;
   animation: gradientShift 4s ease infinite;
 }

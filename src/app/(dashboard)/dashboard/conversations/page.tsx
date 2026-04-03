@@ -30,8 +30,18 @@ export default function ConversationsPage() {
     load()
   }, [business])
 
-  if (bizLoading || loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+  if (bizLoading) {
+    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+  }
+
+  if (!business) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <MessageSquare className="h-10 w-10 text-blue-300 mb-3" />
+        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
+        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+      </div>
+    )
   }
 
   return (
