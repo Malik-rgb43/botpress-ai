@@ -101,7 +101,7 @@ export default function LandingPage() {
             <Link href="/login"><Button variant="ghost" size="sm" className="hidden md:inline-flex text-gray-500 hover:text-blue-600">התחברות</Button></Link>
             <Link href="/signup"><Button size="sm" className="hidden md:inline-flex rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">נסה ב-₪1</Button></Link>
             <Sheet>
-              <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-blue-600">
+              <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-blue-600" aria-label="תפריט ניווט">
                 <Menu className="h-5 w-5" />
               </SheetTrigger>
               <SheetContent side="right" className="w-72">
@@ -122,7 +122,7 @@ export default function LandingPage() {
       </header>
 
       {/* ───── Hero ───── */}
-      <section className="relative overflow-hidden">
+      <section id="main-content" className="relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-to-b from-blue-100/40 via-indigo-50/20 to-transparent rounded-full blur-3xl -z-10" />
         <div className="max-w-6xl mx-auto px-6 pt-32 pb-12 text-center">
           <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6 shadow-sm">
@@ -151,7 +151,7 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-gray-500">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />7 ימי ניסיון ב-₪1</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />התקנה ב-5 דקות</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה מלאה בעברית</span>
@@ -177,7 +177,7 @@ export default function LandingPage() {
               <div key={i} className="flex flex-col items-center">
                 <span className="text-2xl mb-2">{s.emoji}</span>
                 <div className="text-3xl font-extrabold gradient-text mb-1">{s.value}</div>
-                <div className="text-sm text-gray-400">{s.label}</div>
+                <div className="text-sm text-gray-500">{s.label}</div>
               </div>
             ))}
           </div>
@@ -512,13 +512,13 @@ export default function LandingPage() {
                 <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-md" />
                 <span className="font-bold">BotPress AI</span>
               </div>
-              <p className="text-sm text-gray-400 leading-relaxed">בוטים חכמים מבוססי AI לעסקים. תשובות מיידיות, 24/7.</p>
+              <p className="text-sm text-gray-500 leading-relaxed">בוטים חכמים מבוססי AI לעסקים. תשובות מיידיות, 24/7.</p>
             </div>
-            <div><h4 className="font-medium text-sm mb-3">מוצר</h4><ul className="space-y-2 text-sm text-gray-400"><li><a href="#features" className="hover:text-blue-500">פיצ׳רים</a></li><li><a href="#pricing" className="hover:text-blue-500">מחירים</a></li><li><a href="#faq" className="hover:text-blue-500">שאלות נפוצות</a></li></ul></div>
-            <div><h4 className="font-medium text-sm mb-3">חברה</h4><ul className="space-y-2 text-sm text-gray-400"><li><span className="cursor-pointer hover:text-blue-500">אודות</span></li><li><span className="cursor-pointer hover:text-blue-500">בלוג</span></li><li><span className="cursor-pointer hover:text-blue-500">צור קשר</span></li></ul></div>
-            <div><h4 className="font-medium text-sm mb-3">משפטי</h4><ul className="space-y-2 text-sm text-gray-400"><li><Link href="/terms" className="hover:text-blue-500">תנאי שימוש</Link></li><li><Link href="/privacy" className="hover:text-blue-500">מדיניות פרטיות</Link></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">מוצר</h4><ul className="space-y-2 text-sm text-gray-500"><li><a href="#features" className="hover:text-blue-500">פיצ׳רים</a></li><li><a href="#pricing" className="hover:text-blue-500">מחירים</a></li><li><a href="#faq" className="hover:text-blue-500">שאלות נפוצות</a></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">חברה</h4><ul className="space-y-2 text-sm text-gray-500"><li><span className="cursor-pointer hover:text-blue-500">אודות</span></li><li><span className="cursor-pointer hover:text-blue-500">בלוג</span></li><li><span className="cursor-pointer hover:text-blue-500">צור קשר</span></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">משפטי</h4><ul className="space-y-2 text-sm text-gray-500"><li><Link href="/terms" className="hover:text-blue-500">תנאי שימוש</Link></li><li><Link href="/privacy" className="hover:text-blue-500">מדיניות פרטיות</Link></li></ul></div>
           </div>
-          <div className="border-t border-blue-50 pt-6 text-center text-sm text-gray-400">© 2026 BotPress AI. כל הזכויות שמורות.</div>
+          <div className="border-t border-blue-50 pt-6 text-center text-sm text-gray-500">© 2026 BotPress AI. כל הזכויות שמורות.</div>
         </div>
       </footer>
     </div>
