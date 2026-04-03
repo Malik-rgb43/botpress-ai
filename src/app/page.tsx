@@ -6,26 +6,33 @@ import { MessageSquare, Mail, BarChart3, Shield, Zap, Users, Bot, ArrowLeft } fr
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Bot className="h-8 w-8 text-black" />
-            <span className="text-xl font-bold">BotPress AI</span>
+      {/* Floating Header */}
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl">
+        <div className="bg-white/80 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold tracking-tight">BotPress AI</span>
           </div>
-          <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-1">
+            <a href="#features" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-black transition-colors rounded-lg hover:bg-gray-50">פיצ׳רים</a>
+            <a href="#how" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-black transition-colors rounded-lg hover:bg-gray-50">איך זה עובד</a>
+            <a href="#pricing" className="px-3.5 py-1.5 text-sm text-gray-500 hover:text-black transition-colors rounded-lg hover:bg-gray-50">תוכניות</a>
+          </nav>
+          <div className="flex items-center gap-2.5">
             <Link href="/login">
-              <Button variant="ghost" size="sm">התחברות</Button>
+              <Button variant="ghost" size="sm" className="text-gray-500 hover:text-black">התחברות</Button>
             </Link>
             <Link href="/signup">
-              <Button size="sm">התחל בחינם</Button>
+              <Button size="sm" className="rounded-xl px-5 shadow-none">התחל בחינם</Button>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 py-24 text-center">
+      <section className="max-w-6xl mx-auto px-6 pt-32 pb-24 text-center">
         <div className="inline-flex items-center gap-2 bg-gray-50 rounded-full px-4 py-1.5 text-sm text-gray-600 mb-6">
           <Zap className="h-4 w-4" />
           <span>בוטים חכמים מבוססי AI לעסקים</span>
@@ -105,7 +112,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="bg-gray-50 py-24">
+      <section id="how" className="bg-gray-50 py-24">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">איך זה עובד?</h2>
@@ -124,6 +131,62 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
+          <p className="text-gray-500 text-lg">התחל בחינם, שדרג כשהעסק גדל</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              name: 'חינם',
+              price: '0',
+              features: ['100 הודעות/חודש', 'ערוץ אחד', 'FAQ + AI בסיסי', 'דשבורד בסיסי'],
+            },
+            {
+              name: 'בסיסי',
+              price: '99',
+              popular: true,
+              features: ['1,000 הודעות/חודש', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים'],
+            },
+            {
+              name: 'פרימיום',
+              price: '299',
+              features: ['הודעות ללא הגבלה', 'כל הערוצים', 'White Label', 'תמיכה מועדפת', 'AI מתקדם + זיכרון'],
+            },
+          ].map((plan, i) => (
+            <Card key={i} className={`shadow-none relative ${plan.popular ? 'border-black border-2' : 'border-gray-100'}`}>
+              {plan.popular && (
+                <div className="absolute -top-3 right-4">
+                  <span className="bg-black text-white text-xs px-3 py-1 rounded-full">הכי פופולרי</span>
+                </div>
+              )}
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
+                <div className="mb-4">
+                  <span className="text-4xl font-bold">{plan.price === '0' ? 'חינם' : `₪${plan.price}`}</span>
+                  {plan.price !== '0' && <span className="text-gray-400 text-sm">/חודש</span>}
+                </div>
+                <ul className="space-y-2 mb-6">
+                  {plan.features.map((f, j) => (
+                    <li key={j} className="flex items-center gap-2 text-sm text-gray-600">
+                      <span className="text-green-500">✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full" variant={plan.popular ? 'default' : 'outline'}>
+                    {plan.price === '0' ? 'התחל בחינם' : 'שדרג עכשיו'}
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
