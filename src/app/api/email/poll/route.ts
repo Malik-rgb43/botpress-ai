@@ -21,9 +21,28 @@ async function refreshGmailToken(refreshToken: string): Promise<string | null> {
 
 // Get unread emails from Gmail
 async function getUnreadEmails(accessToken: string): Promise<Array<{id: string, from: string, subject: string, body: string}>> {
-  // Search for unread emails not from the bot itself
+  // Search for unread emails — filter out bots, newsletters, promotions, social
+  const query = [
+    'is:unread',
+    'in:inbox',           // Only inbox (not spam/trash/promotions)
+    '-from:me',           // Not from self
+    '-from:noreply',      // Not noreply
+    '-from:no-reply',
+    '-from:notifications',
+    '-from:newsletter',
+    '-from:marketing',
+    '-from:mailer-daemon',
+    '-from:resend.dev',
+    '-from:accounts.google.com',
+    '-from:calendar-notification',
+    '-category:promotions',  // Not promotional
+    '-category:social',      // Not social
+    '-category:updates',     // Not automated updates
+    '-category:forums',      // Not forums
+    '-label:spam',
+  ].join(' ')
   const searchRes = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread -from:me -from:noreply -from:no-reply -from:resend.dev&maxResults=5`,
+    `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(query)}&maxResults=5`,
     { headers: { Authorization: `Bearer ${accessToken}` } }
   )
   const searchData = await searchRes.json()
@@ -205,18 +224,13 @@ export async function POST(request: NextRequest) {
 
             // Duplicate protection — don't reply to the SAME email subject+sender twice
             // But allow multiple different emails from the same sender
-            const { data: existingConv } = await supabase
-              .from('conversations')
-              .select('id')
-              .eq('business_id', business.id)
-              .eq('customer_identifier', senderEmail)
-              .gte('started_at', new Date(Date.now() - 120000).toISOString()) // Last 2 minutes only
-              .limit(1)
-
-            if (existingConv && existingConv.length > 0) {
-              // Same sender within 2 minutes — likely duplicate poll, skip
-              continue
-            }
+            // Duplicate check via RPC (bypasses RLS)
+            const { data: isDuplicate } = await supabase.rpc('check_recent_conversation', {
+              p_business_id: business.id,
+              p_customer: senderEmail,
+              p_minutes: 2,
+            })
+            if (isDuplicate) continue
             const intent = detectIntent(email.body)
             const sentiment = detectSentiment(email.body)
             const language = detectLanguage(email.body)
@@ -316,27 +330,15 @@ export async function POST(request: NextRequest) {
               // Mark original email as read
               await markAsRead(accessToken, email.id)
 
-              // Save to DB as escalation
-              const { data: conv } = await supabase
-                .from('conversations')
-                .insert({
-                  business_id: business.id,
-                  channel: 'email',
-                  customer_identifier: senderEmail,
-                  detected_language: language,
-                })
-                .select('id')
-                .single()
-
-              if (conv) {
-                await supabase.from('messages').insert([
-                  { conversation_id: conv.id, role: 'customer', content: email.body.slice(0, 2000), intent, sentiment },
-                  { conversation_id: conv.id, role: 'bot', content: `[העברה לנציג] ${escalationReason}`, response_layer: 'transfer' },
-                ])
-                await supabase.from('escalations').insert({
-                  conversation_id: conv.id,
-                  reason: escalationReason,
-                  status: 'open',
+              // Save to DB via RPC (bypasses RLS)
+              const { data: convId } = await supabase.rpc('insert_conversation', {
+                p_business_id: business.id, p_channel: 'email', p_customer: senderEmail, p_language: language,
+              })
+              if (convId) {
+                await supabase.rpc('insert_messages', {
+                  p_conv_id: convId, p_customer_content: email.body.slice(0, 2000),
+                  p_bot_content: `[העברה לנציג] ${escalationReason}`,
+                  p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
                 })
               }
 
@@ -350,22 +352,16 @@ export async function POST(request: NextRequest) {
               if (sent) {
                 await markAsRead(accessToken, email.id)
 
-                const { data: conv } = await supabase
-                  .from('conversations')
-                  .insert({
-                    business_id: business.id,
-                    channel: 'email',
-                    customer_identifier: senderEmail,
-                    detected_language: language,
+                // Save via RPC (bypasses RLS)
+                const { data: convId } = await supabase.rpc('insert_conversation', {
+                  p_business_id: business.id, p_channel: 'email', p_customer: senderEmail, p_language: language,
+                })
+                if (convId) {
+                  await supabase.rpc('insert_messages', {
+                    p_conv_id: convId, p_customer_content: email.body.slice(0, 2000),
+                    p_bot_content: aiContent,
+                    p_intent: intent, p_sentiment: sentiment, p_layer: 'ai',
                   })
-                  .select('id')
-                  .single()
-
-                if (conv) {
-                  await supabase.from('messages').insert([
-                    { conversation_id: conv.id, role: 'customer', content: email.body.slice(0, 2000), intent, sentiment },
-                    { conversation_id: conv.id, role: 'bot', content: aiContent, response_layer: 'ai' },
-                  ])
                 }
 
                 totalProcessed++
