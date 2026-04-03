@@ -200,19 +200,21 @@ export async function POST(request: NextRequest) {
 
         for (const email of unreadEmails) {
           try {
-            // Duplicate protection — check if we already replied to this email
+            // Extract sender email
             const senderEmail = email.from.match(/<([^>]+)>/)?.[1] || email.from.split(' ').pop() || ''
+
+            // Duplicate protection — don't reply to the SAME email subject+sender twice
+            // But allow multiple different emails from the same sender
             const { data: existingConv } = await supabase
               .from('conversations')
               .select('id')
               .eq('business_id', business.id)
               .eq('customer_identifier', senderEmail)
-              .gte('started_at', new Date(Date.now() - 3600000).toISOString()) // Last hour
+              .gte('started_at', new Date(Date.now() - 120000).toISOString()) // Last 2 minutes only
               .limit(1)
 
             if (existingConv && existingConv.length > 0) {
-              // Already replied to this sender recently, skip
-              await markAsRead(accessToken, email.id)
+              // Same sender within 2 minutes — likely duplicate poll, skip
               continue
             }
             const intent = detectIntent(email.body)
@@ -256,6 +258,8 @@ export async function POST(request: NextRequest) {
             if (!aiRes.ok) {
               const errText = await aiRes.text().catch(() => 'unknown')
               console.error('Gemini error for email:', email.id, 'status:', aiRes.status, 'body:', errText)
+              // Mark as read to prevent infinite retries on the same failed email
+              await markAsRead(accessToken, email.id)
               continue
             }
 
