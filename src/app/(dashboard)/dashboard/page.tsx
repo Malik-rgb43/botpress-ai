@@ -21,25 +21,33 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!business) return
+    if (bizLoading) return
+    if (!business) {
+      setLoading(false)
+      return
+    }
     async function load() {
-      const supabase = createClient()
-      const [convRes, faqRes, escRes, msgRes] = await Promise.all([
-        supabase.from('conversations').select('id', { count: 'exact', head: true }).eq('business_id', business!.id),
-        supabase.from('faqs').select('id', { count: 'exact', head: true }).eq('business_id', business!.id),
-        supabase.from('escalations').select('id', { count: 'exact', head: true }),
-        supabase.from('messages').select('id', { count: 'exact', head: true }),
-      ])
-      setStats({
-        totalConversations: convRes.count || 0,
-        totalFaqs: faqRes.count || 0,
-        totalEscalations: escRes.count || 0,
-        totalMessages: msgRes.count || 0,
-      })
+      try {
+        const supabase = createClient()
+        const [convRes, faqRes, escRes, msgRes] = await Promise.all([
+          supabase.from('conversations').select('id', { count: 'exact', head: true }).eq('business_id', business!.id),
+          supabase.from('faqs').select('id', { count: 'exact', head: true }).eq('business_id', business!.id),
+          supabase.from('escalations').select('id', { count: 'exact', head: true }),
+          supabase.from('messages').select('id', { count: 'exact', head: true }),
+        ])
+        setStats({
+          totalConversations: convRes.count || 0,
+          totalFaqs: faqRes.count || 0,
+          totalEscalations: escRes.count || 0,
+          totalMessages: msgRes.count || 0,
+        })
+      } catch {
+        // Supabase not connected — use defaults
+      }
       setLoading(false)
     }
     load()
-  }, [business])
+  }, [business, bizLoading])
 
   if (bizLoading) {
     return (

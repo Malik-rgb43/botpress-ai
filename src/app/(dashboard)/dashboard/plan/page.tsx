@@ -81,13 +81,13 @@ export default function PlanPage() {
         {PLANS.map((plan) => (
           <Card
             key={plan.tier}
-            className={`shadow-none relative ${
-              plan.popular ? 'border-black border-2' : 'border-gray-100'
+            className={`shadow-none relative overflow-visible ${
+              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border-blue-100/60'
             }`}
           >
             {plan.popular && (
-              <div className="absolute -top-3 right-4">
-                <Badge className="bg-black text-white">הכי פופולרי</Badge>
+              <div className="absolute -top-4 right-4 z-10">
+                <Badge className="gradient-animated text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">🔥 הכי פופולרי</Badge>
               </div>
             )}
             <CardHeader>

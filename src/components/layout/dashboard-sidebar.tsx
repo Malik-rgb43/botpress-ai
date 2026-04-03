@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   HelpCircle,
@@ -42,7 +43,7 @@ export default function DashboardSidebar() {
       {/* Logo */}
       <div className="p-4 border-b border-blue-100/60">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center"><Bot className="h-5 w-5 text-white" /></div>
+          <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
           <span className="text-lg font-bold">BotPress AI</span>
         </Link>
       </div>

@@ -10,6 +10,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { AnimateOnScroll, AnimateCounter } from "@/components/ui/animate-on-scroll"
 import LiveChatDemo from "@/components/landing/live-chat-demo"
+import RotatingText from "@/components/landing/rotating-text"
+import InteractiveDemo from "@/components/landing/interactive-demo"
 
 /* ── Mini Mockups ────────────────────────────────────── */
 
@@ -128,9 +130,9 @@ export default function LandingPage() {
             <span>🚀 הפלטפורמה #1 לבוטים חכמים לעסקים</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
-            הפוך את השירות
+            בוט AI שעונה ב
             <br />
-            <span className="gradient-text">לאוטומטי ✨ חכם</span>
+            <RotatingText />
           </h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
             בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
@@ -157,14 +159,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Hero Image */}
-      <section className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="relative">
-          <div className="absolute inset-0 gradient-primary rounded-3xl blur-3xl opacity-10 scale-105" />
-          <div className="relative rounded-2xl overflow-hidden border border-blue-100 shadow-2xl shadow-blue-500/10 glow">
-            <Image src="/images/hero.png" alt="BotPress AI Dashboard" width={1280} height={720} className="w-full h-auto" priority />
-          </div>
-        </div>
+      {/* Interactive Demo */}
+      <section className="max-w-3xl mx-auto px-6 pb-20">
+        <InteractiveDemo />
       </section>
 
       {/* Social Proof */}
@@ -405,14 +402,14 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
           <p className="text-gray-500 text-lg">התחל בחינם, שדרג כשהעסק גדל</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 pt-4">
           {[
             { name: "חינם", price: "0", features: ["100 הודעות/חודש", "ערוץ אחד", "FAQ + AI בסיסי", "דשבורד בסיסי"] },
             { name: "בסיסי", price: "99", popular: true, features: ["1,000 הודעות/חודש", "כל הערוצים", "AI מתקדם + זיכרון", "אנליטיקס מלא", "סיכומים אוטומטיים"] },
             { name: "פרימיום", price: "299", features: ["הודעות ללא הגבלה", "כל הערוצים", "White Label", "תמיכה מועדפת", "AI מתקדם + זיכרון"] },
           ].map((plan, i) => (
-            <Card key={i} className={`shadow-none relative bg-white transition-all duration-300 hover:shadow-lg ${plan.popular ? "border-2 border-blue-500 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 scale-[1.02]" : "border-blue-100/60 hover:border-blue-200"}`}>
-              {plan.popular && <div className="absolute -top-3 right-4"><span className="gradient-primary text-white text-xs px-3 py-1 rounded-full shadow-md shadow-blue-500/25">הכי פופולרי 🔥</span></div>}
+            <Card key={i} className={`shadow-none relative bg-white overflow-visible transition-all duration-300 hover:shadow-lg ${plan.popular ? "border-2 border-blue-500 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 scale-[1.02]" : "border-blue-100/60 hover:border-blue-200"}`}>
+              {plan.popular && <div className="absolute -top-4 right-4 z-10"><span className="gradient-animated text-white text-xs px-4 py-1.5 rounded-full shadow-lg shadow-blue-500/30 font-medium">🔥 הכי פופולרי</span></div>}
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
                 <div className="mb-4">

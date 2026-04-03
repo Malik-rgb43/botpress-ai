@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Bot, LayoutDashboard, Users, BarChart3, ArrowRight } from 'lucide-react'
+import Image from 'next/image'
+import { LayoutDashboard, Users, BarChart3, ArrowRight } from 'lucide-react'
 
 export default function AdminLayout({
   children,
@@ -11,7 +12,7 @@ export default function AdminLayout({
       <aside className="w-64 bg-white border-l border-gray-100 flex flex-col h-screen sticky top-0">
         <div className="p-4 border-b border-gray-100">
           <Link href="/admin" className="flex items-center gap-2">
-            <Bot className="h-7 w-7" />
+            <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-md" />
             <span className="text-lg font-bold">Admin Panel</span>
           </Link>
         </div>

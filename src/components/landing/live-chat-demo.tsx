@@ -1,73 +1,64 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Bot, Send } from 'lucide-react'
 
-interface ChatMessage {
-  side: 'customer' | 'bot'
-  text: string
-  time: string
-}
-
-const MESSAGES: ChatMessage[] = [
-  { side: 'customer', text: 'היי, מה שעות הפעילות? 👋', time: '10:42' },
-  { side: 'bot', text: 'שלום! 😊 אנחנו פתוחים:\nא׳-ה׳ 9:00-18:00\nשישי 9:00-13:00', time: '10:42' },
-  { side: 'customer', text: 'ומה לגבי משלוחים?', time: '10:43' },
-  { side: 'bot', text: '🚚 משלוח חינם מעל 200₪!\nזמן אספקה: 2-3 ימי עסקים', time: '10:43' },
-  { side: 'customer', text: 'מעולה! אפשר להזמין עכשיו?', time: '10:44' },
-  { side: 'bot', text: 'בטח! 🛒 הנה הקישור להזמנה:\nwww.store.co.il/order\nאם תצטרך עזרה, אני כאן!', time: '10:44' },
+const MESSAGES = [
+  { side: 'customer' as const, text: 'היי, מה שעות הפעילות? 👋', time: '10:42' },
+  { side: 'bot' as const, text: 'שלום! 😊 אנחנו פתוחים:\nא׳-ה׳ 9:00-18:00\nשישי 9:00-13:00', time: '10:42' },
+  { side: 'customer' as const, text: 'ומה לגבי משלוחים?', time: '10:43' },
+  { side: 'bot' as const, text: '🚚 משלוח חינם מעל 200₪!\nזמן אספקה: 2-3 ימי עסקים', time: '10:43' },
+  { side: 'customer' as const, text: 'מעולה, תודה!', time: '10:44' },
+  { side: 'bot' as const, text: 'בשמחה! 😊 אם תצטרך עזרה, אני כאן 24/7', time: '10:44' },
 ]
 
 export default function LiveChatDemo() {
-  const [visibleCount, setVisibleCount] = useState(0)
+  const [visibleMessages, setVisibleMessages] = useState<typeof MESSAGES>([])
   const [isTyping, setIsTyping] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
-  useEffect(() => {
-    let timeout: NodeJS.Timeout
-
-    function showNext() {
-      setVisibleCount(prev => {
-        const next = prev + 1
-        if (next > MESSAGES.length) {
-          // Reset after a pause
-          setTimeout(() => {
-            setVisibleCount(0)
-            setIsTyping(false)
-            setTimeout(showNext, 800)
-          }, 3000)
-          return prev
-        }
-
-        // Show typing indicator before bot messages
-        const nextMsg = MESSAGES[next - 1]
-        if (nextMsg && nextMsg.side === 'bot') {
-          setIsTyping(true)
-          timeout = setTimeout(() => {
-            setIsTyping(false)
-            setVisibleCount(next)
-            timeout = setTimeout(showNext, 1200)
-          }, 1000)
-        } else {
-          timeout = setTimeout(showNext, 1200)
-        }
-
-        return next
-      })
+  const addMessage = useCallback(() => {
+    if (currentIndex >= MESSAGES.length) {
+      // Reset after pause
+      setTimeout(() => {
+        setVisibleMessages([])
+        setCurrentIndex(0)
+        setIsTyping(false)
+      }, 2500)
+      return
     }
 
-    timeout = setTimeout(showNext, 600)
-    return () => clearTimeout(timeout)
-  }, [])
+    const msg = MESSAGES[currentIndex]
+
+    if (msg.side === 'bot') {
+      setIsTyping(true)
+      setTimeout(() => {
+        setIsTyping(false)
+        setVisibleMessages(prev => [...prev, msg])
+        setCurrentIndex(prev => prev + 1)
+      }, 900)
+    } else {
+      setVisibleMessages(prev => [...prev, msg])
+      setCurrentIndex(prev => prev + 1)
+    }
+  }, [currentIndex])
+
+  useEffect(() => {
+    const timer = setTimeout(addMessage, currentIndex === 0 && visibleMessages.length === 0 ? 500 : 1100)
+    return () => clearTimeout(timer)
+  }, [currentIndex, addMessage, visibleMessages.length])
 
   return (
-    <div className="w-full max-w-sm">
-      {/* Phone frame */}
-      <div className="bg-gray-900 rounded-[2rem] p-2 shadow-2xl shadow-blue-500/10 hover-glow transition-all">
-        <div className="bg-white rounded-[1.5rem] overflow-hidden">
+    <div className="w-full max-w-[280px] mx-auto">
+      {/* Phone frame - iPhone style */}
+      <div className="bg-gray-900 rounded-[2.5rem] p-[6px] shadow-2xl shadow-blue-500/10 hover-glow transition-all relative">
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-gray-900 rounded-b-2xl z-10" />
+        <div className="bg-white rounded-[2.2rem] overflow-hidden">
           {/* WhatsApp header */}
-          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3" dir="rtl">
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3 pt-8" dir="rtl">
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-              <Bot className="h-4.5 w-4.5 text-white" />
+              <Bot className="h-4 w-4 text-white" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">BotPress AI</p>
@@ -79,14 +70,12 @@ export default function LiveChatDemo() {
           </div>
 
           {/* Chat messages */}
-          <div className="bg-[#ECE5DD] p-3 space-y-2 min-h-[300px] max-h-[300px] overflow-hidden" dir="rtl">
-            {MESSAGES.slice(0, visibleCount).map((msg, i) => (
+          <div className="bg-[#ECE5DD] p-3 space-y-2 h-[340px] overflow-hidden" dir="rtl">
+            {visibleMessages.map((msg, i) => (
               <div
-                key={`${i}-${visibleCount > MESSAGES.length ? 'reset' : ''}`}
+                key={i}
                 className={`flex ${msg.side === 'customer' ? 'justify-start' : 'justify-end'}`}
-                style={{
-                  animation: 'fadeInUp 0.4s ease-out forwards',
-                }}
+                style={{ animation: 'fadeInUp 0.4s ease-out forwards' }}
               >
                 <div className={`${
                   msg.side === 'customer'
@@ -104,11 +93,10 @@ export default function LiveChatDemo() {
               </div>
             ))}
 
-            {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-end" style={{ animation: 'fadeInUp 0.3s ease-out forwards' }}>
                 <div className="bg-[#DCF8C6] rounded-lg rounded-tl-sm px-4 py-2.5 shadow-sm">
-                  <div className="flex gap-1 items-center">
+                  <div className="flex gap-1.5 items-center">
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -129,7 +117,7 @@ export default function LiveChatDemo() {
       </div>
       {/* Label */}
       <div className="text-center mt-3">
-        <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border border-blue-100/60">💬 שיחה חיה — הבוט עונה בזמן אמת</span>
+        <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border border-blue-100/60">💬 שיחה חיה — חוזר על עצמו</span>
       </div>
     </div>
   )
