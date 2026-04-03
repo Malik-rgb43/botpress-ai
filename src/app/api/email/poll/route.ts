@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import type { AIContext } from '@/services/ai-engine'
+import { buildEmailHtml } from '@/services/email-template'
 
 // Refresh Gmail access token using refresh token
 async function refreshGmailToken(refreshToken: string): Promise<string | null> {
@@ -107,7 +108,7 @@ async function markAsRead(accessToken: string, messageId: string) {
 }
 
 // Reply to email via Gmail API (sends FROM the business's email)
-async function replyViaGmail(accessToken: string, originalMessageId: string, to: string, subject: string, replyBody: string) {
+async function replyViaGmail(accessToken: string, originalMessageId: string, to: string, subject: string, replyBody: string, htmlBody?: string) {
   // Get original message to get threadId
   const msgRes = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/me/messages/${originalMessageId}?format=metadata`,
@@ -119,15 +120,42 @@ async function replyViaGmail(accessToken: string, originalMessageId: string, to:
   // Build raw email with proper UTF-8 subject
   const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`
   const encodedSubject = `=?UTF-8?B?${Buffer.from(replySubject).toString('base64')}?=`
-  const rawEmail = [
-    `To: ${to}`,
-    `Subject: ${encodedSubject}`,
-    `In-Reply-To: ${originalMessageId}`,
-    `References: ${originalMessageId}`,
-    'Content-Type: text/plain; charset=UTF-8',
-    '',
-    replyBody,
-  ].join('\r\n')
+  const boundary = `boundary_${Date.now()}`
+
+  let rawEmail: string
+  if (htmlBody) {
+    // Send multipart email with both plain text and HTML
+    rawEmail = [
+      `To: ${to}`,
+      `Subject: ${encodedSubject}`,
+      `In-Reply-To: ${originalMessageId}`,
+      `References: ${originalMessageId}`,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/alternative; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/plain; charset=UTF-8',
+      '',
+      replyBody,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/html; charset=UTF-8',
+      '',
+      htmlBody,
+      '',
+      `--${boundary}--`,
+    ].join('\r\n')
+  } else {
+    rawEmail = [
+      `To: ${to}`,
+      `Subject: ${encodedSubject}`,
+      `In-Reply-To: ${originalMessageId}`,
+      `References: ${originalMessageId}`,
+      'Content-Type: text/plain; charset=UTF-8',
+      '',
+      replyBody,
+    ].join('\r\n')
+  }
 
   const encodedEmail = Buffer.from(rawEmail).toString('base64url')
 
@@ -347,7 +375,15 @@ export async function POST(request: NextRequest) {
 
             } else {
               // ── NORMAL: Reply directly to customer ──
-              const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent)
+              // Build HTML email template
+              const htmlEmail = buildEmailHtml({
+                businessName: business.name,
+                logoUrl: business.logo_url,
+                primaryColor: (business.contact_info as Record<string, unknown>)?.brand_color as string || '#2563eb',
+                replyContent: aiContent,
+                footerText: (business.contact_info as Record<string, unknown>)?.email_footer as string || undefined,
+              })
+              const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent, htmlEmail)
 
               if (sent) {
                 await markAsRead(accessToken, email.id)

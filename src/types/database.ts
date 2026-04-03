@@ -41,6 +41,8 @@ export interface Business {
     gmail_refresh_token?: string
     gmail_access_token?: string
     gmail_token_expiry?: number
+    brand_color?: string
+    email_footer?: string
   }
   story: string | null
   tone: TonePreset

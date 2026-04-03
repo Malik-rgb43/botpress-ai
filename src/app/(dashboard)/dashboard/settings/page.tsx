@@ -25,6 +25,8 @@ export default function SettingsPage() {
   const [summaryEnabled, setSummaryEnabled] = useState(false)
   const [summaryFreq, setSummaryFreq] = useState('weekly')
   const [summaryEmail, setSummaryEmail] = useState('')
+  const [brandColor, setBrandColor] = useState('#2563eb')
+  const [emailFooter, setEmailFooter] = useState('')
 
   useEffect(() => {
     if (!business) return
@@ -34,6 +36,8 @@ export default function SettingsPage() {
     setEmail(business.contact_info?.email || '')
     setAddress(business.contact_info?.address || '')
     setWebsite(business.contact_info?.website || '')
+    setBrandColor(business.contact_info?.brand_color || '#2563eb')
+    setEmailFooter(business.contact_info?.email_footer || '')
     loadSummarySettings()
   }, [business])
 
@@ -53,7 +57,7 @@ export default function SettingsPage() {
     await supabase.from('businesses').update({
       name,
       story,
-      contact_info: { phone, email, address, website },
+      contact_info: { ...business?.contact_info, phone, email, address, website, brand_color: brandColor, email_footer: emailFooter },
     }).eq('id', business!.id)
     await supabase.from('summary_settings').update({
       enabled: summaryEnabled,
@@ -152,6 +156,42 @@ export default function SettingsPage() {
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-100/60 shadow-none">
+          <CardHeader>
+            <CardTitle className="text-lg">עיצוב אימייל</CardTitle>
+            <CardDescription>התאם את המראה של המיילים שהבוט שולח ללקוחות</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>צבע ראשי</Label>
+              <div className="flex gap-2">
+                <Input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-12 h-10 p-1 cursor-pointer" />
+                <Input value={brandColor} onChange={e => setBrandColor(e.target.value)} dir="ltr" className="flex-1" />
+              </div>
+              <p className="text-xs text-gray-400">הצבע שיופיע בכותרת האימייל</p>
+            </div>
+            <div className="space-y-2">
+              <Label>טקסט תחתון (אופציונלי)</Label>
+              <Input value={emailFooter} onChange={e => setEmailFooter(e.target.value)} placeholder="למשל: טלפון: 050-1234567 | כתובת: רחוב הרצל 1" />
+              <p className="text-xs text-gray-400">יופיע בתחתית כל אימייל שנשלח ללקוחות</p>
+            </div>
+            {/* Preview */}
+            <div className="border border-blue-100 rounded-xl overflow-hidden">
+              <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}dd)` }} className="p-4 text-center">
+                {business?.logo_url && <img src={business.logo_url} alt="" className="w-10 h-10 rounded-lg mx-auto mb-2" />}
+                <p className="text-white font-bold text-sm">{name || 'שם העסק'}</p>
+              </div>
+              <div className="p-4 bg-white">
+                <p className="text-sm text-gray-600">זוהי דוגמה לתשובה שהבוט ישלח ללקוח באימייל...</p>
+              </div>
+              <div className="border-t border-gray-100 p-3 bg-gray-50 text-center">
+                {emailFooter && <p className="text-xs text-gray-500 mb-1">{emailFooter}</p>}
+                <p className="text-[10px] text-gray-400">הודעה זו נשלחה אוטומטית על ידי הבוט של {name || 'העסק'}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
