@@ -10,10 +10,11 @@ import { Loader2, Check, CreditCard, Zap } from 'lucide-react'
 const PLANS = [
   {
     tier: 'free',
-    name: 'חינם',
-    price: 0,
+    name: 'ניסיון',
+    price: 1,
     limit: 100,
-    features: ['100 הודעות/חודש', 'ערוץ אחד', 'FAQ + AI בסיסי', 'דשבורד בסיסי'],
+    trial: true,
+    features: ['7 ימי ניסיון מלא', '100 הודעות', 'כל הערוצים', 'FAQ + AI מלא'],
   },
   {
     tier: 'basic',
@@ -94,9 +95,9 @@ export default function PlanPage() {
               <CardTitle className="text-lg">{plan.name}</CardTitle>
               <div className="mt-2">
                 <span className="text-4xl font-bold">
-                  {plan.price === 0 ? 'חינם' : `₪${plan.price}`}
+                  {plan.trial ? '₪1' : `₪${plan.price}`}
                 </span>
-                {plan.price > 0 && <span className="text-gray-400 text-sm">/חודש</span>}
+                {plan.trial ? <span className="text-blue-500 text-sm font-medium">/7 ימי ניסיון</span> : <span className="text-gray-400 text-sm">/חודש</span>}
               </div>
             </CardHeader>
             <CardContent>
@@ -113,7 +114,7 @@ export default function PlanPage() {
                 variant={currentPlan === plan.tier ? 'outline' : plan.popular ? 'default' : 'outline'}
                 disabled={currentPlan === plan.tier}
               >
-                {currentPlan === plan.tier ? 'התוכנית הנוכחית' : 'שדרג'}
+                {currentPlan === plan.tier ? 'התוכנית הנוכחית' : plan.trial ? 'התחל ניסיון' : 'שדרג'}
               </Button>
             </CardContent>
           </Card>

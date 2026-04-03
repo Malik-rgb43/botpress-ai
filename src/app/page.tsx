@@ -151,7 +151,7 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-gray-400">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />ללא כרטיס אשראי</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />התקנה ב-5 דקות</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה מלאה בעברית</span>
@@ -167,7 +167,7 @@ export default function LandingPage() {
       {/* Social Proof */}
       <section className="py-14 bg-white border-y border-blue-50">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
             {[
               { value: "500+", label: "עסקים משתמשים", emoji: "🏢" },
               { value: "50K+", label: "הודעות בחודש", emoji: "💬" },
@@ -343,7 +343,7 @@ export default function LandingPage() {
           </h2>
         </div>
         <div className="bg-white rounded-2xl border border-blue-100/60 overflow-hidden">
-          <div className="grid grid-cols-3 text-center text-sm font-medium border-b border-blue-50 bg-blue-50/50">
+          <div className="grid grid-cols-3 text-center text-xs md:text-sm font-medium border-b border-blue-50 bg-blue-50/50">
             <div className="p-4 text-gray-500">פיצ׳ר</div>
             <div className="p-4 gradient-text font-bold">BotPress AI</div>
             <div className="p-4 text-gray-400">אחרים</div>
@@ -358,7 +358,7 @@ export default function LandingPage() {
             { feature: "תוכנית חינם", us: true, them: false },
           ].map((row, i) => (
             <div key={i} className={`grid grid-cols-3 text-center text-sm border-b border-blue-50 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-blue-50/20"}`}>
-              <div className="p-3.5 text-gray-600 text-right pr-6">{row.feature}</div>
+              <div className="p-2.5 md:p-3.5 text-gray-600 text-right pr-3 md:pr-6 text-xs md:text-sm">{row.feature}</div>
               <div className="p-3.5"><Check className={`h-5 w-5 mx-auto ${row.us ? "text-blue-500" : "text-gray-300"}`} /></div>
               <div className="p-3.5">{row.them ? <Check className="h-5 w-5 mx-auto text-gray-300" /> : <X className="h-5 w-5 mx-auto text-gray-300" />}</div>
             </div>
@@ -449,7 +449,7 @@ export default function LandingPage() {
         </div>
         <div className="grid md:grid-cols-3 gap-6 pt-4">
           {[
-            { name: "חינם", price: "0", features: ["100 הודעות/חודש", "ערוץ אחד", "FAQ + AI בסיסי", "דשבורד בסיסי"] },
+            { name: "ניסיון", price: "1", trial: true, features: ["7 ימי ניסיון מלא", "100 הודעות", "כל הערוצים", "FAQ + AI מלא"] },
             { name: "בסיסי", price: "99", popular: true, features: ["1,000 הודעות/חודש", "כל הערוצים", "AI מתקדם + זיכרון", "אנליטיקס מלא", "סיכומים אוטומטיים"] },
             { name: "פרימיום", price: "299", features: ["הודעות ללא הגבלה", "כל הערוצים", "White Label", "תמיכה מועדפת", "AI מתקדם + זיכרון"] },
           ].map((plan, i) => (
@@ -458,11 +458,11 @@ export default function LandingPage() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
                 <div className="mb-4">
-                  <span className={`text-4xl font-extrabold ${plan.popular ? "gradient-text" : ""}`}>{plan.price === "0" ? "חינם" : `₪${plan.price}`}</span>
-                  {plan.price !== "0" && <span className="text-gray-400 text-sm">/חודש</span>}
+                  <span className={`text-4xl font-extrabold ${plan.popular ? "gradient-text" : ""}`}>{plan.trial ? "₪1" : `₪${plan.price}`}</span>
+                  {plan.trial ? <span className="text-blue-500 text-sm font-medium">/7 ימי ניסיון</span> : <span className="text-gray-400 text-sm">/חודש</span>}
                 </div>
                 <ul className="space-y-2.5 mb-6">{plan.features.map((f, j) => <li key={j} className="flex items-center gap-2 text-sm text-gray-600"><Check className="h-4 w-4 text-blue-500 shrink-0" />{f}</li>)}</ul>
-                <Link href="/signup"><Button className={`w-full ${plan.popular ? "gradient-primary border-0 shadow-md shadow-blue-500/25" : ""}`} variant={plan.popular ? "default" : "outline"}>{plan.price === "0" ? "התחל בחינם" : "שדרג עכשיו"}</Button></Link>
+                <Link href="/signup"><Button className={`w-full ${plan.popular ? "gradient-primary border-0 shadow-md shadow-blue-500/25" : ""}`} variant={plan.popular ? "default" : "outline"}>{plan.trial ? "התחל ניסיון ב-₪1" : "שדרג עכשיו"}</Button></Link>
               </CardContent>
             </Card>
           ))}
