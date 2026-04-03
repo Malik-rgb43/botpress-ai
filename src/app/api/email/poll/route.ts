@@ -133,10 +133,11 @@ async function replyViaGmail(accessToken: string, originalMessageId: string, to:
 // Main polling endpoint — called periodically
 export async function POST(request: NextRequest) {
   try {
-    // Verify secret to prevent unauthorized calls
-    const authHeader = request.headers.get('authorization')
-    const cronSecret = process.env.CRON_SECRET || 'botpress-poll-secret'
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    // Verify — accept Vercel Cron header OR Bearer token
+    const cronHeader = request.headers.get('authorization')
+    const cronSecret = process.env.CRON_SECRET || 'botpress-poll-secret-2026'
+    const vercelCron = request.headers.get('x-vercel-cron')
+    if (!vercelCron && cronHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
