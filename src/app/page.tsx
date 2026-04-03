@@ -79,10 +79,16 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#f8fafd]">
+    <div className="min-h-screen bg-gradient-to-b from-[#f0f4ff] via-[#f8fafd] to-white relative">
+      {/* Ambient background blobs */}
+      <div className="fixed inset-0 -z-20 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-200/20 rounded-full blur-[120px] animate-[float_20s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-200/15 rounded-full blur-[100px] animate-[float_25s_ease-in-out_infinite_reverse]" />
+        <div className="absolute top-[40%] left-[30%] w-[400px] h-[400px] bg-indigo-200/10 rounded-full blur-[80px] animate-[float_30s_ease-in-out_infinite]" />
+      </div>
       {/* Header */}
       <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl">
-        <div className="bg-white/90 backdrop-blur-xl border border-blue-100/60 rounded-2xl shadow-[0_2px_20px_rgba(59,130,246,0.08)] px-6 py-3 flex items-center justify-between">
+        <div className="glass-strong rounded-2xl px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
             <span className="text-lg font-bold tracking-tight">BotPress AI</span>
@@ -140,7 +146,7 @@ export default function LandingPage() {
           </p>
           <div className="flex items-center justify-center gap-4 mb-6">
             <Link href="/signup">
-              <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/30 text-lg hover:shadow-xl hover:shadow-blue-500/40 transition-all hover:scale-[1.02]">
+              <Button size="lg" className="text-base px-10 py-7 btn-premium text-white text-lg rounded-2xl">
                 נסה ב-₪1
                 <ArrowLeft className="h-5 w-5 mr-2" />
               </Button>
@@ -199,7 +205,7 @@ export default function LandingPage() {
 
         {/* Feature Row 1: Big card with mockup + 2 small */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift overflow-hidden hover:border-blue-300">
+          <Card className="glass-card rounded-2xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -213,7 +219,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift overflow-hidden hover:border-blue-300">
+          <Card className="glass-card rounded-2xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
@@ -229,7 +235,7 @@ export default function LandingPage() {
 
         {/* Feature Row 2: 3 cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
                 <Bell className="h-4 w-4 text-white" />
@@ -240,7 +246,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center mb-3">
                 <Zap className="h-4 w-4 text-white" />
@@ -262,7 +268,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
+          <Card className="glass-card rounded-2xl">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-3">
                 <Globe className="h-4 w-4 text-white" />
@@ -420,7 +426,7 @@ export default function LandingPage() {
               { name: "מיכל אברהם", role: "ShopStyle — חנות אונליין", text: "ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה לגבי החזרות ומשלוחים. הלקוחות חושבים שזה נציג אמיתי.", metric: "10 דק׳ התקנה", avatar: "🛍️" },
               { name: "אבי מזרחי", role: "סטודיו כושר FitZone", text: "מטורף כמה שיחות הבוט מטפל בשבילי. שאלות על מנויים, שעות פעילות, שיעורים — הכל אוטומטי. ממליץ לכל בעל עסק.", metric: "150+ שיחות/חודש", avatar: "💪" },
             ].map((t, i) => (
-              <Card key={i} className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300 group">
+              <Card key={i} className="glass-card rounded-2xl group">
                 <CardContent className="p-6">
                   <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
