@@ -99,7 +99,7 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-2.5">
             <Link href="/login"><Button variant="ghost" size="sm" className="hidden md:inline-flex text-gray-500 hover:text-blue-600">התחברות</Button></Link>
-            <Link href="/signup"><Button size="sm" className="hidden md:inline-flex rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">התחל בחינם</Button></Link>
+            <Link href="/signup"><Button size="sm" className="hidden md:inline-flex rounded-xl px-5 gradient-primary border-0 shadow-md shadow-blue-500/20">נסה ב-₪1</Button></Link>
             <Sheet>
               <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-blue-600">
                 <Menu className="h-5 w-5" />
@@ -112,7 +112,7 @@ export default function LandingPage() {
                   <a href="#faq" className="text-lg text-gray-700 hover:text-blue-600">שאלות</a>
                   <div className="border-t border-blue-100 pt-4 mt-2 space-y-3">
                     <Link href="/login"><Button variant="outline" className="w-full">התחברות</Button></Link>
-                    <Link href="/signup"><Button className="w-full gradient-primary border-0">התחל בחינם</Button></Link>
+                    <Link href="/signup"><Button className="w-full gradient-primary border-0">נסה ב-₪1</Button></Link>
                   </div>
                 </nav>
               </SheetContent>
@@ -141,7 +141,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-center gap-4 mb-6">
             <Link href="/signup">
               <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/30 text-lg hover:shadow-xl hover:shadow-blue-500/40 transition-all hover:scale-[1.02]">
-                התחל בחינם
+                נסה ב-₪1
                 <ArrowLeft className="h-5 w-5 mr-2" />
               </Button>
             </Link>
@@ -152,7 +152,7 @@ export default function LandingPage() {
             </Link>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-gray-400">
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />ללא כרטיס אשראי</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />7 ימי ניסיון ב-₪1</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />התקנה ב-5 דקות</span>
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה מלאה בעברית</span>
           </div>
@@ -445,7 +445,7 @@ export default function LandingPage() {
       <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
-          <p className="text-gray-500 text-lg">התחל בחינם, שדרג כשהעסק גדל</p>
+          <p className="text-gray-500 text-lg">נסה 7 ימים ב-₪1 בלבד, בחר תוכנית כשמתאים לך</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 pt-4">
           {[
@@ -462,7 +462,7 @@ export default function LandingPage() {
                   {plan.trial ? <span className="text-blue-500 text-sm font-medium">/7 ימי ניסיון</span> : <span className="text-gray-400 text-sm">/חודש</span>}
                 </div>
                 <ul className="space-y-2.5 mb-6">{plan.features.map((f, j) => <li key={j} className="flex items-center gap-2 text-sm text-gray-600"><Check className="h-4 w-4 text-blue-500 shrink-0" />{f}</li>)}</ul>
-                <Link href="/signup"><Button className={`w-full ${plan.popular ? "gradient-primary border-0 shadow-md shadow-blue-500/25" : ""}`} variant={plan.popular ? "default" : "outline"}>{plan.trial ? "התחל ניסיון ב-₪1" : "שדרג עכשיו"}</Button></Link>
+                <Link href="/signup"><Button className={`w-full ${plan.popular ? "gradient-primary border-0 shadow-md shadow-blue-500/25" : ""}`} variant={plan.popular ? "default" : "outline"}>{plan.trial ? "התחל ניסיון ב-₪1" : "בחר תוכנית"}</Button></Link>
               </CardContent>
             </Card>
           ))}
@@ -497,7 +497,7 @@ export default function LandingPage() {
           <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום</p>
           <Link href="/signup">
             <Button size="lg" className="text-base px-10 py-7 bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg text-lg font-semibold">
-              התחל עכשיו בחינם <ArrowLeft className="h-5 w-5 mr-2" />
+              התחל ניסיון ב-₪1 <ArrowLeft className="h-5 w-5 mr-2" />
             </Button>
           </Link>
         </div>
