@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// Select removed — using button chips instead
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Plus, Trash2, Pencil, Loader2, FileText } from 'lucide-react'
@@ -103,12 +103,22 @@ export default function PoliciesPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>סוג</Label>
-                <Select value={type} onValueChange={(v) => v && setType(v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {POLICY_TYPES.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {POLICY_TYPES.map(p => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setType(p.value)}
+                      className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                        type === p.value
+                          ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium'
+                          : 'border-gray-200 text-gray-500 hover:border-blue-300'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>כותרת *</Label>
