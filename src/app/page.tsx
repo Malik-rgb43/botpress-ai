@@ -516,7 +516,7 @@ export default function LandingPage() {
             </div>
             <div><h4 className="font-medium text-sm mb-3">מוצר</h4><ul className="space-y-2 text-sm text-gray-400"><li><a href="#features" className="hover:text-blue-500">פיצ׳רים</a></li><li><a href="#pricing" className="hover:text-blue-500">מחירים</a></li><li><a href="#faq" className="hover:text-blue-500">שאלות נפוצות</a></li></ul></div>
             <div><h4 className="font-medium text-sm mb-3">חברה</h4><ul className="space-y-2 text-sm text-gray-400"><li><span className="cursor-pointer hover:text-blue-500">אודות</span></li><li><span className="cursor-pointer hover:text-blue-500">בלוג</span></li><li><span className="cursor-pointer hover:text-blue-500">צור קשר</span></li></ul></div>
-            <div><h4 className="font-medium text-sm mb-3">משפטי</h4><ul className="space-y-2 text-sm text-gray-400"><li><span className="cursor-pointer hover:text-blue-500">תנאי שימוש</span></li><li><span className="cursor-pointer hover:text-blue-500">פרטיות</span></li></ul></div>
+            <div><h4 className="font-medium text-sm mb-3">משפטי</h4><ul className="space-y-2 text-sm text-gray-400"><li><Link href="/terms" className="hover:text-blue-500">תנאי שימוש</Link></li><li><Link href="/privacy" className="hover:text-blue-500">מדיניות פרטיות</Link></li></ul></div>
           </div>
           <div className="border-t border-blue-50 pt-6 text-center text-sm text-gray-400">© 2026 BotPress AI. כל הזכויות שמורות.</div>
         </div>
