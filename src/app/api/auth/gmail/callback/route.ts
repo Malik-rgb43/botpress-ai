@@ -48,14 +48,16 @@ export async function GET(request: NextRequest) {
     if (user) {
       const { data: business } = await supabase
         .from('businesses')
-        .select('id')
+        .select('id, contact_info')
         .eq('user_id', user.id)
         .single()
 
       if (business) {
-        // Store encrypted tokens in a new column or separate table
+        // Merge new Gmail tokens with existing contact info (preserve phone, address, etc.)
+        const existingInfo = (business.contact_info as Record<string, unknown>) || {}
         await supabase.from('businesses').update({
           contact_info: {
+            ...existingInfo,
             email: profile.emailAddress,
             gmail_connected: true,
             gmail_refresh_token: tokens.refresh_token,

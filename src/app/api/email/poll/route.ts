@@ -97,11 +97,12 @@ async function replyViaGmail(accessToken: string, originalMessageId: string, to:
   const msgData = await msgRes.json()
   const threadId = msgData.threadId
 
-  // Build raw email
+  // Build raw email with proper UTF-8 subject
   const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`
+  const encodedSubject = `=?UTF-8?B?${Buffer.from(replySubject).toString('base64')}?=`
   const rawEmail = [
     `To: ${to}`,
-    `Subject: ${replySubject}`,
+    `Subject: ${encodedSubject}`,
     `In-Reply-To: ${originalMessageId}`,
     `References: ${originalMessageId}`,
     'Content-Type: text/plain; charset=UTF-8',
@@ -253,12 +254,20 @@ export async function POST(request: NextRequest) {
             )
 
             if (!aiRes.ok) {
-              console.error('Gemini error for email:', email.id)
+              const errText = await aiRes.text().catch(() => 'unknown')
+              console.error('Gemini error for email:', email.id, 'status:', aiRes.status, 'body:', errText)
               continue
             }
 
             const aiData = await aiRes.json()
             const aiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text
+
+            // If Gemini blocked for safety, skip
+            if (!aiContent && aiData.candidates?.[0]?.finishReason === 'SAFETY') {
+              console.log('Gemini blocked for safety:', email.id)
+              await markAsRead(accessToken, email.id)
+              continue
+            }
 
             if (!aiContent) continue
 
