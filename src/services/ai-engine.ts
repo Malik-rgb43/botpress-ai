@@ -1,4 +1,4 @@
-import type { FAQ, Policy, Business, ResponseTemplate } from '@/types/database'
+import type { FAQ, Policy, Business } from '@/types/database'
 
 export interface AIContext {
   business: Business
@@ -17,18 +17,105 @@ export interface AIResponse {
   confidence: number
 }
 
-// Layer 0: Intent Detection
+// Build the master system prompt — this is the brain of the bot
+export function buildSystemPrompt(context: AIContext): string {
+  const { business, faqs, policies } = context
+
+  const toneMap: Record<string, string> = {
+    formal: 'רשמי ומכובד — פנייה בלשון רבים, שפה מקצועית',
+    friendly: 'ידידותי וחם — כמו חבר טוב שעוזר, אפשר להשתמש באימוג׳י',
+    professional: 'מקצועי וענייני — ממוקד בתשובה, בלי מילות מילוי',
+    casual: 'לא רשמי וקליל — שפה יומיומית, קצר וממוקד',
+  }
+  const toneInstruction = business.tone === 'custom' && business.tone_custom
+    ? business.tone_custom
+    : toneMap[business.tone] || toneMap.friendly
+
+  let prompt = `# תפקיד
+אתה נציג שירות לקוחות AI של "${business.name}".
+אתה צריך לענות על שאלות לקוחות בצורה מדויקת, מועילה וידידותית.
+
+# טון דיבור
+${toneInstruction}
+
+# מידע על העסק
+${business.story || 'לא סופק מידע נוסף על העסק.'}
+
+# כללי פעולה מרכזיים
+
+## 1. תהליך חשיבה לכל הודעה
+לפני שאתה עונה, עבור על הצעדים הבאים:
+א. **הבן את השאלה** — מה הלקוח באמת רוצה לדעת? לפעמים השאלה שונה מהמילים.
+ב. **חפש בידע** — האם יש מידע רלוונטי ב-FAQ, במדיניות, או בסיפור העסק?
+ג. **בחר מקור** — אם יש FAQ מתאים, השתמש בתשובה שלו (אפשר לנסח מחדש). אם לא, ענה מהמדיניות או מהידע הכללי על העסק.
+ד. **אם לא יודע** — אל תמציא! העבר לנציג.
+
+## 2. מתי להעביר לנציג
+- הלקוח מבקש במפורש לדבר עם אדם/נציג
+- השאלה דורשת גישה למערכת (הזמנות, חשבונות, תשלומים)
+- השאלה מחוץ לתחום העסק לחלוטין
+- הלקוח כועס מאוד או לא מרוצה מהתשובות
+- אין לך מספיק מידע לענות בביטחון
+
+כשמעביר לנציג, אמור: "אני מעביר אותך לנציג שירות שיוכל לעזור לך. אנא המתן רגע."
+
+## 3. כללי תשובה
+- ענה תמיד בשפה שבה הלקוח פנה (עברית/אנגלית/ערבית)
+- תשובות קצרות וממוקדות — 1-3 משפטים מספיקים
+- אל תמציא מידע, מחירים, תאריכים או עובדות שלא קיימים בנתונים
+- אל תחזור על עצמך — אם כבר ענית על שאלה, תן תשובה מקוצרת
+- אם הלקוח אומר תודה, הגב בחום וציין שאתה כאן אם צריך עוד עזרה
+- אם הלקוח שואל שאלה לא קשורה לעסק (מזג אוויר, ספורט וכו׳), אמור בנימוס שאתה יכול לעזור רק בנושאים הקשורים ל"${business.name}"
+
+## 4. טיפול במצבים מיוחדים
+- **תלונה**: הבע אמפתיה קודם, אחר כך הצע פתרון או העבר לנציג
+- **שאלה כפולה**: ענה בקצרה "כפי שציינתי..." ותן תשובה מרוכזת
+- **שאלה מורכבת**: פרק לנקודות, ענה על כל חלק בנפרד
+- **ברכה/היי**: הגב בחום עם ברכה ושאל איך אפשר לעזור
+
+`
+
+  if (faqs.length > 0) {
+    prompt += `# בסיס ידע — שאלות נפוצות (FAQ)\nהשתמש בתשובות אלו כשהשאלה רלוונטית. אפשר לנסח מחדש בהתאם להקשר.\n\n`
+    faqs.forEach((f, i) => {
+      prompt += `[FAQ ${i + 1}] שאלה: ${f.question}\nתשובה: ${f.answer}\n\n`
+    })
+  }
+
+  if (policies.length > 0) {
+    prompt += `# מדיניות העסק\nהשתמש במדיניות כשלקוח שואל על נושאים אלו.\n\n`
+    policies.forEach(p => {
+      prompt += `[${p.title}]: ${p.content}\n\n`
+    })
+  }
+
+  prompt += `# פורמט תשובה
+ענה בטקסט רגיל, ישר לעניין.
+אל תוסיף כותרות, מספור, או "תשובה:".
+פשוט ענה כמו נציג אמיתי בצ׳אט.`
+
+  return prompt
+}
+
+// Detect language of message
+export function detectLanguage(message: string): string {
+  if (/[\u0590-\u05FF]/.test(message)) return 'he'
+  if (/[\u0600-\u06FF]/.test(message)) return 'ar'
+  return 'en'
+}
+
+// Simple intent detection — only for metadata, AI handles the actual routing
 export function detectIntent(message: string): string {
   const lower = message.toLowerCase()
   const intents: [string, RegExp[]][] = [
-    ['agent_request', [/נציג/, /אדם/, /בן.אדם/, /agent/, /human/, /representative/]],
-    ['return', [/החזר/, /להחזיר/, /return/, /refund/]],
-    ['shipping', [/משלוח/, /shipping/, /delivery/, /הגעה/]],
-    ['hours', [/שעות/, /פתוח/, /סגור/, /hours/, /open/, /close/]],
-    ['complaint', [/תלונה/, /complaint/, /בעיה/, /problem/, /לא מרוצה/, /גרוע/]],
-    ['pricing', [/מחיר/, /עלות/, /כמה עולה/, /price/, /cost/]],
-    ['order_status', [/הזמנה/, /סטטוס/, /order/, /status/, /tracking/]],
-    ['greeting', [/שלום/, /היי/, /hello/, /hi/, /hey/]],
+    ['agent_request', [/\bנציג\b/, /\bאדם\b/, /בן אדם/, /\bagent\b/, /\bhuman\b/, /representative/]],
+    ['return', [/החזר/, /להחזיר/, /\breturn\b/, /\brefund\b/]],
+    ['shipping', [/\bמשלוח\b/, /\bshipping\b/, /\bdelivery\b/]],
+    ['hours', [/שעות פעילות/, /שעות עבודה/, /\bפתוח\b/, /\bסגור\b/, /opening hours/]],
+    ['complaint', [/תלונה/, /\bcomplaint\b/, /לא מרוצה/, /\bגרוע\b/]],
+    ['pricing', [/\bמחיר\b/, /כמה עולה/, /\bprice\b/, /\bcost\b/]],
+    ['order_status', [/סטטוס הזמנה/, /עקוב/, /\btracking\b/, /איפה ההזמנה/]],
+    ['greeting', [/^שלום$/, /^היי$/, /^hello$/, /^hi$/]],
   ]
 
   for (const [intent, patterns] of intents) {
@@ -37,113 +124,39 @@ export function detectIntent(message: string): string {
   return 'general'
 }
 
-// Layer 0: Sentiment Detection
+// Sentiment detection — for analytics and escalation logic
 export function detectSentiment(message: string): 'positive' | 'neutral' | 'negative' | 'angry' {
   const lower = message.toLowerCase()
-  if (/תודה|מעולה|אהבתי|great|thanks|awesome|perfect|love/.test(lower)) return 'positive'
-  if (/גרוע|נורא|חרא|terrible|awful|worst|hate|angry|כועס/.test(lower)) return 'angry'
-  if (/לא טוב|מאוכזב|disappointed|bad|poor|not happy|בעיה/.test(lower)) return 'negative'
+
+  // Check angry first (strongest signal)
+  const angryPatterns = /גרוע|נורא|חרא|terrible|awful|worst|מגעיל|זבל|בושה|כועס|angry|hate|שטויות/
+  if (angryPatterns.test(lower)) return 'angry'
+
+  // Negative
+  const negativePatterns = /לא טוב|מאוכזב|disappointed|bad|poor|not happy|בעיה|עצבני|מתסכל|frustrat/
+  if (negativePatterns.test(lower)) return 'negative'
+
+  // Positive
+  const positivePatterns = /תודה|מעולה|אהבתי|great|thanks|awesome|perfect|love|מצוין|נהדר|יפה|סבבה|אחלה/
+  if (positivePatterns.test(lower)) return 'positive'
+
   return 'neutral'
 }
 
-// Hebrew/English stopwords to ignore in FAQ matching
-const STOPWORDS = new Set([
-  // Hebrew
-  'את', 'של', 'על', 'עם', 'מה', 'איך', 'כמה', 'זה', 'היא', 'הוא',
-  'אני', 'לי', 'שלי', 'אתם', 'הם', 'יש', 'אין', 'גם', 'רק', 'כל',
-  'לא', 'כן', 'או', 'אם', 'עוד', 'כבר', 'היה', 'הזה', 'הזאת', 'אותו',
-  'אותה', 'שאני', 'רוצה', 'צריך', 'יכול', 'אפשר', 'בבקשה', 'תודה',
-  'שלום', 'היי', 'לשאול', 'להגיד', 'לדעת',
-  // English
-  'the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but',
-  'in', 'to', 'for', 'of', 'with', 'how', 'what', 'when', 'where',
-  'can', 'do', 'does', 'your', 'you', 'my', 'this', 'that',
-])
+// Determine if we should auto-escalate based on conversation context
+export function shouldEscalate(
+  sentiment: string,
+  intent: string,
+  conversationLength: number
+): boolean {
+  // Explicit agent request
+  if (intent === 'agent_request') return true
 
-// Layer 1: FAQ Match — improved with stopword filtering and stricter scoring
-export function findFAQMatch(message: string, faqs: FAQ[]): { faq: FAQ; score: number } | null {
-  if (faqs.length === 0) return null
+  // Customer is angry and conversation is getting long
+  if (sentiment === 'angry' && conversationLength > 2) return true
 
-  const lower = message.toLowerCase()
-  const messageWords = lower.split(/\s+/).filter(w => w.length > 1 && !STOPWORDS.has(w))
+  // Too many messages without resolution (customer keeps asking)
+  if (conversationLength > 8) return true
 
-  // If after removing stopwords there are no meaningful words, skip FAQ match
-  if (messageWords.length === 0) return null
-
-  let bestMatch: { faq: FAQ; score: number } | null = null
-
-  for (const faq of faqs) {
-    const qLower = faq.question.toLowerCase()
-    const faqWords = qLower.split(/\s+/).filter(w => w.length > 2 && !STOPWORDS.has(w))
-
-    if (faqWords.length === 0) continue
-
-    let matchCount = 0
-    for (const faqWord of faqWords) {
-      // Require exact word match or very close match (not substring)
-      if (messageWords.some(mw => mw === faqWord || (mw.length > 4 && faqWord.length > 4 && (mw.startsWith(faqWord) || faqWord.startsWith(mw))))) {
-        matchCount++
-      }
-    }
-
-    // Score based on matched FAQ words AND coverage of message words
-    const faqCoverage = faqWords.length > 0 ? matchCount / faqWords.length : 0
-    const msgCoverage = messageWords.length > 0 ? matchCount / messageWords.length : 0
-    const score = (faqCoverage + msgCoverage) / 2 // Average of both directions
-
-    // Higher threshold: 0.7 for confident FAQ match
-    if (score > 0.7 && matchCount >= 2 && (!bestMatch || score > bestMatch.score)) {
-      bestMatch = { faq, score }
-    }
-  }
-
-  return bestMatch
-}
-
-// Build system prompt for Layer 2
-export function buildSystemPrompt(context: AIContext): string {
-  const { business, faqs, policies } = context
-  const toneMap: Record<string, string> = {
-    formal: 'דבר בצורה רשמית ומכובדת',
-    friendly: 'דבר בצורה ידידותית וחמה',
-    professional: 'דבר בצורה מקצועית וענינית',
-    casual: 'דבר בצורה לא רשמית וקלילה',
-  }
-  const toneInstruction = business.tone === 'custom' && business.tone_custom
-    ? business.tone_custom
-    : toneMap[business.tone] || toneMap.friendly
-
-  let prompt = `אתה בוט שירות לקוחות של "${business.name}".
-${toneInstruction}
-
-מידע על העסק:
-${business.story || 'לא סופק מידע נוסף'}
-
-`
-
-  if (faqs.length > 0) {
-    prompt += `שאלות נפוצות:\n`
-    faqs.forEach(f => {
-      prompt += `ש: ${f.question}\nת: ${f.answer}\n\n`
-    })
-  }
-
-  if (policies.length > 0) {
-    prompt += `מדיניות העסק:\n`
-    policies.forEach(p => {
-      prompt += `${p.title}: ${p.content}\n\n`
-    })
-  }
-
-  prompt += `\nהנחיות חשובות:
-- קרא היטב את שאלת הלקוח והבן מה הוא באמת שואל לפני שאתה עונה
-- השתמש בשאלות הנפוצות ובמדיניות רק כשהן באמת רלוונטיות לשאלה
-- אם השאלה לא קשורה לאף FAQ או מדיניות, ענה על בסיס הידע הכללי שלך על העסק
-- אם אתה לא בטוח בתשובה או שהשאלה מחוץ לתחום העסק, אמור שאתה מעביר לנציג
-- ענה בשפה שבה הלקוח פנה (עברית, אנגלית, או ערבית)
-- תשובות קצרות, ממוקדות וידידותיות
-- אל תמציא מידע שלא קיים בנתונים שקיבלת
-- אל תענה על שאלות שלא קשורות לעסק`
-
-  return prompt
+  return false
 }

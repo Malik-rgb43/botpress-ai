@@ -161,9 +161,74 @@ export default function SettingsPage() {
             <CardDescription>חבר את הבוט לערוצי תקשורת</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <p className="text-gray-500 text-sm">חיבור WhatsApp ו-Email יהיה זמין בקרוב</p>
-              <p className="text-gray-400 text-xs mt-1">בינתיים, אתה יכול לבדוק את הבוט דרך הסימולטור</p>
+            {/* Email — Working */}
+            <div className="border border-green-200 bg-green-50/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📧</span>
+                  <span className="font-medium text-sm">אימייל</span>
+                  <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">מחובר ✓</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-green-200 text-green-600 hover:bg-green-50 text-xs"
+                  onClick={async () => {
+                    const testEmail = email || business?.contact_info?.email
+                    if (!testEmail) { toast.error('הזן אימייל קודם'); return }
+                    toast.loading('שולח אימייל בדיקה...')
+                    try {
+                      const res = await fetch('/api/email/test', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ to: testEmail, businessName: business?.name }),
+                      })
+                      const data = await res.json()
+                      toast.dismiss()
+                      if (data.success) {
+                        toast.success(`אימייל נשלח ל-${testEmail}!`)
+                      } else {
+                        toast.error(data.error || 'שגיאה בשליחה')
+                      }
+                    } catch {
+                      toast.dismiss()
+                      toast.error('שגיאה בחיבור')
+                    }
+                  }}
+                >
+                  שלח בדיקה
+                </Button>
+              </div>
+              <p className="text-xs text-green-600">הבוט יכול לשלוח תגובות ללקוחות באימייל</p>
+            </div>
+
+            {/* WhatsApp — Coming soon */}
+            <div className="border border-gray-200 bg-gray-50/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">💬</span>
+                  <span className="font-medium text-sm">וואטסאפ</span>
+                  <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">בקרוב</span>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">חיבור Twilio WhatsApp Business יהיה זמין בקרוב</p>
+            </div>
+
+            {/* Widget */}
+            <div className="border border-blue-200 bg-blue-50/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🌐</span>
+                  <span className="font-medium text-sm">וידג׳ט באתר</span>
+                  <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">מוכן ✓</span>
+                </div>
+                <a href="/dashboard/widget">
+                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs">
+                    הגדרות
+                  </Button>
+                </a>
+              </div>
+              <p className="text-xs text-blue-600">הטמע צ׳אט בוט באתר שלך עם שורת קוד אחת</p>
             </div>
           </CardContent>
         </Card>
