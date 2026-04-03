@@ -174,29 +174,53 @@ export default function SettingsPage() {
                   )}
                 </div>
                 {business?.contact_info?.gmail_connected ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-green-200 text-green-600 hover:bg-green-50 text-xs"
-                    onClick={async () => {
-                      const testEmail = business?.contact_info?.email
-                      if (!testEmail) { toast.error('אין אימייל מחובר'); return }
-                      toast.loading('שולח אימייל בדיקה...')
-                      try {
-                        const res = await fetch('/api/email/test', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ to: testEmail, businessName: business?.name }),
-                        })
-                        const data = await res.json()
-                        toast.dismiss()
-                        if (data.success) toast.success('אימייל בדיקה נשלח!')
-                        else toast.error(data.error || 'שגיאה')
-                      } catch { toast.dismiss(); toast.error('שגיאה בחיבור') }
-                    }}
-                  >
-                    שלח בדיקה
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-green-200 text-green-600 hover:bg-green-50 text-xs"
+                      onClick={async () => {
+                        const testEmail = business?.contact_info?.email
+                        if (!testEmail) { toast.error('אין אימייל מחובר'); return }
+                        toast.loading('שולח אימייל בדיקה...')
+                        try {
+                          const res = await fetch('/api/email/test', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ to: testEmail, businessName: business?.name }),
+                          })
+                          const data = await res.json()
+                          toast.dismiss()
+                          if (data.success) toast.success('אימייל בדיקה נשלח!')
+                          else toast.error(data.error || 'שגיאה')
+                        } catch { toast.dismiss(); toast.error('שגיאה בחיבור') }
+                      }}
+                    >
+                      שלח בדיקה
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-500 hover:bg-red-50 text-xs"
+                      onClick={async () => {
+                        if (!confirm('בטוח שאתה רוצה לנתק את ה-Gmail?')) return
+                        const supabase = createClient()
+                        await supabase.from('businesses').update({
+                          contact_info: {
+                            ...business.contact_info,
+                            gmail_connected: false,
+                            gmail_refresh_token: null,
+                            gmail_access_token: null,
+                            gmail_token_expiry: null,
+                          }
+                        }).eq('id', business.id)
+                        toast.success('Gmail נותק')
+                        window.location.reload()
+                      }}
+                    >
+                      נתק
+                    </Button>
+                  </div>
                 ) : (
                   <a href="/api/auth/gmail">
                     <Button size="sm" className="gradient-primary border-0 text-xs shadow-sm">
@@ -207,7 +231,7 @@ export default function SettingsPage() {
               </div>
               <p className="text-xs text-gray-500">
                 {business?.contact_info?.gmail_connected
-                  ? 'הבוט קורא אימיילים נכנסים ועונה אוטומטית מהאימייל שלך'
+                  ? `הבוט עונה מ-${business.contact_info.email} · לנתק ולחבר אימייל אחר? לחץ "נתק" ואז "חבר Gmail"`
                   : 'חבר את ה-Gmail שלך כדי שהבוט יענה ללקוחות מהאימייל של העסק'}
               </p>
             </div>
