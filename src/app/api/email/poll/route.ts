@@ -241,7 +241,12 @@ export async function POST(request: NextRequest) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת אימייל מלקוח. ענה בצורה מתאימה — מפורט קצת יותר מצ׳אט אבל ממוקד. אל תכלול חתימה, הלקוח רואה שזה ממך.' }] },
+                  system_instruction: { parts: [{ text: systemPrompt + `\n\nזו הודעת אימייל מלקוח. ענה בצורה מתאימה — מפורט קצת יותר מצ׳אט אבל ממוקד.
+
+חשוב מאוד: אם אתה לא יכול לענות על השאלה (למשל: צריך גישה למערכת, שאלה מורכבת מדי, תלונה רצינית, או שאין לך מספיק מידע), התחל את התשובה שלך עם המילה ESCALATE ואז הסבר בקצרה למה.
+
+דוגמה לתשובה רגילה: "אנחנו פתוחים א-ה 9:00-18:00."
+דוגמה ל-ESCALATE: "ESCALATE - הלקוח שואל על הזמנה ספציפית שצריך לבדוק במערכת"` }] },
                   contents: [{ role: 'user', parts: [{ text: `נושא: ${email.subject}\n\n${email.body}` }] }],
                   generationConfig: { temperature: 0.3, maxOutputTokens: 600 },
                 }),
@@ -258,14 +263,26 @@ export async function POST(request: NextRequest) {
 
             if (!aiContent) continue
 
-            // Reply via Gmail API (FROM the business's email!)
-            const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent)
+            const needsEscalation = aiContent.trim().startsWith('ESCALATE')
+            const businessEmail = business.contact_info?.email || ''
 
-            if (sent) {
+            if (needsEscalation) {
+              // ── ESCALATION: Send notification to business owner ──
+              const escalationReason = aiContent.replace(/^ESCALATE\s*[-–—]?\s*/i, '').trim()
+
+              // Send notification email to business owner
+              await sendMessage({
+                to: businessEmail,
+                content: `📬 לקוח צריך מענה אנושי!\n\n👤 מאימייל: ${senderEmail}\n📋 נושא: ${email.subject}\n\n💬 ההודעה של הלקוח:\n"${email.body.slice(0, 500)}"\n\n🤖 הסיבה שהבוט לא ענה:\n${escalationReason}\n\n⚡ אנא ענה ללקוח ישירות מהאימייל שלך.`,
+                channel: 'email',
+                subject: `⚠️ צריך מענה אנושי — ${senderEmail} שאל על: ${email.subject}`,
+                businessName: business.name,
+              })
+
               // Mark as read
               await markAsRead(accessToken, email.id)
 
-              // Save conversation to DB
+              // Save to DB as escalation
               const { data: conv } = await supabase
                 .from('conversations')
                 .insert({
@@ -280,12 +297,46 @@ export async function POST(request: NextRequest) {
               if (conv) {
                 await supabase.from('messages').insert([
                   { conversation_id: conv.id, role: 'customer', content: email.body.slice(0, 2000), intent, sentiment },
-                  { conversation_id: conv.id, role: 'bot', content: aiContent, response_layer: 'ai' },
+                  { conversation_id: conv.id, role: 'bot', content: `[העברה לנציג] ${escalationReason}`, response_layer: 'transfer' },
                 ])
+                await supabase.from('escalations').insert({
+                  conversation_id: conv.id,
+                  reason: escalationReason,
+                  status: 'open',
+                })
               }
 
               totalProcessed++
-              console.log(`Replied to ${senderEmail} for business ${business.name}`)
+              console.log(`ESCALATED: ${senderEmail} → notified ${businessEmail}`)
+
+            } else {
+              // ── NORMAL: Reply directly to customer ──
+              const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent)
+
+              if (sent) {
+                await markAsRead(accessToken, email.id)
+
+                const { data: conv } = await supabase
+                  .from('conversations')
+                  .insert({
+                    business_id: business.id,
+                    channel: 'email',
+                    customer_identifier: senderEmail,
+                    detected_language: language,
+                  })
+                  .select('id')
+                  .single()
+
+                if (conv) {
+                  await supabase.from('messages').insert([
+                    { conversation_id: conv.id, role: 'customer', content: email.body.slice(0, 2000), intent, sentiment },
+                    { conversation_id: conv.id, role: 'bot', content: aiContent, response_layer: 'ai' },
+                  ])
+                }
+
+                totalProcessed++
+                console.log(`Replied to ${senderEmail} for business ${business.name}`)
+              }
             }
           } catch (emailError) {
             console.error('Error processing email:', email.id, emailError)
