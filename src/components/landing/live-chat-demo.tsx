@@ -44,8 +44,14 @@ export default function LiveChatDemo() {
   }, [currentIndex])
 
   useEffect(() => {
-    const timer = setTimeout(addMessage, currentIndex === 0 && visibleMessages.length === 0 ? 500 : 1100)
-    return () => clearTimeout(timer)
+    let cancelled = false
+    const timer = setTimeout(() => {
+      if (!cancelled) addMessage()
+    }, currentIndex === 0 && visibleMessages.length === 0 ? 500 : 1100)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [currentIndex, addMessage, visibleMessages.length])
 
   return (

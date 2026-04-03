@@ -5,11 +5,26 @@ import type { AIContext } from '@/services/ai-engine'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, businessId, conversationHistory = [] } = await request.json()
+    const body = await request.json()
+    const { message, businessId, conversationHistory = [] } = body
 
-    if (!message || !businessId) {
-      return NextResponse.json({ error: 'Missing message or businessId' }, { status: 400 })
+    // Input validation
+    if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 5000) {
+      return NextResponse.json({ error: 'Invalid message' }, { status: 400 })
     }
+    if (!businessId || typeof businessId !== 'string') {
+      return NextResponse.json({ error: 'Missing businessId' }, { status: 400 })
+    }
+
+    // Validate conversation history
+    const safeHistory = Array.isArray(conversationHistory)
+      ? conversationHistory.slice(-20).filter(
+          (m: { role?: string; content?: string }) =>
+            m && typeof m.content === 'string' &&
+            (m.role === 'user' || m.role === 'assistant') &&
+            m.content.length <= 2000
+        )
+      : []
 
     const supabase = await createClient()
 
@@ -61,14 +76,14 @@ export async function POST(request: NextRequest) {
       faqs: faqRes.data || [],
       policies: polRes.data || [],
       templates,
-      conversationHistory,
+      conversationHistory: safeHistory,
     }
 
     const systemPrompt = buildSystemPrompt(context)
 
     const messages = [
       { role: 'system' as const, content: systemPrompt },
-      ...conversationHistory.map((m: { role: string; content: string }) => ({
+      ...safeHistory.map((m: { role: string; content: string }) => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       })),

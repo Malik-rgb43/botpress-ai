@@ -281,3 +281,15 @@ insert into public.plans (name, tier, message_limit, features, price_monthly) va
   ('חינם', 'free', 100, '{"basic_analytics": true, "single_channel": true}'::jsonb, 0),
   ('בסיסי', 'basic', 1000, '{"full_analytics": true, "all_channels": true, "memory": true, "summaries": true}'::jsonb, 99),
   ('פרימיום', 'premium', -1, '{"full_analytics": true, "all_channels": true, "memory": true, "summaries": true, "white_label": true, "priority_support": true}'::jsonb, 299);
+
+-- Performance Indexes (added from architecture review)
+CREATE INDEX IF NOT EXISTS idx_conversations_business_id ON public.conversations(business_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_started ON public.conversations(business_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_faqs_business_id ON public.faqs(business_id, "order");
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON public.messages(conversation_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_policies_business_id ON public.policies(business_id);
+CREATE INDEX IF NOT EXISTS idx_templates_business_id ON public.response_templates(business_id);
+CREATE INDEX IF NOT EXISTS idx_customers_business_id ON public.customers(business_id);
+CREATE INDEX IF NOT EXISTS idx_escalations_conversation_id ON public.escalations(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_escalations_status ON public.escalations(status, created_at);
+CREATE INDEX IF NOT EXISTS idx_unanswered_business_id ON public.unanswered_questions(business_id);
