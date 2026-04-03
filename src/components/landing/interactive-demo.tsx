@@ -46,7 +46,7 @@ export default function InteractiveDemo() {
   return (
     <div className="relative">
       <div className="absolute inset-0 gradient-primary rounded-3xl blur-3xl opacity-[0.07] scale-105" />
-      <div className="relative bg-white rounded-2xl border border-blue-100 shadow-2xl shadow-blue-500/10 overflow-hidden">
+      <div className="relative bg-white rounded-2xl border border-blue-200/80 shadow-2xl shadow-blue-500/15 overflow-hidden hover-glow transition-all">
         {/* Header */}
         <div className="gradient-animated px-6 py-4 flex items-center justify-between" dir="rtl">
           <div className="flex items-center gap-3">

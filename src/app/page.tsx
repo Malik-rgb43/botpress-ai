@@ -65,7 +65,7 @@ function NotificationMockup() {
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   return (
-    <details className="group border border-blue-100/60 rounded-xl overflow-hidden bg-white">
+    <details className="group border border-blue-100/60 rounded-xl overflow-hidden bg-white shadow-sm hover:border-blue-200 transition-colors">
       <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-blue-50/30 transition-colors">
         <span className="font-medium text-gray-900">{q}</span>
         <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform shrink-0 mr-3" />
@@ -140,7 +140,7 @@ export default function LandingPage() {
           </p>
           <div className="flex items-center justify-center gap-4 mb-6">
             <Link href="/signup">
-              <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/20 text-lg">
+              <Button size="lg" className="text-base px-10 py-7 gradient-primary border-0 shadow-lg shadow-blue-500/30 text-lg hover:shadow-xl hover:shadow-blue-500/40 transition-all hover:scale-[1.02]">
                 התחל בחינם
                 <ArrowLeft className="h-5 w-5 mr-2" />
               </Button>
@@ -165,7 +165,7 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="py-14 bg-white border-y border-blue-50">
+      <section className="py-14 bg-gradient-to-r from-blue-50/40 via-white to-indigo-50/40 border-y border-blue-100/40">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
             {[
@@ -199,7 +199,7 @@ export default function LandingPage() {
 
         {/* Feature Row 1: Big card with mockup + 2 small */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-none bg-white hover-lift overflow-hidden">
+          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift overflow-hidden hover:border-blue-300">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -213,7 +213,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover-lift overflow-hidden">
+          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift overflow-hidden hover:border-blue-300">
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
@@ -229,7 +229,7 @@ export default function LandingPage() {
 
         {/* Feature Row 2: 3 cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
+          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
                 <Bell className="h-4 w-4 text-white" />
@@ -240,7 +240,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
+          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center mb-3">
                 <Zap className="h-4 w-4 text-white" />
@@ -262,7 +262,7 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-100/60 shadow-none bg-white hover-lift">
+          <Card className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300">
             <CardContent className="p-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-3">
                 <Globe className="h-4 w-4 text-white" />
@@ -343,7 +343,7 @@ export default function LandingPage() {
           </h2>
         </div>
         <div className="bg-white rounded-2xl border border-blue-100/60 overflow-hidden">
-          <div className="grid grid-cols-3 text-center text-xs md:text-sm font-medium border-b border-blue-50 bg-blue-50/50">
+          <div className="grid grid-cols-3 text-center text-xs md:text-sm font-medium border-b border-blue-100 bg-gradient-to-l from-blue-50 via-indigo-50/50 to-blue-50">
             <div className="p-4 text-gray-500">פיצ׳ר</div>
             <div className="p-4 gradient-text font-bold">BotPress AI</div>
             <div className="p-4 text-gray-400">אחרים</div>
@@ -420,7 +420,7 @@ export default function LandingPage() {
               { name: "מיכל אברהם", role: "ShopStyle — חנות אונליין", text: "ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה לגבי החזרות ומשלוחים. הלקוחות חושבים שזה נציג אמיתי.", metric: "10 דק׳ התקנה", avatar: "🛍️" },
               { name: "אבי מזרחי", role: "סטודיו כושר FitZone", text: "מטורף כמה שיחות הבוט מטפל בשבילי. שאלות על מנויים, שעות פעילות, שיעורים — הכל אוטומטי. ממליץ לכל בעל עסק.", metric: "150+ שיחות/חודש", avatar: "💪" },
             ].map((t, i) => (
-              <Card key={i} className="border-blue-100/60 shadow-none bg-white hover-lift group">
+              <Card key={i} className="border-blue-100/60 shadow-sm bg-white hover-lift hover:border-blue-300 group">
                 <CardContent className="p-6">
                   <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
@@ -506,7 +506,7 @@ export default function LandingPage() {
       {/* ───── Footer ───── */}
       <footer className="border-t border-blue-50 py-12 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-md" />
