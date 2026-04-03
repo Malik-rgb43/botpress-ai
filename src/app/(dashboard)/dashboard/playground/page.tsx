@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Send, Loader2, TestTube, RotateCcw, Bot, User } from 'lucide-react'
+import Link from 'next/link'
 
 interface ChatMessage {
   role: 'user' | 'bot'
@@ -97,11 +98,11 @@ export default function PlaygroundPage() {
         <TestTube className="h-10 w-10 text-blue-300 mb-3" />
         <p className="text-gray-500 font-medium text-lg">צריך ליצור עסק קודם</p>
         <p className="text-gray-400 text-sm mt-1 mb-4">כדי לבדוק את הבוט, צריך קודם להגדיר את פרטי העסק, FAQ ומדיניות</p>
-        <a href="/onboarding">
+        <Link href="/onboarding">
           <Button className="gradient-primary border-0 shadow-md shadow-blue-500/20">
             הגדר את העסק שלך
           </Button>
-        </a>
+        </Link>
       </div>
     )
   }

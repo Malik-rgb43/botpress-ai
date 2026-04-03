@@ -200,6 +200,21 @@ export async function POST(request: NextRequest) {
 
         for (const email of unreadEmails) {
           try {
+            // Duplicate protection — check if we already replied to this email
+            const senderEmail = email.from.match(/<([^>]+)>/)?.[1] || email.from.split(' ').pop() || ''
+            const { data: existingConv } = await supabase
+              .from('conversations')
+              .select('id')
+              .eq('business_id', business.id)
+              .eq('customer_identifier', senderEmail)
+              .gte('started_at', new Date(Date.now() - 3600000).toISOString()) // Last hour
+              .limit(1)
+
+            if (existingConv && existingConv.length > 0) {
+              // Already replied to this sender recently, skip
+              await markAsRead(accessToken, email.id)
+              continue
+            }
             const intent = detectIntent(email.body)
             const sentiment = detectSentiment(email.body)
             const language = detectLanguage(email.body)
@@ -242,9 +257,6 @@ export async function POST(request: NextRequest) {
             const aiContent = aiData.candidates?.[0]?.content?.parts?.[0]?.text
 
             if (!aiContent) continue
-
-            // Extract sender email
-            const senderEmail = email.from.match(/<([^>]+)>/)?.[1] || email.from.split(' ').pop() || ''
 
             // Reply via Gmail API (FROM the business's email!)
             const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent)

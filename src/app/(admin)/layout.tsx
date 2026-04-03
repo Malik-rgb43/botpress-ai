@@ -8,9 +8,9 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-64 bg-white border-l border-gray-100 flex flex-col h-screen sticky top-0">
-        <div className="p-4 border-b border-gray-100">
+    <div className="flex min-h-screen bg-[#f8fafd]">
+      <aside className="w-64 bg-white border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
+        <div className="p-4 border-b border-blue-100/60">
           <Link href="/admin" className="flex items-center gap-2">
             <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-md" />
             <span className="text-lg font-bold">Admin Panel</span>
@@ -30,7 +30,7 @@ export default function AdminLayout({
             <span>אנליטיקס</span>
           </Link>
         </nav>
-        <div className="p-3 border-t border-gray-100">
+        <div className="p-3 border-t border-blue-100/60">
           <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-black">
             <ArrowRight className="h-4 w-4" />
             חזרה לדשבורד
