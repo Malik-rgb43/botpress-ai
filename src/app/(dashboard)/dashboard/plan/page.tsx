@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useBusiness } from '@/hooks/use-business'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -35,12 +37,30 @@ const PLANS = [
 
 export default function PlanPage() {
   const { business, loading: bizLoading } = useBusiness()
+  const [messagesUsed, setMessagesUsed] = useState(0)
+  const [statsLoading, setStatsLoading] = useState(true)
 
-  // Mock current usage
+  useEffect(() => {
+    if (!business) { setStatsLoading(false); return }
+    async function loadUsage() {
+      const supabase = createClient()
+      // Count messages from this month
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+      const { count } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', startOfMonth.toISOString())
+      setMessagesUsed(count || 0)
+      setStatsLoading(false)
+    }
+    loadUsage()
+  }, [business])
+
   const currentPlan = 'free'
-  const messagesUsed = 42
   const messageLimit = 100
-  const usagePercent = (messagesUsed / messageLimit) * 100
+  const usagePercent = messageLimit > 0 ? Math.min((messagesUsed / messageLimit) * 100, 100) : 0
 
   if (bizLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
