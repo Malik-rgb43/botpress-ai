@@ -37,6 +37,10 @@ export interface Business {
     email?: string
     address?: string
     website?: string
+    gmail_connected?: boolean
+    gmail_refresh_token?: string
+    gmail_access_token?: string
+    gmail_token_expiry?: number
   }
   story: string | null
   tone: TonePreset
