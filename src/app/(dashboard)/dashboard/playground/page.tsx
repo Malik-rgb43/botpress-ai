@@ -88,7 +88,22 @@ export default function PlaygroundPage() {
   }
 
   if (bizLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+  }
+
+  if (!business) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <TestTube className="h-10 w-10 text-blue-300 mb-3" />
+        <p className="text-gray-500 font-medium text-lg">צריך ליצור עסק קודם</p>
+        <p className="text-gray-400 text-sm mt-1 mb-4">כדי לבדוק את הבוט, צריך קודם להגדיר את פרטי העסק, FAQ ומדיניות</p>
+        <a href="/onboarding">
+          <Button className="gradient-primary border-0 shadow-md shadow-blue-500/20">
+            הגדר את העסק שלך
+          </Button>
+        </a>
+      </div>
+    )
   }
 
   return (
