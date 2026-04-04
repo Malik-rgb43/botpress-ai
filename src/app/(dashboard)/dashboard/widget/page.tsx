@@ -73,7 +73,7 @@ export default function WidgetPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
             <Code className="h-6 w-6" />
             וידג׳ט צ׳אט
           </h1>
@@ -87,7 +87,7 @@ export default function WidgetPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
             <CardHeader>
               <CardTitle className="text-lg">הגדרות</CardTitle>
             </CardHeader>
@@ -133,7 +133,7 @@ export default function WidgetPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
             <CardHeader>
               <CardTitle className="text-lg">קוד להטמעה</CardTitle>
               <CardDescription>העתק את הקוד והדבק אותו לפני תג {'</body>'} באתר שלך</CardDescription>
@@ -151,7 +151,7 @@ export default function WidgetPage() {
         </div>
 
         {/* Preview */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">תצוגה מקדימה</CardTitle>
           </CardHeader>

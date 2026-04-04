@@ -494,3 +494,31 @@ main {
   border: none;
   border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
+
+/* ── AGGRESSIVE PREMIUM OVERRIDES ── */
+
+/* Bigger, bolder headings */
+h1 { font-size: clamp(2.5rem, 6vw, 4.5rem) !important; font-weight: 800 !important; letter-spacing: -0.03em !important; }
+h2 { font-size: clamp(2rem, 4vw, 3rem) !important; font-weight: 700 !important; letter-spacing: -0.02em !important; }
+
+/* Larger section padding */
+section { padding-top: 7rem; padding-bottom: 7rem; }
+
+/* Bigger border radius everywhere */
+.rounded-2xl { border-radius: 20px !important; }
+.rounded-xl { border-radius: 14px !important; }
+
+/* Stronger shadows on hover */
+.shadow-sm:hover { box-shadow: 0 8px 40px rgba(0,0,0,0.08) !important; }
+
+/* Larger buttons */
+button, [role="button"] { font-size: 15px; }
+
+/* Premium scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(46,144,250,0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(46,144,250,0.4); }
+
+/* Selection color */
+::selection { background: rgba(46,144,250,0.15); color: #1e293b; }

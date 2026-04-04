@@ -97,7 +97,7 @@ export default function SettingsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">הגדרות</h1>
+          <h1 className="text-3xl font-bold text-balance">הגדרות</h1>
           <p className="text-gray-500 text-sm mt-1">נהל את פרטי העסק, ערוצים וסיכומים</p>
         </div>
         <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
@@ -107,7 +107,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">פרטי העסק</CardTitle>
           </CardHeader>
@@ -141,7 +141,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">סיכומים אוטומטיים</CardTitle>
             <CardDescription>קבל סיכומים תקופתיים על פעילות הבוט במייל</CardDescription>
@@ -173,7 +173,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">עיצוב אימייל</CardTitle>
             <CardDescription>התאם את המראה של המיילים שהבוט שולח ללקוחות</CardDescription>
@@ -298,7 +298,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">ערוצים</CardTitle>
             <CardDescription>חבר את הבוט לערוצי תקשורת</CardDescription>

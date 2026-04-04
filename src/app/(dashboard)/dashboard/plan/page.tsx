@@ -69,7 +69,7 @@ export default function PlanPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
+        <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
           <CreditCard className="h-6 w-6" />
           תוכנית ושימוש
         </h1>
@@ -77,7 +77,7 @@ export default function PlanPage() {
       </div>
 
       {/* Usage Card */}
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all mb-8">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all mb-8">
         <CardHeader>
           <CardTitle className="text-lg">שימוש נוכחי</CardTitle>
           <CardDescription>תוכנית {PLANS.find(p => p.tier === currentPlan)?.name}</CardDescription>

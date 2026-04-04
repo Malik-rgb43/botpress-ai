@@ -121,7 +121,7 @@ export default function ConversationsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-balance">שיחות</h1>
+        <h1 className="text-3xl font-bold text-balance">שיחות</h1>
         <p className="text-gray-500 text-sm mt-1">כל השיחות עם הלקוחות</p>
       </div>
 
@@ -171,7 +171,7 @@ export default function ConversationsPage() {
           <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
         </div>
       ) : conversations.length === 0 ? (
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <MessageSquare className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין שיחות</p>
@@ -181,8 +181,8 @@ export default function ConversationsPage() {
       ) : (
         <div className="space-y-2">
           {conversations.map(conv => (
-            <Card key={conv.id} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-center justify-between">
+            <Card key={conv.id} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
+              <CardContent className="p-6 flex items-center justify-between">
                 <Link href={`/dashboard/conversations/${conv.id}`} className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
                   <MessageSquare className="h-5 w-5 text-blue-400 shrink-0" />
                   <div className="min-w-0">

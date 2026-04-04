@@ -243,7 +243,7 @@ export default function AnalyticsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
             אנליטיקס
           </h1>
@@ -266,7 +266,7 @@ export default function AnalyticsPage() {
           { label: 'העברות לנציג', value: stats.escalations, change: escChange, icon: UserX, color: 'text-orange-500', invertColor: true },
           { label: 'שביעות רצון', value: stats.satisfaction.toFixed(1), change: satChange, icon: Star, color: 'text-yellow-500' },
         ].map((kpi, i) => (
-          <Card key={i} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+          <Card key={i} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-gray-500">{kpi.label}</span>
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Questions */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">שאלות נפוצות ביותר</CardTitle>
             <CardDescription>מה הלקוחות שואלים הכי הרבה</CardDescription>
@@ -317,7 +317,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Recent Conversations */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">שיחות אחרונות</CardTitle>
             <CardDescription>השיחות האחרונות עם לקוחות</CardDescription>
@@ -351,7 +351,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Sentiment */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">ניתוח רגש</CardTitle>
             <CardDescription>איך הלקוחות מרגישים בשיחות</CardDescription>
@@ -379,7 +379,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Channels */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">חלוקה לפי ערוצים</CardTitle>
             <CardDescription>מאיפה מגיעות השיחות</CardDescription>

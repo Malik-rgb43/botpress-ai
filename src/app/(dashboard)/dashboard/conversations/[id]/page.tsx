@@ -142,7 +142,7 @@ export default function ConversationDetailPage() {
         </div>
       </div>
 
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
         <CardContent className="p-0">
           <ScrollArea className="h-[500px] p-6">
             <div className="space-y-4">

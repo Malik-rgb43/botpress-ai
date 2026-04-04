@@ -93,7 +93,7 @@ export default function PoliciesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">מדיניות העסק</h1>
+          <h1 className="text-3xl font-bold text-balance">מדיניות העסק</h1>
           <p className="text-gray-500 text-sm mt-1">הגדר מדיניות החזרות, משלוחים, שעות פעילות ועוד</p>
         </div>
         <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all"><Plus className="h-4 w-4 ml-1" />הוסף מדיניות</Button>
@@ -135,7 +135,7 @@ export default function PoliciesPage() {
       </div>
 
       {policies.length === 0 ? (
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <FileText className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין מדיניות</p>
@@ -144,8 +144,8 @@ export default function PoliciesPage() {
       ) : (
         <div className="space-y-3">
           {policies.map(p => (
-            <Card key={p.id} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4 flex items-start justify-between gap-3">
+            <Card key={p.id} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
+              <CardContent className="p-6 flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
                     {POLICY_TYPES.find(pt => pt.value === p.type)?.label || p.type}

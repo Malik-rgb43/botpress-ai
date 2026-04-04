@@ -41,12 +41,12 @@ export default function DashboardSidebar() {
   const { business, loading: bizLoading } = useBusiness()
 
   return (
-    <aside className="w-64 bg-white/95 backdrop-blur-sm border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
+    <aside className="w-72 bg-white/95 backdrop-blur-sm border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
       {/* Logo */}
       <div className="p-4 border-b border-blue-100/60">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
-          <span className="text-lg font-bold">BotPress AI</span>
+          <span className="text-xl font-bold">BotPress AI</span>
         </Link>
       </div>
 
@@ -60,13 +60,13 @@ export default function DashboardSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
+                'flex items-center gap-3 px-4 py-3 rounded-lg text-[15px] transition-colors',
                 isActive
                   ? 'bg-blue-50 text-blue-600 font-medium'
                   : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
               )}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <item.icon className="h-5 w-5 shrink-0" />
               <span>{item.label}</span>
             </Link>
           )

@@ -111,7 +111,7 @@ export default function PlaygroundPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
             <TestTube className="h-6 w-6" />
             נסה את הבוט
           </h1>
@@ -123,7 +123,7 @@ export default function PlaygroundPage() {
         </Button>
       </div>
 
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
         <CardContent className="p-0">
           {/* Chat Area */}
           <ScrollArea className="h-[500px] p-6" ref={scrollRef}>

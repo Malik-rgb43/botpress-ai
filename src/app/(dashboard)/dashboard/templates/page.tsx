@@ -78,7 +78,7 @@ export default function TemplatesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">טון דיבור ותבניות</h1>
+          <h1 className="text-3xl font-bold text-balance">טון דיבור ותבניות</h1>
           <p className="text-gray-500 text-sm mt-1">התאם את הטון והתבניות של הבוט</p>
         </div>
         <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
@@ -88,7 +88,7 @@ export default function TemplatesPage() {
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">טון דיבור</CardTitle>
             <CardDescription>בחר איך הבוט ידבר עם הלקוחות</CardDescription>
@@ -114,7 +114,7 @@ export default function TemplatesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
             <CardTitle className="text-lg">תבניות תשובה</CardTitle>
             <CardDescription>הודעות ברירת מחדל שהבוט משתמש בהן</CardDescription>

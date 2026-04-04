@@ -259,7 +259,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 2. HERO                                         */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-32 md:pt-40 pb-20 md:pb-28">
+      <section className="relative overflow-hidden pt-40 pb-24">
         {/* Hero glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[800px] -z-10 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at center, rgba(46,144,250,0.07) 0%, transparent 65%)' }} />
@@ -290,7 +290,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-[2.75rem] md:text-[3.5rem] lg:text-[4.25rem] font-extrabold text-gray-900 mb-6 leading-[1.08]"
+                className="text-6xl md:text-8xl font-extrabold text-gray-900 mb-6 leading-[1.08]"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 בוט AI שעונה ב
@@ -302,7 +302,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg md:text-xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
+                className="text-xl md:text-2xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
               >
                 בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
                 ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
@@ -317,7 +317,7 @@ export default function LandingPage() {
                 <Link href="/signup">
                   <Button
                     size="lg"
-                    className="text-base px-10 py-7 text-white text-lg rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.02]"
+                    className="text-lg px-12 py-8 text-white rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.02]"
                     style={{
                       background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)',
                       boxShadow: '0 8px 30px rgba(46,144,250,0.35)',
@@ -331,7 +331,7 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="text-base px-8 py-7 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 gap-2 rounded-2xl transition-all duration-300"
+                    className="text-lg px-12 py-8 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 gap-2 rounded-2xl transition-all duration-300"
                   >
                     <Play className="h-4 w-4" /> ראה איך עובד
                   </Button>
@@ -342,7 +342,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-5 md:gap-7 text-sm text-gray-500"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-5 md:gap-7 text-sm text-gray-400"
               >
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />7 ימי ניסיון ב-₪1</span>
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />התקנה ב-5 דקות</span>
@@ -388,7 +388,7 @@ export default function LandingPage() {
                   <s.icon className="h-5 w-5 text-[#2e90fa]" />
                 </div>
                 <div
-                  className="text-3xl md:text-4xl font-extrabold mb-1"
+                  className="text-5xl font-black mb-1"
                   style={{ background: 'linear-gradient(135deg, #2e90fa, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}
                 >
                   {s.value}

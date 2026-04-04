@@ -195,7 +195,7 @@ export default function OnboardingPage() {
           {STEPS.map((s) => (
             <div key={s.number} className="flex flex-col items-center gap-1">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   step >= s.number
                     ? 'bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white'
                     : 'bg-gray-200 text-gray-400'
@@ -203,15 +203,15 @@ export default function OnboardingPage() {
               >
                 {s.number}
               </div>
-              <span className={`text-xs ${step >= s.number ? 'text-black' : 'text-gray-400'}`}>
+              <span className={`text-sm font-medium ${step >= s.number ? 'text-black' : 'text-gray-400'}`}>
                 {s.label}
               </span>
             </div>
           ))}
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-4">
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
           <div
-            className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] h-1.5 rounded-full transition-all"
+            className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] h-2 rounded-full transition-all"
             style={{ width: `${((step) / 7) * 100}%` }}
           />
         </div>
