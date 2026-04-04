@@ -6,14 +6,7 @@ import { useBusiness } from '@/hooks/use-business'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-// AlertDialog removed — using confirm() for delete
+// Using button chips instead of Select for Hebrew support
 import { Loader2, MessageSquare, ArrowLeft, Trash2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation } from '@/types/database'
@@ -128,46 +121,49 @@ export default function ConversationsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">שיחות</h1>
+        <h1 className="text-2xl font-bold text-balance">שיחות</h1>
         <p className="text-gray-500 text-sm mt-1">כל השיחות עם הלקוחות</p>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-3 mb-5">
-        <Select value={timeFilter} onValueChange={(v) => setTimeFilter(v as TimeFilter)}>
-          <SelectTrigger className="w-[140px] border-blue-100/60 bg-white/60 backdrop-blur-sm">
-            <SelectValue placeholder="זמן" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">הכל</SelectItem>
-            <SelectItem value="today">היום</SelectItem>
-            <SelectItem value="week">השבוע</SelectItem>
-            <SelectItem value="month">החודש</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap gap-2 mb-5">
+        {/* Time filter */}
+        {[
+          { value: 'all' as const, label: 'הכל' },
+          { value: 'today' as const, label: 'היום' },
+          { value: 'week' as const, label: 'השבוע' },
+          { value: 'month' as const, label: 'החודש' },
+        ].map(f => (
+          <button key={f.value} onClick={() => setTimeFilter(f.value)}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${timeFilter === f.value ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium' : 'border-gray-200 text-gray-500 hover:border-blue-300'}`}
+          >{f.label}</button>
+        ))}
 
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-          <SelectTrigger className="w-[160px] border-blue-100/60 bg-white/60 backdrop-blur-sm">
-            <SelectValue placeholder="סטטוס" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">הכל</SelectItem>
-            <SelectItem value="needs_agent">דורש נציג</SelectItem>
-            <SelectItem value="resolved">טופל</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="w-px h-6 bg-gray-200 mx-1 self-center" />
 
-        <Select value={channelFilter} onValueChange={(v) => setChannelFilter(v as ChannelFilter)}>
-          <SelectTrigger className="w-[140px] border-blue-100/60 bg-white/60 backdrop-blur-sm">
-            <SelectValue placeholder="ערוץ" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">הכל</SelectItem>
-            <SelectItem value="email">אימייל</SelectItem>
-            <SelectItem value="whatsapp">וואטסאפ</SelectItem>
-            <SelectItem value="widget">וידג׳ט</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Channel filter */}
+        {[
+          { value: 'all' as const, label: 'כל הערוצים' },
+          { value: 'email' as const, label: 'אימייל' },
+          { value: 'whatsapp' as const, label: 'וואטסאפ' },
+          { value: 'widget' as const, label: 'וידג׳ט' },
+        ].map(f => (
+          <button key={f.value} onClick={() => setChannelFilter(f.value)}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${channelFilter === f.value ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium' : 'border-gray-200 text-gray-500 hover:border-blue-300'}`}
+          >{f.label}</button>
+        ))}
+
+        <div className="w-px h-6 bg-gray-200 mx-1 self-center" />
+
+        {/* Status filter */}
+        {[
+          { value: 'all' as const, label: 'הכל' },
+          { value: 'needs_agent' as const, label: 'דורש נציג' },
+        ].map(f => (
+          <button key={f.value} onClick={() => setStatusFilter(f.value)}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusFilter === f.value ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium' : 'border-gray-200 text-gray-500 hover:border-blue-300'}`}
+          >{f.label}</button>
+        ))}
       </div>
 
       {loading ? (

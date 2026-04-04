@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-[#f8fafd]">
+    <div className="flex min-h-screen bg-[#fafbfe]">
       <div className="hidden md:block">
         <DashboardSidebar />
       </div>

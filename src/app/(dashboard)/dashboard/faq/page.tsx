@@ -107,7 +107,7 @@ export default function FAQPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">שאלות נפוצות</h1>
+          <h1 className="text-2xl font-bold text-balance">שאלות נפוצות</h1>
           <p className="text-gray-500 text-sm mt-1">שאלות ותשובות שהבוט משתמש בהן</p>
         </div>
         <Button onClick={openCreate} className="gradient-primary border-0 shadow-md shadow-blue-500/25">

@@ -26,7 +26,7 @@ export default function LoginPage() {
       <div className="absolute top-20 right-20 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-violet-200/20 rounded-full blur-3xl -z-10" />
 
-      <Card className="w-full max-w-md border-blue-100/60 shadow-xl shadow-blue-500/5">
+      <Card className="w-full max-w-sm border-blue-100/60 shadow-2xl shadow-blue-500/5">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
@@ -48,7 +48,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 dir="ltr"
-                className="border-blue-100 focus:border-blue-300"
+                className="border-blue-100 focus:border-blue-300 h-11"
               />
             </div>
             <div className="space-y-2">
@@ -61,7 +61,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 dir="ltr"
-                className="border-blue-100 focus:border-blue-300"
+                className="border-blue-100 focus:border-blue-300 h-11"
               />
             </div>
             {error && (

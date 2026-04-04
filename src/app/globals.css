@@ -49,7 +49,7 @@
 }
 
 :root {
-  --background: oklch(0.99 0.002 250);
+  --background: oklch(0.99 0.003 80);
   --foreground: oklch(0.17 0.02 260);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.17 0.02 260);
@@ -367,4 +367,36 @@ select:focus-visible {
 /* Tabular numbers for aligned metrics */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Professional spacing system */
+.section-gap { padding-top: 6rem; padding-bottom: 6rem; }
+.section-gap-sm { padding-top: 4rem; padding-bottom: 4rem; }
+
+/* Refined card styles */
+.card-elevated {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease-out;
+}
+.card-elevated:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Refined input focus */
+input:focus, textarea:focus {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Smooth page transitions */
+main {
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

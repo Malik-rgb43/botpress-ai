@@ -36,6 +36,7 @@ export default function SettingsPage() {
   const [summaryEmail, setSummaryEmail] = useState('')
   const [brandColor, setBrandColor] = useState('#2563eb')
   const [emailFooter, setEmailFooter] = useState('')
+  const [selectedTemplate, setSelectedTemplate] = useState('modern')
 
   useEffect(() => {
     if (!business) return
@@ -47,6 +48,7 @@ export default function SettingsPage() {
     setWebsite(business.contact_info?.website || '')
     setBrandColor(business.contact_info?.brand_color || '#2563eb')
     setEmailFooter(business.contact_info?.email_footer || '')
+    setSelectedTemplate((business.contact_info as Record<string, unknown>)?.email_template as string || 'modern')
     loadSummarySettings()
   }, [business])
 
@@ -94,7 +96,10 @@ export default function SettingsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">הגדרות</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-balance">הגדרות</h1>
+          <p className="text-gray-500 text-sm mt-1">נהל את פרטי העסק, ערוצים וסיכומים</p>
+        </div>
         <Button onClick={save} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
           שמור
@@ -184,12 +189,12 @@ export default function SettingsPage() {
                   { id: 'minimal' as const, label: 'מינימלי', desc: 'טקסט בלבד, בלי עיצוב', icon: '📝', preview: 'text' },
                   { id: 'none' as const, label: 'ללא עיצוב', desc: 'טקסט פשוט כמו Gmail רגיל', icon: '📨', preview: 'plain' },
                 ].map(t => {
-                  const currentTemplate = (business?.contact_info as Record<string, unknown>)?.email_template as string || 'modern'
-                  const isSelected = currentTemplate === t.id
+                  const isSelected = selectedTemplate === t.id
                   return (
                     <button
                       key={t.id}
                       onClick={() => {
+                        setSelectedTemplate(t.id)
                         const info = business?.contact_info || {}
                         const supabase = createClient()
                         supabase.from('businesses').update({
@@ -267,8 +272,8 @@ export default function SettingsPage() {
             {/* White Label */}
             <div className="flex items-center justify-between">
               <div>
-                <Label>White Label</Label>
-                <p className="text-xs text-gray-400">הסתר Powered by BotPress AI</p>
+                <Label>ללא מיתוג</Label>
+                <p className="text-xs text-gray-400">הסתר את הלוגו של BotPress AI מהאימיילים</p>
               </div>
               <Switch checked={false} disabled />
             </div>

@@ -243,7 +243,7 @@ export default function AnalyticsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
             אנליטיקס
           </h1>

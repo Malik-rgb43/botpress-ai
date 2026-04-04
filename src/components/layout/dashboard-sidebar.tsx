@@ -41,7 +41,7 @@ export default function DashboardSidebar() {
   const { business, loading: bizLoading } = useBusiness()
 
   return (
-    <aside className="w-64 bg-white border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
+    <aside className="w-64 bg-white/95 backdrop-blur-sm border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
       {/* Logo */}
       <div className="p-4 border-b border-blue-100/60">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export default function DashboardSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
                 isActive
                   ? 'bg-blue-50 text-blue-600 font-medium'
                   : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
