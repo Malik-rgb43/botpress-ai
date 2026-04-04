@@ -55,14 +55,14 @@ export default function LiveChatDemo() {
   }, [currentIndex, addMessage, visibleMessages.length])
 
   return (
-    <div className="w-full max-w-[280px] mx-auto">
-      {/* Phone frame - iPhone style */}
-      <div className="bg-gray-900 rounded-[2.5rem] p-[6px] shadow-2xl shadow-blue-500/10 hover-glow transition-all relative">
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-gray-900 rounded-b-2xl z-10" />
-        <div className="bg-white rounded-[2.2rem] overflow-hidden">
+    <div className="w-full max-w-[320px] mx-auto">
+      {/* Phone frame - iPhone 15 proportions (393x852) */}
+      <div className="bg-gray-900 rounded-[3rem] p-[5px] shadow-2xl shadow-blue-500/10 hover-glow transition-all relative" style={{ aspectRatio: '393/852' }}>
+        {/* Dynamic Island */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[28px] bg-gray-900 rounded-full z-10" />
+        <div className="bg-white rounded-[2.7rem] overflow-hidden h-full flex flex-col">
           {/* WhatsApp header */}
-          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3 pt-8" dir="rtl">
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3 pt-10 shrink-0" dir="rtl">
             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
               <Bot className="h-4 w-4 text-white" />
             </div>
@@ -76,7 +76,7 @@ export default function LiveChatDemo() {
           </div>
 
           {/* Chat messages */}
-          <div className="bg-[#ECE5DD] p-3 space-y-2 h-[340px] overflow-hidden" dir="rtl">
+          <div className="bg-[#ECE5DD] p-3 space-y-2 flex-1 overflow-hidden" dir="rtl">
             {visibleMessages.map((msg, i) => (
               <div
                 key={i}
@@ -113,7 +113,7 @@ export default function LiveChatDemo() {
           </div>
 
           {/* Input bar */}
-          <div className="bg-[#F0F0F0] px-3 py-2 flex items-center gap-2" dir="rtl">
+          <div className="bg-[#F0F0F0] px-3 py-2 flex items-center gap-2 shrink-0" dir="rtl">
             <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[11px] text-gray-400">כתוב הודעה...</div>
             <div className="w-8 h-8 rounded-full bg-[#075E54] flex items-center justify-center">
               <Send className="h-3.5 w-3.5 text-white" />
