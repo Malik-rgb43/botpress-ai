@@ -12,6 +12,7 @@ import { AnimateOnScroll, AnimateCounter } from "@/components/ui/animate-on-scro
 import LiveChatDemo from "@/components/landing/live-chat-demo"
 import RotatingText from "@/components/landing/rotating-text"
 import InteractiveDemo from "@/components/landing/interactive-demo"
+import HeroChat from "@/components/landing/hero-chat"
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { AnimatedFeatures } from "@/components/landing/animated-features"
@@ -188,9 +189,9 @@ export default function LandingPage() {
                 <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה בעברית</span>
               </div>
             </div>
-            {/* Interactive bot demo */}
+            {/* Phone chat demo */}
             <div className="lg:col-span-5 hidden lg:block">
-              <InteractiveDemo />
+              <HeroChat />
             </div>
           </div>
         </div>
