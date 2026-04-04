@@ -57,7 +57,7 @@ export default function LiveChatDemo() {
   return (
     <div className="w-full max-w-[320px] mx-auto">
       {/* Phone frame - iPhone 15 proportions (393x852) */}
-      <div className="bg-gray-900 rounded-[3rem] p-[5px] shadow-2xl shadow-blue-500/10 hover-glow transition-all relative" style={{ aspectRatio: '393/852' }}>
+      <div className="bg-gray-900 rounded-[3rem] p-[5px] shadow-2xl shadow-blue-500/10 hover-glow transition-all relative" style={{ aspectRatio: '393/720' }}>
         {/* Dynamic Island */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[28px] bg-gray-900 rounded-full z-10" />
         <div className="bg-white rounded-[2.7rem] overflow-hidden h-full flex flex-col">
