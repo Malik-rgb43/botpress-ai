@@ -278,21 +278,74 @@ export default function SettingsPage() {
               <Switch checked={false} disabled />
             </div>
 
-            {/* Preview */}
+            {/* Email Preview — Full Example */}
             <div>
-              <Label className="mb-2 block">תצוגה מקדימה</Label>
-              <div className="border border-blue-100 rounded-xl overflow-hidden shadow-sm">
-                <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${brandColor}dd)` }} className="p-5 text-center">
-                  {business?.logo_url && <img src={business.logo_url} alt="" className="w-11 h-11 rounded-xl mx-auto mb-2 border-2 border-white/30" />}
-                  <p className="text-white font-bold">{name || 'שם העסק'}</p>
+              <Label className="mb-3 block text-base font-semibold">תצוגה מקדימה — כך הלקוח יראה את האימייל</Label>
+              <div className="bg-gray-100 rounded-2xl p-6 md:p-8">
+                {/* Email client chrome */}
+                <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-lg mx-auto">
+                  {/* Email header bar */}
+                  <div className="bg-gray-50 border-b border-gray-100 px-4 py-2.5 flex items-center gap-2 text-xs text-gray-400">
+                    <div className="flex gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-300" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-300" />
+                    </div>
+                    <span className="flex-1 text-center">מ: {name || 'שם העסק'} &lt;{business?.contact_info?.email || 'info@business.com'}&gt;</span>
+                  </div>
+
+                  {/* Subject line */}
+                  <div className="px-5 py-3 border-b border-gray-50" dir="rtl">
+                    <p className="text-sm font-semibold text-gray-800">Re: מה שעות הפעילות?</p>
+                    <p className="text-xs text-gray-400 mt-0.5">אל: sarah@gmail.com</p>
+                  </div>
+
+                  {/* Email body — matches selected template */}
+                  {selectedTemplate === 'modern' && (
+                    <>
+                      <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColorSimple(brandColor, -30)})` }} className="p-6 text-center">
+                        {business?.logo_url && <img src={business.logo_url} alt="" className="w-12 h-12 rounded-xl mx-auto mb-3 border-2 border-white/25" />}
+                        <p className="text-white font-bold text-lg">{name || 'שם העסק'}</p>
+                      </div>
+                      <div className="p-6" dir="rtl">
+                        <p className="text-[15px] text-gray-700 leading-[1.8]">שלום שרה! אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00. בשבת סגור.</p>
+                        <p className="text-[15px] text-gray-700 leading-[1.8] mt-2">יש עוד משהו שאני יכול לעזור בו?</p>
+                      </div>
+                    </>
+                  )}
+                  {selectedTemplate === 'classic' && (
+                    <div className="flex" dir="rtl">
+                      <div style={{ backgroundColor: brandColor }} className="w-1 shrink-0" />
+                      <div className="p-6 flex-1">
+                        <p className="font-bold text-gray-800 mb-3">{name || 'שם העסק'}</p>
+                        <p className="text-[15px] text-gray-600 leading-[1.8]">שלום שרה! אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00. בשבת סגור.</p>
+                        <p className="text-[15px] text-gray-600 leading-[1.8] mt-2">יש עוד משהו שאני יכול לעזור בו?</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedTemplate === 'minimal' && (
+                    <div className="p-6" dir="rtl">
+                      <p className="font-bold text-sm mb-3" style={{ color: brandColor }}>{name || 'שם העסק'}</p>
+                      <p className="text-[15px] text-gray-600 leading-[1.8]">שלום שרה! אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00. בשבת סגור.</p>
+                      <p className="text-[15px] text-gray-600 leading-[1.8] mt-2">יש עוד משהו שאני יכול לעזור בו?</p>
+                    </div>
+                  )}
+                  {selectedTemplate === 'none' && (
+                    <div className="p-6" dir="rtl">
+                      <p className="text-[15px] text-gray-600 leading-[1.8]">שלום שרה! אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00. בשבת סגור.</p>
+                      <p className="text-[15px] text-gray-600 leading-[1.8] mt-2">יש עוד משהו שאני יכול לעזור בו?</p>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="border-t border-gray-100 p-4 bg-gray-50/50 text-center" dir="rtl">
+                    {emailFooter && <p className="text-xs text-gray-500 mb-1">{emailFooter}</p>}
+                    <p className="text-[10px] text-gray-400">הודעה אוטומטית מ-{name || 'העסק'}</p>
+                  </div>
                 </div>
-                <div className="p-5 bg-white">
-                  <p className="text-sm text-gray-700 leading-relaxed">שלום! אנחנו פתוחים א׳-ה׳ 9:00-18:00, שישי 9:00-13:00. יש עוד משהו שאני יכול לעזור בו?</p>
-                </div>
-                <div className="border-t border-gray-100 p-3 bg-gray-50 text-center">
-                  {emailFooter && <p className="text-xs text-gray-500 mb-1">{emailFooter}</p>}
-                  <p className="text-[10px] text-gray-400">הודעה אוטומטית מ-{name || 'העסק'}</p>
-                </div>
+
+                {/* Label */}
+                <p className="text-center text-xs text-gray-400 mt-4">ככה הלקוח יראה את המייל ב-Gmail</p>
               </div>
             </div>
           </CardContent>
