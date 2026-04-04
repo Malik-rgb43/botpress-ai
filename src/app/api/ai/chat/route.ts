@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     const templates: Record<string, string> = {}
-    tmpRes.data?.forEach(t => { templates[t.type] = t.content })
+    tmpRes.data?.forEach((t: { type: string; content: string }) => { templates[t.type] = t.content })
 
     // ── Analysis Layer ──────────────────────────────────
     const intent = detectIntent(message)
