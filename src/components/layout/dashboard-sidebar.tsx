@@ -77,7 +77,7 @@ export default function DashboardSidebar() {
       {!bizLoading && !business && (
         <div className="px-3 pb-3">
           <Link href="/onboarding">
-            <Button className="w-full gradient-animated border-0 text-white shadow-md shadow-blue-500/20 text-sm">
+            <Button className="w-full bg-[#2e90fa] border-0 text-white shadow-md shadow-[#2e90fa]/25 rounded-xl text-sm">
               <Sparkles className="h-4 w-4 ml-1" />
               הגדר את העסק שלך
             </Button>

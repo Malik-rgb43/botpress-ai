@@ -81,14 +81,14 @@ export default function TemplatesPage() {
           <h1 className="text-2xl font-bold text-balance">טון דיבור ותבניות</h1>
           <p className="text-gray-500 text-sm mt-1">התאם את הטון והתבניות של הבוט</p>
         </div>
-        <Button onClick={save} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
+        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
           שמור שינויים
         </Button>
       </div>
 
       <div className="space-y-6">
-        <Card className="border-blue-100/60 shadow-none">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
           <CardHeader>
             <CardTitle className="text-lg">טון דיבור</CardTitle>
             <CardDescription>בחר איך הבוט ידבר עם הלקוחות</CardDescription>
@@ -114,7 +114,7 @@ export default function TemplatesPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-100/60 shadow-none">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
           <CardHeader>
             <CardTitle className="text-lg">תבניות תשובה</CardTitle>
             <CardDescription>הודעות ברירת מחדל שהבוט משתמש בהן</CardDescription>

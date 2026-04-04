@@ -171,7 +171,7 @@ export default function ConversationsPage() {
           <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
         </div>
       ) : conversations.length === 0 ? (
-        <Card className="border-blue-100/60 shadow-none">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <MessageSquare className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין שיחות</p>
@@ -181,7 +181,7 @@ export default function ConversationsPage() {
       ) : (
         <div className="space-y-2">
           {conversations.map(conv => (
-            <Card key={conv.id} className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 hover:border-blue-200 transition-all">
+            <Card key={conv.id} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
               <CardContent className="p-4 flex items-center justify-between">
                 <Link href={`/dashboard/conversations/${conv.id}`} className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
                   <MessageSquare className="h-5 w-5 text-blue-400 shrink-0" />

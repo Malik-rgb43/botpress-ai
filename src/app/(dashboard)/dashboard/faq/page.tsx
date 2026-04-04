@@ -110,7 +110,7 @@ export default function FAQPage() {
           <h1 className="text-2xl font-bold text-balance">שאלות נפוצות</h1>
           <p className="text-gray-500 text-sm mt-1">שאלות ותשובות שהבוט משתמש בהן</p>
         </div>
-        <Button onClick={openCreate} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
+        <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
           <Plus className="h-4 w-4 ml-1" />
           הוסף שאלה
         </Button>
@@ -132,14 +132,14 @@ export default function FAQPage() {
                 <Label>תשובה *</Label>
                 <Textarea placeholder="התשובה..." value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} />
               </div>
-              <Button onClick={saveFaq} className="w-full gradient-primary border-0">{editingFaq ? 'עדכן' : 'הוסף'}</Button>
+              <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl">{editingFaq ? 'עדכן' : 'הוסף'}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
       {faqs.length === 0 ? (
-        <Card className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <HelpCircle className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין שאלות נפוצות</p>
@@ -149,7 +149,7 @@ export default function FAQPage() {
       ) : (
         <div className="space-y-3">
           {faqs.map((faq, index) => (
-            <Card key={faq.id} className={`border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+            <Card key={faq.id} className={`bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all ${index % 2 === 0 ? '' : 'bg-blue-50/30'}`}>
               <CardContent className="p-4 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   {faq.category && (

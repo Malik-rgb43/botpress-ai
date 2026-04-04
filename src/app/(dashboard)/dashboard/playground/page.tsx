@@ -99,7 +99,7 @@ export default function PlaygroundPage() {
         <p className="text-gray-500 font-medium text-lg">צריך ליצור עסק קודם</p>
         <p className="text-gray-400 text-sm mt-1 mb-4">כדי לבדוק את הבוט, צריך קודם להגדיר את פרטי העסק, FAQ ומדיניות</p>
         <Link href="/onboarding">
-          <Button className="gradient-primary border-0 shadow-md shadow-blue-500/20">
+          <Button className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
             הגדר את העסק שלך
           </Button>
         </Link>
@@ -123,7 +123,7 @@ export default function PlaygroundPage() {
         </Button>
       </div>
 
-      <Card className="border-blue-100/60 shadow-none">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
         <CardContent className="p-0">
           {/* Chat Area */}
           <ScrollArea className="h-[500px] p-6" ref={scrollRef}>
@@ -148,7 +148,7 @@ export default function PlaygroundPage() {
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
                       msg.role === 'user'
-                        ? 'gradient-primary text-white'
+                        ? 'bg-[#2e90fa] text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}>
                       {msg.content}
@@ -198,7 +198,7 @@ export default function PlaygroundPage() {
                 disabled={loading}
                 className="flex-1"
               />
-              <Button type="submit" disabled={loading || !input.trim()} className="gradient-primary border-0">
+              <Button type="submit" disabled={loading || !input.trim()} className="bg-[#2e90fa] border-0 rounded-xl">
                 <Send className="h-4 w-4" />
               </Button>
             </form>

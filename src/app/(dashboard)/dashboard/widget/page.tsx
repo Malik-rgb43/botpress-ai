@@ -87,7 +87,7 @@ export default function WidgetPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card className="border-gray-100 shadow-none">
+          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
             <CardHeader>
               <CardTitle className="text-lg">הגדרות</CardTitle>
             </CardHeader>
@@ -133,7 +133,7 @@ export default function WidgetPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-gray-100 shadow-none">
+          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
             <CardHeader>
               <CardTitle className="text-lg">קוד להטמעה</CardTitle>
               <CardDescription>העתק את הקוד והדבק אותו לפני תג {'</body>'} באתר שלך</CardDescription>
@@ -151,7 +151,7 @@ export default function WidgetPage() {
         </div>
 
         {/* Preview */}
-        <Card className="border-gray-100 shadow-none">
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
           <CardHeader>
             <CardTitle className="text-lg">תצוגה מקדימה</CardTitle>
           </CardHeader>

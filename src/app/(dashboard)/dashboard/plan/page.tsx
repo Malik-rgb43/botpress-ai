@@ -77,7 +77,7 @@ export default function PlanPage() {
       </div>
 
       {/* Usage Card */}
-      <Card className="border-gray-100 shadow-none mb-8">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all mb-8">
         <CardHeader>
           <CardTitle className="text-lg">שימוש נוכחי</CardTitle>
           <CardDescription>תוכנית {PLANS.find(p => p.tier === currentPlan)?.name}</CardDescription>
@@ -103,12 +103,12 @@ export default function PlanPage() {
           <Card
             key={plan.tier}
             className={`shadow-none relative overflow-visible ${
-              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border-blue-100/60'
+              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border border-[rgba(0,0,0,0.04)]'
             }`}
           >
             {plan.popular && (
               <div className="absolute -top-4 right-4 z-10">
-                <Badge className="gradient-animated text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">🔥 הכי פופולרי</Badge>
+                <Badge className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">🔥 הכי פופולרי</Badge>
               </div>
             )}
             <CardHeader>

@@ -142,7 +142,7 @@ export default function ConversationDetailPage() {
         </div>
       </div>
 
-      <Card className="border-blue-100/60 shadow-none">
+      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-sm hover:shadow-md transition-all">
         <CardContent className="p-0">
           <ScrollArea className="h-[500px] p-6">
             <div className="space-y-4">
@@ -155,7 +155,7 @@ export default function ConversationDetailPage() {
                       {msg.role === 'agent' && <><span className="text-xs text-green-600 font-medium">נציג (אתה)</span><UserCheck className="h-3 w-3 text-green-500" /></>}
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
-                      msg.role === 'customer' ? 'gradient-primary text-white' :
+                      msg.role === 'customer' ? 'bg-[#2e90fa] text-white' :
                       msg.role === 'agent' ? 'bg-green-50 text-green-900 border border-green-200' :
                       'bg-gray-100 text-gray-900'
                     }`}>
@@ -192,7 +192,7 @@ export default function ConversationDetailPage() {
                 disabled={sending}
                 className="flex-1"
               />
-              <Button type="submit" disabled={sending || !agentInput.trim()} className="gradient-primary border-0">
+              <Button type="submit" disabled={sending || !agentInput.trim()} className="bg-[#2e90fa] border-0 rounded-xl">
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </form>

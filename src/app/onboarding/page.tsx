@@ -180,7 +180,7 @@ export default function OnboardingPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-2">
-          <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] rounded-lg flex items-center justify-center">
             <Bot className="h-5 w-5 text-white" />
           </div>
           <span className="font-bold">BotPress AI</span>
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   step >= s.number
-                    ? 'gradient-primary text-white'
+                    ? 'bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white'
                     : 'bg-gray-200 text-gray-400'
                 }`}
               >
@@ -211,7 +211,7 @@ export default function OnboardingPage() {
         </div>
         <div className="w-full bg-gray-200 rounded-full h-1.5 mt-4">
           <div
-            className="gradient-primary h-1.5 rounded-full transition-all"
+            className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] h-1.5 rounded-full transition-all"
             style={{ width: `${((step) / 7) * 100}%` }}
           />
         </div>
@@ -237,11 +237,11 @@ export default function OnboardingPage() {
             הקודם
           </Button>
           {step < 7 ? (
-            <Button onClick={() => setStep(s => s + 1)} className="gradient-primary border-0">
+            <Button onClick={() => setStep(s => s + 1)} className="bg-[#2e90fa] border-0 shadow-lg shadow-[#2e90fa]/30 rounded-xl hover:shadow-xl hover:shadow-[#2e90fa]/40 transition-all">
               הבא
             </Button>
           ) : (
-            <Button onClick={handleFinish} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
+            <Button onClick={handleFinish} disabled={saving} className="bg-[#2e90fa] border-0 shadow-lg shadow-[#2e90fa]/30 rounded-xl hover:shadow-xl hover:shadow-[#2e90fa]/40 transition-all">
               {saving ? 'שומר...' : 'סיים והתחל'}
             </Button>
           )}
