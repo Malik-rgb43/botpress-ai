@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotPress AI — Landing Page Mockup (MakeUGC Style)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Rubik',sans-serif; background:#0a0f1a; color:#fff; overflow-x:hidden; }
+
+/* Nav */
+nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:16px 32px; display:flex; align-items:center; justify-content:space-between; background:rgba(10,15,26,0.8); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06); }
+.nav-logo { font-size:20px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.nav-logo span { background:linear-gradient(135deg,#2e90fa,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.nav-links { display:flex; gap:32px; font-size:14px; color:rgba(255,255,255,0.6); }
+.nav-links a { color:inherit; text-decoration:none; transition:color .2s; }
+.nav-links a:hover { color:#fff; }
+.nav-cta { background:#2e90fa; color:#fff; border:none; padding:10px 24px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; box-shadow:0 4px 16px rgba(46,144,250,0.3); }
+.nav-cta:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(46,144,250,0.4); }
+
+/* Hero */
+.hero { padding:160px 32px 100px; text-align:center; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle, rgba(46,144,250,0.12) 0%, transparent 70%); pointer-events:none; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(46,144,250,0.1); border:1px solid rgba(46,144,250,0.2); border-radius:100px; padding:6px 16px; font-size:13px; color:#2e90fa; margin-bottom:24px; }
+.hero-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:#4ade80; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hero h1 { font-size:clamp(40px,6vw,72px); font-weight:800; line-height:1.1; letter-spacing:-2px; margin-bottom:24px; }
+.hero h1 .gradient { background:linear-gradient(135deg,#2e90fa,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.hero p { font-size:18px; color:rgba(255,255,255,0.5); max-width:540px; margin:0 auto 40px; line-height:1.7; }
+.hero-buttons { display:flex; gap:16px; justify-content:center; align-items:center; }
+.btn-primary { background:#2e90fa; color:#fff; border:none; padding:16px 36px; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(46,144,250,0.35); font-family:inherit; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(46,144,250,0.45); }
+.btn-secondary { background:rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:16px 36px; border-radius:12px; font-size:16px; font-weight:500; cursor:pointer; transition:all .2s; font-family:inherit; }
+.btn-secondary:hover { background:rgba(255,255,255,0.1); }
+.trust { display:flex; gap:32px; justify-content:center; margin-top:32px; font-size:13px; color:rgba(255,255,255,0.4); }
+.trust span { display:flex; align-items:center; gap:6px; }
+.trust .check { color:#4ade80; }
+
+/* Stats */
+.stats { display:flex; justify-content:center; gap:64px; padding:60px 32px; border-top:1px solid rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); }
+.stat { text-align:center; }
+.stat .num { font-size:36px; font-weight:800; background:linear-gradient(135deg,#2e90fa,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.stat .label { font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px; }
+
+/* Features */
+.features { padding:100px 32px; max-width:1100px; margin:0 auto; }
+.features h2 { font-size:40px; font-weight:700; text-align:center; margin-bottom:16px; letter-spacing:-1px; }
+.features .sub { text-align:center; color:rgba(255,255,255,0.4); margin-bottom:60px; font-size:16px; }
+.features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.feature-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:28px; transition:all .3s; }
+.feature-card:hover { background:rgba(46,144,250,0.04); border-color:rgba(46,144,250,0.15); transform:translateY(-4px); }
+.feature-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#2e90fa,#7c3aed); display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-size:20px; }
+.feature-card h3 { font-size:17px; font-weight:600; margin-bottom:8px; }
+.feature-card p { font-size:14px; color:rgba(255,255,255,0.4); line-height:1.6; }
+
+/* Pricing */
+.pricing { padding:100px 32px; max-width:900px; margin:0 auto; }
+.pricing h2 { font-size:40px; font-weight:700; text-align:center; margin-bottom:60px; letter-spacing:-1px; }
+.pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.price-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:28px; position:relative; }
+.price-card.popular { border-color:#2e90fa; background:rgba(46,144,250,0.04); }
+.price-card.popular::before { content:'הכי פופולרי'; position:absolute; top:-12px; right:20px; background:#2e90fa; color:#fff; font-size:11px; padding:4px 12px; border-radius:100px; font-weight:600; }
+.price-card h3 { font-size:18px; font-weight:600; margin-bottom:8px; }
+.price-card .amount { font-size:40px; font-weight:800; margin-bottom:4px; }
+.price-card .period { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:20px; }
+.price-card ul { list-style:none; margin-bottom:24px; }
+.price-card li { font-size:13px; color:rgba(255,255,255,0.5); padding:6px 0; display:flex; align-items:center; gap:8px; }
+.price-card li::before { content:'✓'; color:#4ade80; font-weight:700; }
+.price-btn { width:100%; background:rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.1); padding:12px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit; }
+.price-card.popular .price-btn { background:#2e90fa; border-color:#2e90fa; box-shadow:0 4px 16px rgba(46,144,250,0.3); }
+
+/* CTA */
+.cta { padding:100px 32px; text-align:center; position:relative; }
+.cta::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:600px; height:400px; background:radial-gradient(circle,rgba(46,144,250,0.1) 0%,transparent 70%); pointer-events:none; }
+.cta h2 { font-size:40px; font-weight:700; margin-bottom:16px; letter-spacing:-1px; }
+.cta p { color:rgba(255,255,255,0.4); margin-bottom:32px; font-size:16px; }
+
+/* Footer */
+footer { border-top:1px solid rgba(255,255,255,0.06); padding:48px 32px; text-align:center; color:rgba(255,255,255,0.3); font-size:13px; }
+
+/* LIGHT VERSION */
+body.light { background:#fafbfe; color:#1e293b; }
+body.light nav { background:rgba(250,251,254,0.85); border-bottom-color:rgba(0,0,0,0.04); }
+body.light .nav-links { color:rgba(0,0,0,0.5); }
+body.light .nav-links a:hover { color:#1e293b; }
+body.light .hero::before { background:radial-gradient(circle,rgba(46,144,250,0.08) 0%,transparent 70%); }
+body.light .hero p { color:rgba(0,0,0,0.45); }
+body.light .btn-secondary { background:rgba(0,0,0,0.03); border-color:rgba(0,0,0,0.08); color:#1e293b; }
+body.light .trust { color:rgba(0,0,0,0.35); }
+body.light .stats { border-color:rgba(0,0,0,0.04); }
+body.light .stat .label { color:rgba(0,0,0,0.4); }
+body.light .feature-card { background:rgba(255,255,255,0.8); border-color:rgba(0,0,0,0.06); backdrop-filter:blur(8px); }
+body.light .feature-card:hover { background:rgba(46,144,250,0.03); border-color:rgba(46,144,250,0.12); }
+body.light .feature-card p { color:rgba(0,0,0,0.45); }
+body.light .price-card { background:rgba(255,255,255,0.8); border-color:rgba(0,0,0,0.06); }
+body.light .price-card.popular { background:rgba(46,144,250,0.03); border-color:#2e90fa; }
+body.light .price-card li { color:rgba(0,0,0,0.5); }
+body.light .price-btn { background:rgba(0,0,0,0.03); border-color:rgba(0,0,0,0.08); color:#1e293b; }
+body.light .cta p { color:rgba(0,0,0,0.4); }
+body.light footer { border-top-color:rgba(0,0,0,0.04); color:rgba(0,0,0,0.3); }
+
+/* Toggle */
+.toggle { position:fixed; bottom:24px; left:24px; z-index:200; background:rgba(46,144,250,0.9); color:#fff; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; }
+</style>
+</head>
+<body class="light">
+
+<button class="toggle" onclick="document.body.classList.toggle('light')">🌙 / ☀️ החלף מצב</button>
+
+<nav>
+  <div class="nav-logo"><span>BotPress AI</span></div>
+  <div class="nav-links">
+    <a href="#features">פיצ׳רים</a>
+    <a href="#pricing">תוכניות</a>
+    <a href="#">שאלות</a>
+    <a href="#">התחברות</a>
+  </div>
+  <button class="nav-cta">נסה ב-₪1</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">הפלטפורמה לבוטים חכמים לעסקים</div>
+  <h1>בוט AI שעונה ללקוחות<br><span class="gradient">24/7 בשמך</span></h1>
+  <p>חבר את האימייל או הוואטסאפ שלך, הבוט לומד את העסק ועונה ללקוחות במקומך. בלי קוד, בלי מתכנתים.</p>
+  <div class="hero-buttons">
+    <button class="btn-primary">נסה ב-₪1 ← </button>
+    <button class="btn-secondary">▶ ראה איך עובד</button>
+  </div>
+  <div class="trust">
+    <span><span class="check">✓</span> 7 ימי ניסיון</span>
+    <span><span class="check">✓</span> התקנה ב-5 דקות</span>
+    <span><span class="check">✓</span> תמיכה בעברית</span>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="num">500+</div><div class="label">עסקים</div></div>
+  <div class="stat"><div class="num">50K+</div><div class="label">הודעות/חודש</div></div>
+  <div class="stat"><div class="num">4.9/5</div><div class="label">שביעות רצון</div></div>
+  <div class="stat"><div class="num">&lt;2 דק׳</div><div class="label">זמן תגובה</div></div>
+</div>
+
+<section class="features" id="features">
+  <h2>הכל מה שהעסק שלך צריך</h2>
+  <p class="sub">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h3>בוט וואטסאפ</h3>
+      <p>הבוט עונה ללקוחות בוואטסאפ באופן אוטומטי, מותאם לעסק שלך</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📧</div>
+      <h3>בוט אימייל</h3>
+      <p>תשובות אוטומטיות למיילים של לקוחות עם תוכן מותאם אישית</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>אנליטיקס</h3>
+      <p>ראה מה שואלים, כמה שיחות, שביעות רצון וסיכומים</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>FAQ ומדיניות</h3>
+      <p>הגדר שאלות נפוצות ומדיניות והבוט ישתמש בהם</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>AI ב-3 שכבות</h3>
+      <p>FAQ, תשובה AI, והעברה לנציג — הכל אוטומטי</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>רב-שפתי</h3>
+      <p>הבוט מזהה שפה ועונה בעברית, אנגלית וערבית</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <h2>תוכניות ומחירים</h2>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <h3>ניסיון</h3>
+      <div class="amount">₪1</div>
+      <div class="period">7 ימי ניסיון</div>
+      <ul>
+        <li>100 הודעות</li>
+        <li>כל הערוצים</li>
+        <li>FAQ + AI מלא</li>
+      </ul>
+      <button class="price-btn">התחל ניסיון</button>
+    </div>
+    <div class="price-card popular">
+      <h3>בסיסי</h3>
+      <div class="amount">₪99</div>
+      <div class="period">לחודש</div>
+      <ul>
+        <li>1,000 הודעות/חודש</li>
+        <li>כל הערוצים</li>
+        <li>AI מתקדם + זיכרון</li>
+        <li>אנליטיקס מלא</li>
+        <li>סיכומים אוטומטיים</li>
+      </ul>
+      <button class="price-btn">בחר תוכנית</button>
+    </div>
+    <div class="price-card">
+      <h3>פרימיום</h3>
+      <div class="amount">₪299</div>
+      <div class="period">לחודש</div>
+      <ul>
+        <li>הודעות ללא הגבלה</li>
+        <li>כל הערוצים</li>
+        <li>ללא מיתוג</li>
+        <li>תמיכה מועדפת</li>
+      </ul>
+      <button class="price-btn">בחר תוכנית</button>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>מוכן לשדרג את השירות?</h2>
+  <p>הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום</p>
+  <button class="btn-primary">התחל ניסיון ב-₪1 ←</button>
+</section>
+
+<footer>
+  © 2026 BotPress AI. כל הזכויות שמורות.
+</footer>
+
+</body>
+</html>
