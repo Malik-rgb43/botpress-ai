@@ -52,9 +52,9 @@ export default function ConversationsPage() {
       </div>
 
       {conversations.length === 0 ? (
-        <Card className="border-gray-100 shadow-none">
+        <Card className="border-blue-100/60 shadow-none">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <MessageSquare className="h-10 w-10 text-gray-300 mb-3" />
+            <MessageSquare className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">עדיין אין שיחות</p>
             <p className="text-gray-400 text-sm">שיחות יופיעו כאן כשלקוחות ידברו עם הבוט</p>
           </CardContent>
@@ -63,19 +63,24 @@ export default function ConversationsPage() {
         <div className="space-y-2">
           {conversations.map(conv => (
             <Link key={conv.id} href={`/dashboard/conversations/${conv.id}`}>
-              <Card className="border-gray-100 shadow-none hover:border-gray-200 transition-colors cursor-pointer">
+              <Card className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 hover:border-blue-200 transition-all cursor-pointer">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="h-5 w-5 text-gray-400 shrink-0" />
+                    <MessageSquare className="h-5 w-5 text-blue-400 shrink-0" />
                     <div>
                       <p className="text-sm font-medium">{conv.customer_identifier}</p>
                       <p className="text-xs text-gray-400">
-                        {new Date(conv.started_at).toLocaleDateString('he-IL')} {new Date(conv.started_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(conv.started_at).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' })} {new Date(conv.started_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">{conv.channel}</Badge>
+                    <Badge variant="outline" className={`text-xs ${
+                      conv.channel === 'email' ? 'border-blue-200 bg-blue-50 text-blue-700' :
+                      conv.channel === 'whatsapp' ? 'border-green-200 bg-green-50 text-green-700' :
+                      conv.channel === 'widget' ? 'border-purple-200 bg-purple-50 text-purple-700' :
+                      'border-gray-200 bg-gray-50 text-gray-600'
+                    }`}>{conv.channel}</Badge>
                     {conv.satisfaction_rating && (
                       <Badge variant="secondary" className="text-xs">
                         {'★'.repeat(conv.satisfaction_rating)}

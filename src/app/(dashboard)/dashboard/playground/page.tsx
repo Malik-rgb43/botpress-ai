@@ -178,7 +178,7 @@ export default function PlaygroundPage() {
               {loading && (
                 <div className="flex justify-end">
                   <div className="bg-gray-100 rounded-xl px-4 py-2.5">
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
                   </div>
                 </div>
               )}

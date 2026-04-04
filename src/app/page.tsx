@@ -161,7 +161,7 @@ export default function LandingPage() {
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>הפלטפורמה לבוטים חכמים לעסקים</span>
               </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-balance text-gray-900 mb-6 leading-[1.1]">
                 בוט AI שעונה ב
                 <br />
                 <RotatingText />
@@ -178,7 +178,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <Link href="#how">
-                  <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 rounded-2xl">
+                  <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 rounded-2xl transition-all duration-200">
                     <Play className="h-4 w-4" /> ראה איך עובד
                   </Button>
                 </Link>
@@ -228,7 +228,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4 shadow-sm">
             <Sparkles className="h-4 w-4" /> פיצ׳רים
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">
             הכל מה שהעסק שלך צריך
             <span className="gradient-text"> ✦ במקום אחד</span>
           </h2>
@@ -245,7 +245,7 @@ export default function LandingPage() {
                 </div>
                 <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">הכי פופולרי</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">בוט שעונה כמוך</h3>
+              <h3 className="text-xl font-bold text-balance text-gray-900 mb-2">בוט שעונה כמוך</h3>
               <p className="text-gray-500 text-sm mb-4">הבוט לומד את הטון, המדיניות והשאלות הנפוצות. כשלקוח שואל — הבוט עונה בדיוק כמוך.</p>
               <ChatMockup />
             </CardContent>
@@ -258,7 +258,7 @@ export default function LandingPage() {
                   <BarChart3 className="h-4 w-4 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">אנליטיקס בזמן אמת</h3>
+              <h3 className="text-xl font-bold text-balance text-gray-900 mb-2">אנליטיקס בזמן אמת</h3>
               <p className="text-gray-500 text-sm mb-4">ראה מה שואלים, כמה שיחות, ניתוח רגש, ושביעות רצון — הכל בדשבורד אחד.</p>
               <AnalyticsMockup />
             </CardContent>
@@ -272,7 +272,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
                 <Bell className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">התראות חכמות</h3>
+              <h3 className="text-lg font-bold text-balance text-gray-900 mb-2">התראות חכמות</h3>
               <p className="text-gray-500 text-sm mb-3">קבל התראות בזמן אמת כשלקוח מבקש נציג או כשיש שאלה חדשה.</p>
               <NotificationMockup />
             </CardContent>
@@ -283,7 +283,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center mb-3">
                 <Zap className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">AI ב-3 שכבות</h3>
+              <h3 className="text-lg font-bold text-balance text-gray-900 mb-2">AI ב-3 שכבות</h3>
               <p className="text-gray-500 text-sm mb-3">חיפוש FAQ → תשובה AI → העברה לנציג. הבוט תמיד יודע מה לעשות.</p>
               <div className="space-y-2">
                 {[
@@ -305,7 +305,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-3">
                 <Globe className="h-4 w-4 text-white" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">רב-שפתי</h3>
+              <h3 className="text-lg font-bold text-balance text-gray-900 mb-2">רב-שפתי</h3>
               <p className="text-gray-500 text-sm mb-3">הבוט מזהה שפה אוטומטית ועונה בעברית, אנגלית וערבית.</p>
               <div className="space-y-1.5">
                 {[
@@ -332,7 +332,7 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-3 py-1 text-xs text-green-600">
               <Smartphone className="h-3 w-3" /> WhatsApp Ready
             </div>
-            <h3 className="text-2xl font-bold text-gray-900">בוט שמדבר כמוך בוואטסאפ</h3>
+            <h3 className="text-2xl font-bold text-balance text-gray-900">בוט שמדבר כמוך בוואטסאפ</h3>
             <p className="text-gray-500 leading-relaxed">כשלקוח שולח הודעה בוואטסאפ, הבוט עונה מיד עם תשובה מותאמת אישית — על בסיס ה-FAQ, המדיניות, והטון שלך.</p>
             <ul className="space-y-2.5">
               {["תשובות מותאמות אישית לעסק", "זיכרון שיחות ללקוחות חוזרים", "העברה לנציג בלחיצה", "ניתוח רגש בזמן אמת"].map((item, i) => (
@@ -350,7 +350,7 @@ export default function LandingPage() {
       <section id="how" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">איך זה עובד?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">איך זה עובד?</h2>
             <p className="text-gray-500 text-lg">3 צעדים פשוטים ויש לך בוט חכם שעובד בשבילך</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -364,7 +364,7 @@ export default function LandingPage() {
                   <span className="text-sm font-bold text-white">{s.step}</span>
                 </div>
                 <div className="text-3xl mb-4 mt-2">{s.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
+                <h3 className="text-xl font-bold text-balance text-gray-900 mb-2">{s.title}</h3>
                 <p className="text-gray-500 leading-relaxed text-sm">{s.desc}</p>
               </div>
             ))}
@@ -375,7 +375,7 @@ export default function LandingPage() {
       {/* ───── Comparison Table ───── */}
       <section className="max-w-4xl mx-auto px-6 py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">
             למה BotPress AI מנצח
             <span className="gradient-text"> ✦ כל מתחרה</span>
           </h2>
@@ -411,7 +411,7 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4 shadow-sm">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> ביקורות
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">
               עסקים אמיתיים, <span className="gradient-text">תוצאות אמיתיות</span>
             </h2>
           </div>
@@ -426,7 +426,7 @@ export default function LandingPage() {
       {/* ───── Pricing ───── */}
       <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">תוכניות ומחירים</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">תוכניות ומחירים</h2>
           <p className="text-gray-500 text-lg">נסה 7 ימים ב-₪1 בלבד, בחר תוכנית כשמתאים לך</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 pt-4">
@@ -455,7 +455,7 @@ export default function LandingPage() {
       <section id="faq" className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-balance text-gray-900 mb-4">
               שאלות <span className="gradient-text">✦ נפוצות</span>
             </h2>
           </div>

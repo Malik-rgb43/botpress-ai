@@ -148,22 +148,22 @@ export default function FAQPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {faqs.map(faq => (
-            <Card key={faq.id} className="border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all">
+          {faqs.map((faq, index) => (
+            <Card key={faq.id} className={`border-blue-100/60 shadow-none hover:shadow-md hover:shadow-blue-500/5 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
               <CardContent className="p-4 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   {faq.category && (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">{faq.category}</span>
+                    <span className="text-xs bg-blue-100/80 text-blue-700 px-2.5 py-0.5 rounded-full mb-1.5 inline-block font-medium">{faq.category}</span>
                   )}
                   <p className="font-medium text-sm">{faq.question}</p>
-                  <p className="text-sm text-gray-500 mt-1">{faq.answer}</p>
+                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">{faq.answer}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(faq)}>
-                    <Pencil className="h-4 w-4 text-gray-400" />
+                  <Button variant="ghost" size="sm" className="hover:bg-blue-50 hover:text-blue-600" onClick={() => openEdit(faq)}>
+                    <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => deleteFaq(faq.id)}>
-                    <Trash2 className="h-4 w-4 text-gray-400" />
+                  <Button variant="ghost" size="sm" className="hover:bg-red-50 hover:text-red-500" onClick={() => deleteFaq(faq.id)}>
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
