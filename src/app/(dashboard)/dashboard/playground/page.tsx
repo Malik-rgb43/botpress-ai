@@ -111,7 +111,7 @@ export default function PlaygroundPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
             <TestTube className="h-6 w-6" />
             נסה את הבוט
           </h1>
@@ -178,7 +178,11 @@ export default function PlaygroundPage() {
               {loading && (
                 <div className="flex justify-end">
                   <div className="bg-gray-100 rounded-xl px-4 py-2.5">
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
+                    <div className="flex gap-1.5 items-center py-1">
+                      <div className="w-2 h-2 rounded-full bg-[#2e90fa] animate-bounce" style={{animationDelay: '0ms'}} />
+                      <div className="w-2 h-2 rounded-full bg-[#2e90fa] animate-bounce" style={{animationDelay: '150ms'}} />
+                      <div className="w-2 h-2 rounded-full bg-[#2e90fa] animate-bounce" style={{animationDelay: '300ms'}} />
+                    </div>
                   </div>
                 </div>
               )}

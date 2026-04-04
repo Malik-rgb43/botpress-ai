@@ -69,7 +69,7 @@ export default function PlanPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
           <CreditCard className="h-6 w-6" />
           תוכנית ושימוש
         </h1>

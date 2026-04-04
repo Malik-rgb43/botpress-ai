@@ -121,7 +121,7 @@ export default function ConversationsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-balance">שיחות</h1>
+        <h1 className="text-2xl font-bold text-balance">שיחות</h1>
         <p className="text-gray-500 text-sm mt-1">כל השיחות עם הלקוחות</p>
       </div>
 

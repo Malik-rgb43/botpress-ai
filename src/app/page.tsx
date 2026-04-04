@@ -290,7 +290,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-6xl md:text-8xl font-extrabold text-gray-900 mb-6 leading-[1.08]"
+                className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-[1.08]"
                 style={{ letterSpacing: '-0.03em' }}
               >
                 בוט AI שעונה ב
@@ -302,7 +302,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-xl md:text-2xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
+                className="text-lg md:text-xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
               >
                 בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
                 ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
@@ -317,7 +317,7 @@ export default function LandingPage() {
                 <Link href="/signup">
                   <Button
                     size="lg"
-                    className="text-lg px-12 py-8 text-white rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.02]"
+                    className="text-base px-8 py-6 text-white rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.02]"
                     style={{
                       background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)',
                       boxShadow: '0 8px 30px rgba(46,144,250,0.35)',
@@ -331,7 +331,7 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="text-lg px-12 py-8 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 gap-2 rounded-2xl transition-all duration-300"
+                    className="text-base px-8 py-6 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 gap-2 rounded-2xl transition-all duration-300"
                   >
                     <Play className="h-4 w-4" /> ראה איך עובד
                   </Button>
@@ -388,7 +388,7 @@ export default function LandingPage() {
                   <s.icon className="h-5 w-5 text-[#2e90fa]" />
                 </div>
                 <div
-                  className="text-5xl font-black mb-1"
+                  className="text-4xl font-extrabold mb-1"
                   style={{ background: 'linear-gradient(135deg, #2e90fa, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}
                 >
                   {s.value}

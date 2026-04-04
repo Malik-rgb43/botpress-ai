@@ -73,7 +73,7 @@ export default function WidgetPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
             <Code className="h-6 w-6" />
             וידג׳ט צ׳אט
           </h1>

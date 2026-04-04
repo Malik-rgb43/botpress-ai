@@ -97,7 +97,7 @@ export default function SettingsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-balance">הגדרות</h1>
+          <h1 className="text-2xl font-bold text-balance">הגדרות</h1>
           <p className="text-gray-500 text-sm mt-1">נהל את פרטי העסק, ערוצים וסיכומים</p>
         </div>
         <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
@@ -155,14 +155,21 @@ export default function SettingsPage() {
               <>
                 <div className="space-y-2">
                   <Label>תדירות</Label>
-                  <Select value={summaryFreq} onValueChange={(v) => v && setSummaryFreq(v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">יומי</SelectItem>
-                      <SelectItem value="weekly">שבועי</SelectItem>
-                      <SelectItem value="monthly">חודשי</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    {[
+                      { value: 'daily', label: 'יומי' },
+                      { value: 'weekly', label: 'שבועי' },
+                      { value: 'monthly', label: 'חודשי' },
+                    ].map(f => (
+                      <button key={f.value} type="button" onClick={() => setSummaryFreq(f.value)}
+                        className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                          summaryFreq === f.value
+                            ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                            : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                        }`}
+                      >{f.label}</button>
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>אימייל לסיכומים</Label>

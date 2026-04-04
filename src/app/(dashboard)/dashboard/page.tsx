@@ -243,7 +243,7 @@ export default function AnalyticsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-balance flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
             אנליטיקס
           </h1>
@@ -272,7 +272,7 @@ export default function AnalyticsPage() {
                 <span className="text-sm text-gray-500">{kpi.label}</span>
                 <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
               </div>
-              <div className="text-3xl font-bold mb-1">{kpi.value}</div>
+              <div className="text-2xl font-bold mb-1">{kpi.value}</div>
               <div className="flex items-center gap-1 text-xs">
                 {kpi.change.up ? (
                   <ArrowUp className={`h-3 w-3 ${kpi.invertColor ? 'text-red-500' : 'text-green-500'}`} />

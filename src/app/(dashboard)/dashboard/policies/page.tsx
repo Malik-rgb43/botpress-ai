@@ -93,7 +93,7 @@ export default function PoliciesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-balance">מדיניות העסק</h1>
+          <h1 className="text-2xl font-bold text-balance">מדיניות העסק</h1>
           <p className="text-gray-500 text-sm mt-1">הגדר מדיניות החזרות, משלוחים, שעות פעילות ועוד</p>
         </div>
         <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all"><Plus className="h-4 w-4 ml-1" />הוסף מדיניות</Button>
