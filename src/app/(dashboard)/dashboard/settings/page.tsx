@@ -13,6 +13,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
 
+function adjustColorSimple(hex: string, amount: number): string {
+  const h = hex.replace('#', '')
+  const n = parseInt(h, 16)
+  const r = Math.min(255, Math.max(0, (n >> 16) + amount))
+  const g = Math.min(255, Math.max(0, ((n >> 8) & 0xff) + amount))
+  const b = Math.min(255, Math.max(0, (n & 0xff) + amount))
+  return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`
+}
+
 export default function SettingsPage() {
   const { business, loading: bizLoading } = useBusiness()
   const [saving, setSaving] = useState(false)
@@ -167,33 +176,76 @@ export default function SettingsPage() {
           <CardContent className="space-y-5">
             {/* Template Picker */}
             <div className="space-y-2">
-              <Label>בחר תבנית</Label>
-              <div className="grid grid-cols-3 gap-3">
+              <Label>בחר תבנית אימייל</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { id: 'modern' as const, label: 'מודרני', desc: 'גרדיאנט + צל', emoji: '✨' },
-                  { id: 'classic' as const, label: 'קלאסי', desc: 'נקי + פס צד', emoji: '📋' },
-                  { id: 'minimal' as const, label: 'מינימלי', desc: 'טקסט בלבד', emoji: '📝' },
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      const info = business?.contact_info || {}
-                      const supabase = createClient()
-                      supabase.from('businesses').update({
-                        contact_info: { ...info, email_template: t.id }
-                      }).eq('id', business!.id).then(() => {})
-                    }}
-                    className={`p-3 rounded-xl border text-center transition-all ${
-                      (business?.contact_info as Record<string, unknown>)?.email_template === t.id || (!((business?.contact_info as Record<string, unknown>)?.email_template) && t.id === 'modern')
-                        ? 'border-blue-500 bg-blue-50 shadow-sm'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <div className="text-xl mb-1">{t.emoji}</div>
-                    <div className="text-xs font-medium">{t.label}</div>
-                    <div className="text-[10px] text-gray-400">{t.desc}</div>
-                  </button>
-                ))}
+                  { id: 'modern' as const, label: 'מודרני', desc: 'כותרת gradient, צללים, לוגו', icon: '✨', preview: 'gradient' },
+                  { id: 'classic' as const, label: 'קלאסי', desc: 'פס צד צבעוני, נקי ומקצועי', icon: '📋', preview: 'accent' },
+                  { id: 'minimal' as const, label: 'מינימלי', desc: 'טקסט בלבד, בלי עיצוב', icon: '📝', preview: 'text' },
+                  { id: 'none' as const, label: 'ללא עיצוב', desc: 'טקסט פשוט כמו Gmail רגיל', icon: '📨', preview: 'plain' },
+                ].map(t => {
+                  const currentTemplate = (business?.contact_info as Record<string, unknown>)?.email_template as string || 'modern'
+                  const isSelected = currentTemplate === t.id
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        const info = business?.contact_info || {}
+                        const supabase = createClient()
+                        supabase.from('businesses').update({
+                          contact_info: { ...info, email_template: t.id }
+                        }).eq('id', business!.id).then(() => toast.success(`תבנית "${t.label}" נבחרה`))
+                      }}
+                      className={`p-3 rounded-xl border text-center transition-all duration-200 ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-500/10 scale-[1.02]'
+                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/30'
+                      }`}
+                    >
+                      {/* Mini preview */}
+                      <div className="w-full h-16 rounded-lg mb-2 overflow-hidden border border-gray-100">
+                        {t.preview === 'gradient' && (
+                          <div className="h-full flex flex-col">
+                            <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColorSimple(brandColor, -30)})` }} className="h-6 flex items-center justify-center">
+                              <div className="w-3 h-3 rounded bg-white/30" />
+                            </div>
+                            <div className="flex-1 bg-white p-1.5">
+                              <div className="w-full h-1 bg-gray-200 rounded mb-1" />
+                              <div className="w-3/4 h-1 bg-gray-100 rounded" />
+                            </div>
+                          </div>
+                        )}
+                        {t.preview === 'accent' && (
+                          <div className="h-full flex">
+                            <div style={{ backgroundColor: brandColor }} className="w-1 shrink-0" />
+                            <div className="flex-1 bg-white p-1.5 flex flex-col justify-center">
+                              <div className="w-2/3 h-1.5 bg-gray-300 rounded mb-1.5" />
+                              <div className="w-full h-1 bg-gray-200 rounded mb-1" />
+                              <div className="w-3/4 h-1 bg-gray-100 rounded" />
+                            </div>
+                          </div>
+                        )}
+                        {t.preview === 'text' && (
+                          <div className="h-full bg-white p-2 flex flex-col justify-center">
+                            <div className="w-1/3 h-1.5 rounded mb-2" style={{ backgroundColor: brandColor }} />
+                            <div className="w-full h-1 bg-gray-200 rounded mb-1" />
+                            <div className="w-4/5 h-1 bg-gray-100 rounded mb-1" />
+                            <div className="w-2/3 h-1 bg-gray-100 rounded" />
+                          </div>
+                        )}
+                        {t.preview === 'plain' && (
+                          <div className="h-full bg-white p-2 flex flex-col justify-center">
+                            <div className="w-full h-1 bg-gray-200 rounded mb-1" />
+                            <div className="w-4/5 h-1 bg-gray-200 rounded mb-1" />
+                            <div className="w-3/5 h-1 bg-gray-200 rounded" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-xs font-medium">{t.label}</div>
+                      <div className="text-[10px] text-gray-400 leading-tight mt-0.5">{t.desc}</div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

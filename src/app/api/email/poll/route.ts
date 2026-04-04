@@ -381,13 +381,15 @@ export async function POST(request: NextRequest) {
             } else {
               // ── NORMAL: Reply directly to customer ──
               // Build HTML email template
-              const htmlEmail = buildEmailHtml({
+              const templateName = ((business.contact_info as Record<string, unknown>)?.email_template as string) || 'modern'
+              const htmlEmail = templateName !== 'none' ? buildEmailHtml({
+                template: templateName as 'modern' | 'classic' | 'minimal',
                 businessName: business.name,
                 logoUrl: business.logo_url,
                 primaryColor: (business.contact_info as Record<string, unknown>)?.brand_color as string || '#2563eb',
                 replyContent: aiContent,
                 footerText: (business.contact_info as Record<string, unknown>)?.email_footer as string || undefined,
-              })
+              }) : undefined
               const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent, htmlEmail)
 
               if (sent) {
