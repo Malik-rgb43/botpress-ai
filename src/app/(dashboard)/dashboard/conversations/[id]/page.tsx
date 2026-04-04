@@ -3,15 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { ArrowRight, Send, Loader2, Bot, User, UserCheck } from 'lucide-react'
+import { ArrowRight, Send, Loader2, Bot, User, UserCheck, Mail, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import type { Message } from '@/types/database'
+import type { Message, Conversation } from '@/types/database'
 
 const LAYER_COLORS: Record<string, string> = {
   faq: 'bg-blue-50 text-blue-700',
@@ -21,57 +22,124 @@ const LAYER_COLORS: Record<string, string> = {
 
 export default function ConversationDetailPage() {
   const params = useParams()
+  const { business } = useBusiness()
   const [messages, setMessages] = useState<Message[]>([])
+  const [conversation, setConversation] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [agentInput, setAgentInput] = useState('')
   const [sending, setSending] = useState(false)
 
   useEffect(() => {
-    loadMessages()
+    loadData()
   }, [params.id])
 
-  async function loadMessages() {
+  async function loadData() {
     const supabase = createClient()
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', params.id as string)
-      .order('created_at', { ascending: true })
-    setMessages(data || [])
+    const [msgRes, convRes] = await Promise.all([
+      supabase.from('messages').select('*').eq('conversation_id', params.id as string).order('created_at', { ascending: true }),
+      supabase.from('conversations').select('*').eq('id', params.id as string).single(),
+    ])
+    setMessages(msgRes.data || [])
+    setConversation(convRes.data)
     setLoading(false)
   }
 
   async function sendAgentMessage() {
-    if (!agentInput.trim()) return
+    if (!agentInput.trim() || !conversation) return
     setSending(true)
-    const supabase = createClient()
-    const { error } = await supabase.from('messages').insert({
-      conversation_id: params.id as string,
-      role: 'agent',
-      content: agentInput,
-      response_layer: null,
-    })
-    if (error) {
-      toast.error('שגיאה בשליחה')
-    } else {
-      toast.success('ההודעה נשלחה')
+
+    try {
+      // 1. Save message to DB
+      const supabase = createClient()
+      const { error } = await supabase.from('messages').insert({
+        conversation_id: params.id as string,
+        role: 'agent',
+        content: agentInput,
+        response_layer: null,
+      })
+
+      if (error) {
+        toast.error('שגיאה בשמירה')
+        setSending(false)
+        return
+      }
+
+      // 2. Send to customer via the right channel
+      const customerEmail = conversation.customer_identifier
+      const channel = conversation.channel
+
+      if (channel === 'email' && customerEmail.includes('@')) {
+        // Send via Gmail API
+        const res = await fetch('/api/agent/reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: customerEmail,
+            message: agentInput,
+            channel: 'email',
+          }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          toast.success(`נשלח ל-${customerEmail}`)
+        } else {
+          toast.warning('נשמר אבל לא נשלח — ' + (data.error || 'שגיאה'))
+        }
+      } else if (channel === 'whatsapp') {
+        // Send via WhatsApp API
+        const res = await fetch('/api/agent/reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: customerEmail,
+            message: agentInput,
+            channel: 'whatsapp',
+          }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          toast.success(`נשלח ב-WhatsApp ל-${customerEmail}`)
+        } else {
+          toast.warning('נשמר אבל לא נשלח — ' + (data.error || 'שגיאה'))
+        }
+      } else {
+        toast.success('ההודעה נשמרה')
+      }
+
       setAgentInput('')
-      loadMessages()
+      loadData()
+    } catch {
+      toast.error('שגיאה בשליחה')
     }
     setSending(false)
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
   }
+
+  const channelLabel = conversation?.channel === 'email' ? 'אימייל' : conversation?.channel === 'whatsapp' ? 'וואטסאפ' : 'וידג׳ט'
+  const channelIcon = conversation?.channel === 'email' ? Mail : MessageSquare
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/dashboard/conversations">
-          <Button variant="ghost" size="sm"><ArrowRight className="h-4 w-4" /></Button>
-        </Link>
-        <h1 className="text-2xl font-bold">פרטי שיחה</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard/conversations">
+            <Button variant="ghost" size="sm"><ArrowRight className="h-4 w-4" /></Button>
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold">{conversation?.customer_identifier}</h1>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Badge variant="outline" className="text-xs gap-1">
+                {channelLabel}
+              </Badge>
+              {conversation?.started_at && (
+                <span>{new Date(conversation.started_at).toLocaleDateString('he-IL')} {new Date(conversation.started_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <Card className="border-blue-100/60 shadow-none">
@@ -84,7 +152,7 @@ export default function ConversationDetailPage() {
                     <div className={`flex items-center gap-2 mb-1 ${msg.role === 'customer' ? '' : 'justify-end'}`}>
                       {msg.role === 'customer' && <><User className="h-3 w-3 text-gray-400" /><span className="text-xs text-gray-400">לקוח</span></>}
                       {msg.role === 'bot' && <><span className="text-xs text-gray-400">בוט</span><Bot className="h-3 w-3 text-gray-400" /></>}
-                      {msg.role === 'agent' && <><span className="text-xs text-gray-400">נציג</span><UserCheck className="h-3 w-3 text-green-500" /></>}
+                      {msg.role === 'agent' && <><span className="text-xs text-green-600 font-medium">נציג (אתה)</span><UserCheck className="h-3 w-3 text-green-500" /></>}
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
                       msg.role === 'customer' ? 'gradient-primary text-white' :
@@ -96,7 +164,7 @@ export default function ConversationDetailPage() {
                     {msg.response_layer && (
                       <div className="flex justify-end mt-1">
                         <Badge className={`text-[10px] h-5 ${LAYER_COLORS[msg.response_layer] || ''}`}>
-                          {msg.response_layer}
+                          {msg.response_layer === 'faq' ? 'שאלות נפוצות' : msg.response_layer === 'ai' ? 'AI' : 'העברה לנציג'}
                         </Badge>
                       </div>
                     )}
@@ -108,20 +176,24 @@ export default function ConversationDetailPage() {
 
           {/* Agent reply */}
           <div className="border-t border-gray-100 p-4">
-            <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
-              <UserCheck className="h-3 w-3" />
-              ענה כנציג
-            </p>
+            <div className="flex items-center gap-2 mb-2">
+              <UserCheck className="h-3.5 w-3.5 text-green-500" />
+              <span className="text-xs text-gray-500">
+                {conversation?.channel === 'email' ? `ענה כנציג — ישלח אימייל ל-${conversation.customer_identifier}` :
+                 conversation?.channel === 'whatsapp' ? `ענה כנציג — ישלח וואטסאפ ל-${conversation?.customer_identifier}` :
+                 'ענה כנציג'}
+              </span>
+            </div>
             <form onSubmit={(e) => { e.preventDefault(); sendAgentMessage() }} className="flex gap-2">
               <Input
-                placeholder="כתוב תשובה כנציג..."
+                placeholder="כתוב תשובה..."
                 value={agentInput}
                 onChange={(e) => setAgentInput(e.target.value)}
                 disabled={sending}
                 className="flex-1"
               />
-              <Button type="submit" disabled={sending || !agentInput.trim()} variant="outline">
-                <Send className="h-4 w-4" />
+              <Button type="submit" disabled={sending || !agentInput.trim()} className="gradient-primary border-0">
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </form>
           </div>
