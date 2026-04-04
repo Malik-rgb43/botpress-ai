@@ -158,7 +158,7 @@ export default function LandingPage() {
             <div className="lg:col-span-7 text-center lg:text-right">
               <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span>הפלטפורמה #1 לבוטים חכמים לעסקים</span>
+                <span>הפלטפורמה לבוטים חכמים לעסקים</span>
               </div>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
                 בוט AI שעונה ב
@@ -188,16 +188,16 @@ export default function LandingPage() {
                 <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה בעברית</span>
               </div>
             </div>
-            {/* Stats card side */}
+            {/* Interactive bot demo */}
             <div className="lg:col-span-5 hidden lg:block">
-              <HeroStatsCard />
+              <InteractiveDemo />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Interactive Demo */}
-      <section className="max-w-3xl mx-auto px-6 pb-20">
+      {/* Interactive Demo — mobile only (desktop shows in hero) */}
+      <section className="max-w-3xl mx-auto px-6 pb-20 lg:hidden">
         <InteractiveDemo />
       </section>
 
@@ -206,13 +206,13 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
             {[
-              { value: "500+", label: "עסקים משתמשים", emoji: "🏢" },
-              { value: "50K+", label: "הודעות בחודש", emoji: "💬" },
-              { value: "4.9/5", label: "שביעות רצון", emoji: "⭐" },
-              { value: "<2 דק׳", label: "זמן תגובה", emoji: "⚡" },
+              { value: "500+", label: "עסקים משתמשים", icon: Users },
+              { value: "50K+", label: "הודעות בחודש", icon: MessageSquare },
+              { value: "4.9/5", label: "שביעות רצון", icon: Star },
+              { value: "<2 דק׳", label: "זמן תגובה", icon: Clock },
             ].map((s, i) => (
               <div key={i} className="flex flex-col items-center">
-                <span className="text-2xl mb-2">{s.emoji}</span>
+                <s.icon className="h-5 w-5 text-blue-400 mb-2" />
                 <div className="text-3xl font-extrabold gradient-text mb-1">{s.value}</div>
                 <div className="text-sm text-gray-500">{s.label}</div>
               </div>
