@@ -24,13 +24,12 @@ import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'דשבורד', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'אנליטיקס', icon: BarChart3 },
   { href: '/dashboard/faq', label: 'שאלות נפוצות', icon: HelpCircle },
   { href: '/dashboard/policies', label: 'מדיניות', icon: FileText },
   { href: '/dashboard/templates', label: 'טון ותבניות', icon: MessageSquare },
   { href: '/dashboard/playground', label: 'נסה את הבוט', icon: TestTube },
   { href: '/dashboard/conversations', label: 'שיחות', icon: Users },
-  { href: '/dashboard/analytics', label: 'אנליטיקס', icon: BarChart3 },
   { href: '/dashboard/widget', label: 'וידג׳ט צ׳אט', icon: Code },
   { href: '/dashboard/plan', label: 'תוכנית', icon: CreditCard },
   { href: '/dashboard/settings', label: 'הגדרות', icon: Settings },
