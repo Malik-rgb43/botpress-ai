@@ -34,15 +34,16 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Load all business data in parallel
+    // Load business data via RPC (bypasses RLS for widget/public access)
     const [bizRes, faqRes, polRes, tmpRes] = await Promise.all([
-      supabase.from('businesses').select('*').eq('id', businessId).single(),
-      supabase.from('faqs').select('*').eq('business_id', businessId).order('order'),
-      supabase.from('policies').select('*').eq('business_id', businessId),
-      supabase.from('response_templates').select('*').eq('business_id', businessId),
+      supabase.rpc('get_business_by_id', { p_id: businessId }),
+      supabase.rpc('get_faqs_by_business', { p_business_id: businessId }),
+      supabase.rpc('get_policies_by_business', { p_business_id: businessId }),
+      supabase.rpc('get_templates_by_business', { p_business_id: businessId }),
     ])
 
-    if (!bizRes.data) {
+    const businessData = bizRes.data?.[0]
+    if (!businessData) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
 
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // ── Build AI Context ────────────────────────────────
     const context: AIContext = {
-      business: bizRes.data,
+      business: businessData,
       faqs: faqRes.data || [],
       policies: polRes.data || [],
       templates,
