@@ -234,11 +234,7 @@ export default function LandingPage() {
           <p className="text-gray-500 text-lg max-w-xl mx-auto">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות</p>
         </div>
 
-        {/* Animated Feature Cards */}
-        <AnimatedFeatures />
-      </section>
-
-      <section className="hidden">{/* Old features removed */}
+        {/* Feature cards with mockups */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <Card className="glass-card rounded-2xl overflow-hidden">
             <CardContent className="p-6">
