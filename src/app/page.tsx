@@ -12,6 +12,26 @@ import { AnimateOnScroll, AnimateCounter } from "@/components/ui/animate-on-scro
 import LiveChatDemo from "@/components/landing/live-chat-demo"
 import RotatingText from "@/components/landing/rotating-text"
 import InteractiveDemo from "@/components/landing/interactive-demo"
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns"
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
+
+/* ── Testimonials Data ──────────────────────────────── */
+
+const testimonials = [
+  { text: "הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות ואני סוף סוף יכולה להתמקד בעבודה.", image: "https://randomuser.me/api/portraits/women/1.jpg", name: "דנה כהן", role: "חנות פרחים" },
+  { text: "מאז שחיברנו את הבוט, 80% מהשאלות נענות אוטומטית. צמצמנו את הצורך בנציג.", image: "https://randomuser.me/api/portraits/men/2.jpg", name: "יוסי לוי", role: "מסעדה" },
+  { text: "ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה.", image: "https://randomuser.me/api/portraits/women/3.jpg", name: "מיכל אברהם", role: "חנות אונליין" },
+  { text: "הבוט עונה בדיוק כמו שאני הייתי עונה. לקוחות חושבים שזה נציג אמיתי.", image: "https://randomuser.me/api/portraits/men/4.jpg", name: "אבי מזרחי", role: "סטודיו כושר" },
+  { text: "חסכנו 3 שעות ביום של עבודה ידנית ושביעות הרצון של הלקוחות עלתה.", image: "https://randomuser.me/api/portraits/women/5.jpg", name: "שירה גולן", role: "קליניקה" },
+  { text: "הבוט מטפל ב-150 שיחות בחודש בשבילי. ממליצה לכל בעל עסק.", image: "https://randomuser.me/api/portraits/women/6.jpg", name: "נועה ברק", role: "חנות בגדים" },
+  { text: "השירות הכי טוב שהוספתי לעסק שלי השנה. לקוחות מקבלים מענה 24/7.", image: "https://randomuser.me/api/portraits/men/7.jpg", name: "עידן שמש", role: "סוכנות ביטוח" },
+  { text: "קל להגדרה, קל לשימוש, והתוצאות מדהימות. תוך יום הבוט עבד מושלם.", image: "https://randomuser.me/api/portraits/women/8.jpg", name: "רותם פרידמן", role: "משרד עורכי דין" },
+  { text: "הלקוחות שלנו אוהבים שהם מקבלים תשובה תוך שניות, בכל שעה.", image: "https://randomuser.me/api/portraits/men/9.jpg", name: "דוד אלון", role: "חברת הייטק" },
+]
+
+const firstColumn = testimonials.slice(0, 3)
+const secondColumn = testimonials.slice(3, 6)
+const thirdColumn = testimonials.slice(6, 9)
 
 /* ── Mini Mockups ────────────────────────────────────── */
 
@@ -373,76 +393,20 @@ export default function LandingPage() {
       </section>
 
       {/* ───── Testimonials ───── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-4 shadow-sm">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> ביקורות
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               עסקים אמיתיים, <span className="gradient-text">תוצאות אמיתיות</span>
             </h2>
-            <p className="text-gray-500 text-lg">ראה מה אומרים בעלי עסקים שכבר משתמשים ב-BotPress AI</p>
           </div>
-
-          {/* Featured testimonial */}
-          <div className="mb-8 relative">
-            <div className="absolute inset-0 gradient-primary rounded-2xl blur-xl opacity-[0.06]" />
-            <div className="relative bg-white rounded-2xl border border-blue-200 p-8 md:p-10 hover-lift">
-              <div className="flex flex-col md:flex-row gap-6 items-start" dir="rtl">
-                <div className="flex-1">
-                  <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}</div>
-                  <p className="text-gray-700 text-lg leading-relaxed mb-4">&ldquo;מאז שהתחלנו להשתמש ב-BotPress AI, <strong className="text-gray-900">80% מהפניות נענות אוטומטית</strong>. חסכנו 3 שעות ביום של עבודה ידנית ושביעות הרצון של הלקוחות עלתה משמעותית.&rdquo;</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-xl">🍕</div>
-                    <div>
-                      <p className="font-bold">יוסי לוי</p>
-                      <p className="text-sm text-gray-500">בעלים, מסעדת הגג — תל אביב</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-4 md:gap-6 shrink-0">
-                  <div className="text-center">
-                    <p className="text-3xl font-extrabold gradient-text">80%</p>
-                    <p className="text-xs text-gray-400">פניות אוטומטיות</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-extrabold gradient-text">3 שע׳</p>
-                    <p className="text-xs text-gray-400">נחסכות ביום</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-extrabold gradient-text">4.9</p>
-                    <p className="text-xs text-gray-400">שביעות רצון</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Other testimonials */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "דנה כהן", role: "חנות הפרחים של דנה", text: "הבוט חסך לי שעות ביום. לקוחות מקבלים תשובות מיידיות על שעות פעילות ומשלוחים, ואני סוף סוף יכולה להתמקד בסידורי פרחים.", metric: "5 דק׳ הקמה", avatar: "🌸" },
-              { name: "מיכל אברהם", role: "ShopStyle — חנות אונליין", text: "ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה לגבי החזרות ומשלוחים. הלקוחות חושבים שזה נציג אמיתי.", metric: "10 דק׳ התקנה", avatar: "🛍️" },
-              { name: "אבי מזרחי", role: "סטודיו כושר FitZone", text: "מטורף כמה שיחות הבוט מטפל בשבילי. שאלות על מנויים, שעות פעילות, שיעורים — הכל אוטומטי. ממליץ לכל בעל עסק.", metric: "150+ שיחות/חודש", avatar: "💪" },
-            ].map((t, i) => (
-              <Card key={i} className="glass-card rounded-2xl group">
-                <CardContent className="p-6">
-                  <div className="flex gap-0.5 mb-3">{Array.from({ length: 5 }).map((_, j) => <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}</div>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.text}&rdquo;</p>
-                  <div className="bg-blue-50 rounded-lg px-3 py-2 mb-4 text-center">
-                    <p className="text-sm font-bold gradient-text">{t.metric}</p>
-                  </div>
-                  <div className="flex items-center gap-3 border-t border-blue-50 pt-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">{t.avatar}</div>
-                    <div>
-                      <p className="font-semibold text-sm">{t.name}</p>
-                      <p className="text-xs text-gray-400">{t.role}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[600px] overflow-hidden">
+            <TestimonialsColumn testimonials={firstColumn} duration={15} />
+            <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={19} />
+            <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={17} />
           </div>
         </div>
       </section>
@@ -495,14 +459,14 @@ export default function LandingPage() {
       </section>
 
       {/* ───── CTA ───── */}
-      <section className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="relative rounded-3xl overflow-hidden p-12 md:p-16 text-center">
-          <div className="absolute inset-0 gradient-animated -z-10" />
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl -z-[5]" />
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">מוכן לשדרג את השירות? 🚀</h2>
-          <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום</p>
+      <section className="max-w-5xl mx-auto px-6 pb-12">
+        <HandWrittenTitle
+          title="מוכן לשדרג את השירות?"
+          subtitle="הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום"
+        />
+        <div className="text-center -mt-8 mb-16">
           <Link href="/signup">
-            <Button size="lg" className="text-base px-10 py-7 bg-white text-blue-600 hover:bg-blue-50 border-0 shadow-lg text-lg font-semibold">
+            <Button size="lg" className="text-base px-10 py-7 btn-premium text-white text-lg rounded-2xl">
               התחל ניסיון ב-₪1 <ArrowLeft className="h-5 w-5 mr-2" />
             </Button>
           </Link>
