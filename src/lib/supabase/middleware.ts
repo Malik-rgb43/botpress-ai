@@ -35,13 +35,11 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     // Redirect unauthenticated users to login
-    if (
-      !user &&
-      !request.nextUrl.pathname.startsWith('/login') &&
-      !request.nextUrl.pathname.startsWith('/signup') &&
-      !request.nextUrl.pathname.startsWith('/api') &&
-      request.nextUrl.pathname !== '/'
-    ) {
+    const publicPaths = ['/', '/login', '/signup', '/privacy', '/terms', '/api']
+    const isPublic = publicPaths.some(p => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + '/'))
+    const isStaticFile = request.nextUrl.pathname.match(/\.(js|css|png|jpg|svg|ico|woff|woff2)$/)
+
+    if (!user && !isPublic && !isStaticFile) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
       return NextResponse.redirect(redirectUrl)

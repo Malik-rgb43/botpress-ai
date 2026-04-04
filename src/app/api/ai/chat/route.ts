@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   detectIntent,
   detectSentiment,
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         )
       : []
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Load all business data in parallel
     const [bizRes, faqRes, polRes, tmpRes] = await Promise.all([
