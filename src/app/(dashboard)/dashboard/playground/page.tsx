@@ -19,7 +19,7 @@ interface ChatMessage {
 }
 
 const LAYER_LABELS: Record<string, string> = {
-  faq: 'FAQ',
+  faq: 'שאלות נפוצות',
   ai: 'AI',
   transfer: 'העברה לנציג',
 }

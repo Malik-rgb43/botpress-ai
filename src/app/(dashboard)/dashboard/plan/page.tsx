@@ -73,7 +73,7 @@ export default function PlanPage() {
           <CreditCard className="h-6 w-6" />
           תוכנית ושימוש
         </h1>
-        <p className="text-gray-500 text-sm mt-1">נהל את התוכנית שלך ועקוב אחרי השימוש</p>
+        <p className="text-gray-500 text-sm mt-1">התוכנית שלך ומעקב שימוש</p>
       </div>
 
       {/* Usage Card */}

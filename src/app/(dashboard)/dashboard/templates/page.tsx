@@ -79,7 +79,7 @@ export default function TemplatesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">טון דיבור ותבניות</h1>
-          <p className="text-gray-500 text-sm mt-1">קבע איך הבוט מדבר ומה הוא אומר</p>
+          <p className="text-gray-500 text-sm mt-1">התאם את הטון והתבניות של הבוט</p>
         </div>
         <Button onClick={save} disabled={saving} className="gradient-primary border-0 shadow-md shadow-blue-500/25">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}

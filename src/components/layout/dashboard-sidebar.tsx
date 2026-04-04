@@ -24,7 +24,7 @@ import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'סקירה כללית', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'דשבורד', icon: LayoutDashboard },
   { href: '/dashboard/faq', label: 'שאלות נפוצות', icon: HelpCircle },
   { href: '/dashboard/policies', label: 'מדיניות', icon: FileText },
   { href: '/dashboard/templates', label: 'טון ותבניות', icon: MessageSquare },

@@ -77,7 +77,7 @@ export default function WidgetPage() {
             <Code className="h-6 w-6" />
             וידג׳ט צ׳אט
           </h1>
-          <p className="text-gray-500 text-sm mt-1">הטמע צ׳אט בוט באתר שלך</p>
+          <p className="text-gray-500 text-sm mt-1">הוסף צ׳אט באתר שלך</p>
         </div>
         <Button onClick={save} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}

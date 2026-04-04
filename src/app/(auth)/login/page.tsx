@@ -34,7 +34,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl">התחברות</CardTitle>
-          <CardDescription>הכנס את הפרטים שלך כדי להתחבר</CardDescription>
+          <CardDescription>הזן אימייל וסיסמה</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

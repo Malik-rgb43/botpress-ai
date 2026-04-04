@@ -44,7 +44,7 @@ export default function SignupPage() {
             </div>
           </div>
           <CardTitle className="text-2xl">הרשמה</CardTitle>
-          <CardDescription>צור חשבון חדש והתחל לבנות את הבוט שלך</CardDescription>
+          <CardDescription>הרשם ותתחיל לבנות את הבוט שלך</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

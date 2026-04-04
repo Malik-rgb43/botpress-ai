@@ -67,9 +67,9 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
-            ניתוח ואנליטיקס
+            אנליטיקס
           </h1>
-          <p className="text-gray-500 text-sm mt-1">סקירת פעילות הבוט ונתונים מרכזיים</p>
+          <p className="text-gray-500 text-sm mt-1">נתונים ותובנות על פעילות הבוט</p>
         </div>
         <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
           <TabsList>

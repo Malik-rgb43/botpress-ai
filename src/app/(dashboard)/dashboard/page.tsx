@@ -64,7 +64,7 @@ export default function DashboardOverview() {
         <div className="mb-8 relative rounded-2xl overflow-hidden p-8">
           <div className="absolute inset-0 gradient-animated opacity-[0.08] -z-10" />
           <div className="absolute inset-0 mesh-gradient -z-10" />
-          <h1 className="text-2xl font-bold mb-2">ברוכים הבאים ל-BotPress AI! 🚀</h1>
+          <h1 className="text-2xl font-bold mb-2">ברוכים הבאים! 🚀</h1>
           <p className="text-gray-600 mb-4 max-w-lg">
             הפלטפורמה שעוזרת לך לשפר את חוויית הלקוח עם בוט AI חכם.
             הבוט עונה ללקוחות 24/7, מטפל בשאלות נפוצות, ומעביר לנציג כשצריך —
@@ -83,7 +83,7 @@ export default function DashboardOverview() {
       {business && (
         <div className="mb-8">
           <h1 className="text-2xl font-bold">שלום, {business.name} 👋</h1>
-          <p className="text-gray-500 mt-1">הנה סקירה מהירה של הפעילות</p>
+          <p className="text-gray-500 mt-1">סקירת הפעילות של העסק שלך</p>
         </div>
       )}
 

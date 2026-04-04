@@ -48,7 +48,7 @@ export default function ConversationsPage() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold">שיחות</h1>
-        <p className="text-gray-500 text-sm mt-1">צפה בהיסטוריית השיחות של הבוט</p>
+        <p className="text-gray-500 text-sm mt-1">כל השיחות עם הלקוחות</p>
       </div>
 
       {conversations.length === 0 ? (
