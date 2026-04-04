@@ -14,6 +14,8 @@ import RotatingText from "@/components/landing/rotating-text"
 import InteractiveDemo from "@/components/landing/interactive-demo"
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
+import { AnimatedFeatures } from "@/components/landing/animated-features"
+import { HeroStatsCard } from "@/components/landing/hero-stats-card"
 
 /* ── Testimonials Data ──────────────────────────────── */
 
@@ -150,37 +152,46 @@ export default function LandingPage() {
       {/* ───── Hero ───── */}
       <section id="main-content" className="relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-to-b from-blue-100/40 via-indigo-50/20 to-transparent rounded-full blur-3xl -z-10" />
-        <div className="max-w-6xl mx-auto px-6 pt-32 pb-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span>🚀 הפלטפורמה #1 לבוטים חכמים לעסקים</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
-            בוט AI שעונה ב
-            <br />
-            <RotatingText />
-          </h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
-            ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
-          </p>
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <Link href="/signup">
-              <Button size="lg" className="text-base px-10 py-7 btn-premium text-white text-lg rounded-2xl">
-                נסה ב-₪1
-                <ArrowLeft className="h-5 w-5 mr-2" />
-              </Button>
-            </Link>
-            <Link href="#how">
-              <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 gap-2">
-                <Play className="h-4 w-4" /> ראה איך עובד
-              </Button>
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-gray-500">
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />7 ימי ניסיון ב-₪1</span>
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />התקנה ב-5 דקות</span>
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה מלאה בעברית</span>
+        <div className="max-w-6xl mx-auto px-6 pt-32 pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Text side */}
+            <div className="lg:col-span-7 text-center lg:text-right">
+              <div className="inline-flex items-center gap-2 bg-white border border-blue-100 rounded-full px-4 py-1.5 text-sm text-blue-600 mb-6 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span>הפלטפורמה #1 לבוטים חכמים לעסקים</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+                בוט AI שעונה ב
+                <br />
+                <RotatingText />
+              </h1>
+              <p className="text-lg text-gray-500 max-w-xl mb-8 leading-relaxed mx-auto lg:mx-0">
+                בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
+                ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-6">
+                <Link href="/signup">
+                  <Button size="lg" className="text-base px-10 py-7 btn-premium text-white text-lg rounded-2xl">
+                    נסה ב-₪1
+                    <ArrowLeft className="h-5 w-5 mr-2" />
+                  </Button>
+                </Link>
+                <Link href="#how">
+                  <Button variant="outline" size="lg" className="text-base px-8 py-7 border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 rounded-2xl">
+                    <Play className="h-4 w-4" /> ראה איך עובד
+                  </Button>
+                </Link>
+              </div>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 text-xs md:text-sm text-gray-500">
+                <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />7 ימי ניסיון ב-₪1</span>
+                <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />התקנה ב-5 דקות</span>
+                <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-blue-500" />תמיכה בעברית</span>
+              </div>
+            </div>
+            {/* Stats card side */}
+            <div className="lg:col-span-5 hidden lg:block">
+              <HeroStatsCard />
+            </div>
           </div>
         </div>
       </section>
@@ -220,10 +231,14 @@ export default function LandingPage() {
             הכל מה שהעסק שלך צריך
             <span className="gradient-text"> ✦ במקום אחד</span>
           </h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות — אוטומטית, חכם, מותאם</p>
+          <p className="text-gray-500 text-lg max-w-xl mx-auto">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות</p>
         </div>
 
-        {/* Feature Row 1: Big card with mockup + 2 small */}
+        {/* Animated Feature Cards */}
+        <AnimatedFeatures />
+      </section>
+
+      <section className="hidden">{/* Old features removed */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <Card className="glass-card rounded-2xl overflow-hidden">
             <CardContent className="p-6">
