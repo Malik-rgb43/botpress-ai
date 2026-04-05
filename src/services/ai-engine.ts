@@ -7,6 +7,7 @@ export interface AIContext {
   templates: Record<string, string>
   conversationHistory: { role: string; content: string }[]
   customerLanguage?: string
+  botLanguage?: string
 }
 
 export interface AIResponse {
@@ -60,7 +61,7 @@ ${business.story || 'לא סופק מידע נוסף על העסק.'}
 כשמעביר לנציג, אמור: "אני מעביר אותך לנציג שירות שיוכל לעזור לך. אנא המתן רגע."
 
 ## 3. כללי תשובה
-- ענה תמיד בשפה שבה הלקוח פנה (עברית/אנגלית/ערבית)
+- ${context.botLanguage === 'auto' || !context.botLanguage ? 'ענה תמיד בשפה שבה הלקוח פנה (עברית/אנגלית/ערבית)' : `ענה תמיד ב${context.botLanguage === 'he' ? 'עברית' : context.botLanguage === 'en' ? 'אנגלית' : context.botLanguage === 'ar' ? 'ערבית' : context.botLanguage === 'ru' ? 'רוסית' : context.botLanguage === 'fr' ? 'צרפתית' : context.botLanguage}, גם אם הלקוח פנה בשפה אחרת`}
 - תשובות קצרות וממוקדות — 1-3 משפטים מספיקים
 - אל תמציא מידע, מחירים, תאריכים או עובדות שלא קיימים בנתונים
 - אל תחזור על עצמך — אם כבר ענית על שאלה, תן תשובה מקוצרת

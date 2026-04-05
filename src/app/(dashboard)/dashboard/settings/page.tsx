@@ -134,24 +134,24 @@ export default function SettingsPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.settings.title}</h1>
-          <p className="text-gray-400 text-sm mt-1">{t.settings.subtitle}</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.settings.title}</h1>
+          <Button onClick={save} disabled={saving} className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg shadow-sm h-9 px-4 text-sm">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
+            {t.common.save}
+          </Button>
         </div>
-        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit">
-          {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
-          {t.common.save}
-        </Button>
+        <p className="text-gray-400 text-sm mt-1">{t.settings.subtitle}</p>
       </div>
 
-      <div className="space-y-6">
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+      <div className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.business_title}</h2>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-4">
             <div className="space-y-2">
               <Label>{t.settings.business_name}</Label>
               <Input value={name} onChange={e => setName(e.target.value)} />
@@ -182,12 +182,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Language Settings */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.language_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.language_desc}</p>
           </div>
-          <div className="p-6 space-y-5">
+          <div className="p-4 space-y-5">
             <div className="space-y-2">
               <Label>{t.settings.app_language}</Label>
               <p className="text-xs text-gray-400">{t.settings.app_language_desc}</p>
@@ -239,12 +239,12 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.summaries_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.summaries_desc}</p>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <Label>{t.settings.summaries_enable}</Label>
               <Switch checked={summaryEnabled} onCheckedChange={setSummaryEnabled} />
@@ -301,12 +301,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Agent Availability */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.agent_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.agent_desc}</p>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <Label>{t.settings.agent_enable}</Label>
               <Switch checked={agentEnabled} onCheckedChange={setAgentEnabled} />
@@ -384,12 +384,12 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.email_design_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.email_design_desc}</p>
           </div>
-          <div className="p-6 space-y-5">
+          <div className="p-4 space-y-5">
             {/* Template Picker */}
             <div className="space-y-2">
               <Label>{t.settings.template_label}</Label>
@@ -562,12 +562,12 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.channels_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.channels_desc}</p>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-4">
             {/* Email */}
             <div className={`border ${business?.contact_info?.gmail_connected ? 'border-green-200 bg-green-50/50' : 'border-blue-200 bg-blue-50/50'} rounded-lg p-4`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">

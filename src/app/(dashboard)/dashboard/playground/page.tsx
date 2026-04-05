@@ -109,24 +109,22 @@ export default function PlaygroundPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-            {t.playground.title}
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">{t.playground.subtitle}</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.playground.title}</h1>
+          <Button variant="outline" size="sm" onClick={reset} className="border-blue-200 text-blue-600 hover:bg-blue-50">
+            <RotateCcw className="h-4 w-4 ml-1" />
+            {t.playground.reset}
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={reset} className="border-blue-200 text-blue-600 hover:bg-blue-50 w-fit">
-          <RotateCcw className="h-4 w-4 ml-1" />
-          {t.playground.reset}
-        </Button>
+        <p className="text-gray-400 text-sm mt-1">{t.playground.subtitle}</p>
       </div>
 
-      <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+      <div className="bg-white border border-gray-200/60 rounded-xl">
         <div className="p-0">
           {/* Chat Area */}
-          <ScrollArea className="h-[350px] md:h-[500px] p-4 md:p-6" ref={scrollRef}>
+          <ScrollArea className="h-[350px] md:h-[500px] p-4" ref={scrollRef}>
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center text-blue-400">
                 <Bot className="h-12 w-12 mb-3" />

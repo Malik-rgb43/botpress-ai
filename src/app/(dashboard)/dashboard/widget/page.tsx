@@ -86,13 +86,13 @@ export default function WidgetPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-            <div className="p-6 pb-4 border-b border-gray-100">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <div className="bg-white border border-gray-200/60 rounded-xl">
+            <div className="p-4 pb-3 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">{t.widget.settings_title}</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 space-y-4">
               <div className="space-y-2">
                 <Label>{t.widget.position_label}</Label>
                 <div className="flex gap-2">
@@ -141,12 +141,12 @@ export default function WidgetPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-            <div className="p-6 pb-4 border-b border-gray-100">
+          <div className="bg-white border border-gray-200/60 rounded-xl">
+            <div className="p-4 pb-3 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">{t.widget.embed_title}</h2>
               <p className="text-sm text-gray-400 mt-0.5">{t.widget.embed_desc}</p>
             </div>
-            <div className="p-6">
+            <div className="p-4">
               <div className="bg-gray-950 text-green-400 rounded-xl p-3 md:p-5 text-xs md:text-sm font-mono text-left direction-ltr overflow-x-auto border border-gray-800">
                 <pre className="whitespace-pre-wrap break-all">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
               </div>
@@ -162,12 +162,12 @@ export default function WidgetPage() {
         </div>
 
         {/* Live Preview — shows exactly how the widget looks on a real website */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.widget.preview_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.widget.preview_footer}</p>
           </div>
-          <div className="p-6">
+          <div className="p-4">
             {/* Fake website preview */}
             <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white" style={{ height: '460px' }}>
               {/* Browser chrome */}

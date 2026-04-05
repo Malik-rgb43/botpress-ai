@@ -199,7 +199,7 @@
   }
   function pollMessages() {
     if (!conversationId || !isOpen) return;
-    fetch(apiBase + '/api/widget/messages?conversationId=' + conversationId + (lastMsgTime ? '&after=' + encodeURIComponent(lastMsgTime) : ''))
+    fetch(apiBase + '/api/widget/messages?conversationId=' + conversationId + '&visitorId=' + encodeURIComponent(visitorId) + (lastMsgTime ? '&after=' + encodeURIComponent(lastMsgTime) : ''))
       .then(function(r) { return r.json(); })
       .then(function(d) {
         var msgs = d.messages || [];

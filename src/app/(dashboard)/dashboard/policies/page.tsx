@@ -91,14 +91,16 @@ export default function PoliciesPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.policies.title}</h1>
-          <p className="text-gray-400 text-sm mt-1">{t.policies.subtitle}</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.policies.title}</h1>
+          <Button onClick={openCreate} className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg shadow-sm h-9 px-4 text-sm"><Plus className="h-4 w-4 ml-1" />{t.policies.add_button}</Button>
         </div>
-        <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit"><Plus className="h-4 w-4 ml-1" />{t.policies.add_button}</Button>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <p className="text-gray-400 text-sm mt-1">{t.policies.subtitle}</p>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? t.policies.dialog_edit : t.policies.dialog_new}</DialogTitle></DialogHeader>
             <div className="space-y-4 px-6 pb-6">
@@ -133,20 +135,19 @@ export default function PoliciesPage() {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
 
       {policies.length === 0 ? (
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200/60 transition-all duration-200 hover:shadow-md">
           <div className="p-6 flex flex-col items-center justify-center py-12 text-center">
             <FileText className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">{t.policies.empty}</p>
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {policies.map(p => (
-            <div key={p.id} className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-              <div className="p-4 md:p-6 flex items-start justify-between gap-3">
+            <div key={p.id} className="bg-white rounded-xl border border-gray-200/60 transition-all duration-200 hover:shadow-md">
+              <div className="p-3 md:p-4 flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
                     {POLICY_TYPES.find(pt => pt.value === p.type)?.label || p.type}

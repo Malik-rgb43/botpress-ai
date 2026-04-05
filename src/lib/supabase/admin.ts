@@ -6,12 +6,11 @@ export function createAdminClient() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !serviceKey) {
-    // Fallback to anon key if service role not set
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    if (!url || !anonKey) {
-      throw new Error('Supabase not configured')
-    }
-    return createClient(url, anonKey)
+    // SECURITY: Never fall back to anon key — that would silently bypass RLS
+    throw new Error(
+      'Missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL. ' +
+      'Admin client requires the service role key for server-side operations.'
+    )
   }
 
   return createClient(url, serviceKey, {

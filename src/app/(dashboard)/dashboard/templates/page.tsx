@@ -76,25 +76,25 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.templates.title}</h1>
-          <p className="text-gray-400 text-sm mt-1">{t.templates.subtitle}</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.templates.title}</h1>
+          <Button onClick={save} disabled={saving} className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg shadow-sm h-9 px-4 text-sm">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
+            {t.templates.save}
+          </Button>
         </div>
-        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit">
-          {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
-          {t.templates.save}
-        </Button>
+        <p className="text-gray-400 text-sm mt-1">{t.templates.subtitle}</p>
       </div>
 
-      <div className="space-y-6">
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+      <div className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.templates.tone_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.templates.tone_subtitle}</p>
           </div>
-          <div className="p-6">
+          <div className="p-4">
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {TONES.map(t => (
                 <button
@@ -115,12 +115,12 @@ export default function TemplatesPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
-          <div className="p-6 pb-4 border-b border-gray-100">
+        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
+          <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.templates.responses_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.templates.responses_subtitle}</p>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-4">
             {[
               { key: 'greeting' as const, label: t.templates.greeting_label, desc: t.templates.greeting_desc },
               { key: 'no_answer' as const, label: t.templates.no_answer_label, desc: t.templates.no_answer_desc },

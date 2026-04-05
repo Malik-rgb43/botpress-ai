@@ -68,21 +68,19 @@ export default function PlanPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-          {t.plan.title}
-        </h1>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.plan.title}</h1>
         <p className="text-gray-400 text-sm mt-1">{t.plan.subtitle}</p>
       </div>
 
       {/* Usage Card */}
-      <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm mb-8">
-        <div className="p-6 pb-4 border-b border-gray-100">
+      <div className="bg-white border border-gray-200/60 rounded-xl mb-6">
+        <div className="p-4 pb-3 border-b border-gray-100">
           <h2 className="text-base font-semibold text-gray-900">{t.plan.current_usage}</h2>
           <p className="text-sm text-gray-400 mt-0.5">{t.plan.plan_label} {PLANS.find(p => p.tier === currentPlan)?.name}</p>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-500">{messagesUsed} / {messageLimit} {t.common.messages}</span>
             <span className="text-sm font-medium">{Math.round(usagePercent)}%</span>
@@ -98,12 +96,12 @@ export default function PlanPage() {
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {PLANS.map((plan) => (
           <div
             key={plan.tier}
             className={`bg-white rounded-xl relative overflow-visible ${
-              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border border-gray-200/60 shadow-none'
+              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border border-gray-200/60'
             }`}
           >
             {plan.popular && (
@@ -111,7 +109,7 @@ export default function PlanPage() {
                 <Badge className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">{t.plan.most_popular}</Badge>
               </div>
             )}
-            <div className="p-6 pb-4 border-b border-gray-100">
+            <div className="p-4 pb-3 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">{plan.name}</h2>
               <div className="mt-2">
                 <span className="text-3xl md:text-4xl font-bold">
@@ -120,7 +118,7 @@ export default function PlanPage() {
                 {plan.trial ? <span className="text-blue-500 text-sm font-medium">{t.plan.trial_period}</span> : <span className="text-gray-400 text-sm">{t.plan.per_month}</span>}
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-4">
               <ul className="space-y-2 mb-6">
                 {plan.features.map((f, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm">
