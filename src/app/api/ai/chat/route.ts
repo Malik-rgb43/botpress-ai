@@ -12,7 +12,7 @@ import type { AIContext } from '@/services/ai-engine'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, businessId, conversationHistory = [] } = body
+    const { message, businessId, conversationHistory = [], conversationId: existingConvId = null, visitorId = null } = body
 
     // Input validation
     if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 5000) {
@@ -66,17 +66,21 @@ export async function POST(request: NextRequest) {
         : templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן רגע.'
 
       // Save escalation to DB
+      let savedConvId = existingConvId
       try {
-        const { data: convId } = await supabase.rpc('insert_conversation', {
-          p_business_id: businessId, p_channel: 'widget', p_customer: 'widget-visitor', p_language: language,
-        })
-        if (convId) {
+        if (!savedConvId) {
+          const { data: newId } = await supabase.rpc('insert_conversation', {
+            p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+          })
+          savedConvId = newId
+        }
+        if (savedConvId) {
           await supabase.rpc('insert_messages', {
-            p_conv_id: convId, p_customer_content: message.slice(0, 2000),
+            p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
             p_bot_content: transferMsg, p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
           })
           await supabase.rpc('insert_escalation', {
-            p_conversation_id: convId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
+            p_conversation_id: savedConvId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
           })
         }
       } catch {}
@@ -84,6 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         content: transferMsg,
         layer: 'transfer',
+        conversationId: savedConvId,
         intent,
         sentiment,
         confidence: 1,
@@ -229,26 +234,29 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
       const confidence = finalContent.length > 10 && !isTransfer ? 0.85 : 0.5
 
       // ── Save to DB (via RPC, bypasses RLS) ──────────────
+      let savedConvId2 = existingConvId
       try {
-        const { data: convId } = await supabase.rpc('insert_conversation', {
-          p_business_id: businessId,
-          p_channel: 'widget',
-          p_customer: 'widget-visitor',
-          p_language: 'he',
-        })
-        if (convId) {
+        if (!savedConvId2) {
+          const { data: newId } = await supabase.rpc('insert_conversation', {
+            p_business_id: businessId,
+            p_channel: 'widget',
+            p_customer: visitorId || 'widget-visitor',
+            p_language: language,
+          })
+          savedConvId2 = newId
+        }
+        if (savedConvId2) {
           await supabase.rpc('insert_messages', {
-            p_conv_id: convId,
+            p_conv_id: savedConvId2,
             p_customer_content: message.slice(0, 2000),
             p_bot_content: finalContent,
             p_intent: intent,
             p_sentiment: sentiment,
             p_layer: layer,
           })
-          // If escalation, create escalation record
           if (isTransfer) {
             await supabase.rpc('insert_escalation', {
-              p_conversation_id: convId,
+              p_conversation_id: savedConvId2,
               p_reason: 'לקוח ביקש נציג דרך הווידג׳ט',
             })
           }
@@ -264,6 +272,7 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
         intent,
         sentiment,
         confidence,
+        conversationId: savedConvId2,
       })
 
     } catch (fetchError) {

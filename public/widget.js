@@ -9,6 +9,10 @@
 
   var isOpen = false, messages = [], isTyping = false;
   var history = [];
+  var conversationId = null;
+  var visitorId = 'v-' + Math.random().toString(36).substr(2, 8);
+  var lastMsgTime = null;
+  var pollInterval = null;
 
   // Inject styles
   var s = document.createElement('style');
@@ -113,13 +117,19 @@
     fab.classList.toggle('open', isOpen);
     fab.innerHTML = isOpen ? plusSvg : chatSvg;
     if (isOpen && !messages.length) addMsg('b', 'שלום! איך אפשר לעזור? 👋');
-    if (isOpen) setTimeout(function() { inp.focus(); }, 100);
+    if (isOpen) {
+      setTimeout(function() { inp.focus(); }, 100);
+      startPolling();
+    } else {
+      stopPolling();
+    }
   };
   cls.onclick = function() {
     isOpen = false;
     chat.classList.remove('open');
     fab.classList.remove('open');
     fab.innerHTML = chatSvg;
+    stopPolling();
   };
   inp.oninput = function() { snd.disabled = !inp.value.trim(); };
   inp.onkeydown = function(e) { if (e.key === 'Enter' && !snd.disabled) send(); };
@@ -153,7 +163,13 @@
     fetch(apiBase + '/api/ai/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({message:t, businessId:businessId, conversationHistory:history.slice(-10)})
+      body: JSON.stringify({
+        message: t,
+        businessId: businessId,
+        conversationHistory: history.slice(-10),
+        conversationId: conversationId,
+        visitorId: visitorId,
+      })
     })
     .then(function(r){return r.json()})
     .then(function(d){
@@ -161,10 +177,43 @@
       var reply = d.content || 'מצטער, אירעה שגיאה.';
       addMsg('b', reply);
       history.push({role:'assistant',content:reply});
+      // Save conversation ID for session
+      if (d.conversationId) {
+        conversationId = d.conversationId;
+        lastMsgTime = new Date().toISOString();
+      }
     })
     .catch(function(){
       hideTyp();
       addMsg('b', 'מצטער, לא הצלחתי להתחבר. נסה שוב.');
     });
+  }
+
+  // Poll for agent messages every 3 seconds
+  function startPolling() {
+    if (pollInterval) return;
+    pollInterval = setInterval(pollMessages, 3000);
+  }
+  function stopPolling() {
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  }
+  function pollMessages() {
+    if (!conversationId || !isOpen) return;
+    fetch(apiBase + '/api/widget/messages?conversationId=' + conversationId + (lastMsgTime ? '&after=' + encodeURIComponent(lastMsgTime) : ''))
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var msgs = d.messages || [];
+        msgs.forEach(function(m) {
+          // Only show agent messages we haven't shown yet
+          if (m.role === 'agent') {
+            var alreadyShown = messages.some(function(x) { return x.t === m.content && x.r === 'b'; });
+            if (!alreadyShown) {
+              addMsg('b', '👤 נציג: ' + m.content);
+            }
+          }
+          lastMsgTime = m.created_at;
+        });
+      })
+      .catch(function() {});
   }
 })();
