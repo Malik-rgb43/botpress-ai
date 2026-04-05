@@ -9,10 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   MessageSquare, TrendingUp, TrendingDown, UserX, Star,
-  ArrowUp, ArrowDown, Plus, Loader2, BarChart3
+  ArrowUp, ArrowDown, Plus, Loader2, BarChart3, RefreshCw,
+  AlertTriangle, CheckCircle2, ExternalLink, Clock
 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Conversation, Message } from '@/types/database'
+import Link from 'next/link'
+import type { Conversation, Message, Escalation } from '@/types/database'
 
 type Period = 'today' | 'week' | 'month'
 
@@ -79,7 +81,9 @@ export default function AnalyticsPage() {
   const [channels, setChannels] = useState<ChannelDist>({ widget: 0, whatsapp: 0, email: 0 })
   const [topQuestions, setTopQuestions] = useState<TopQuestion[]>([])
   const [recentConversations, setRecentConversations] = useState<(Conversation & { messages: Message[] })[]>([])
+  const [openEscalations, setOpenEscalations] = useState<(Escalation & { conversation?: Conversation })[]>([])
   const [dataLoading, setDataLoading] = useState(false)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
 
   const loadData = useCallback(async () => {
     if (!business) return
@@ -97,9 +101,11 @@ export default function AnalyticsPage() {
           .eq('business_id', business.id)
           .gte('started_at', prevStart.toISOString())
           .lt('started_at', prevEnd.toISOString()),
-        supabase.from('escalations').select('id', { count: 'exact', head: true })
+        supabase.from('escalations').select('id, conversations!inner(business_id)', { count: 'exact', head: true })
+          .eq('conversations.business_id', business.id)
           .gte('created_at', start.toISOString()),
-        supabase.from('escalations').select('id', { count: 'exact', head: true })
+        supabase.from('escalations').select('id, conversations!inner(business_id)', { count: 'exact', head: true })
+          .eq('conversations.business_id', business.id)
           .gte('created_at', prevStart.toISOString())
           .lt('created_at', prevEnd.toISOString()),
       ])
@@ -200,14 +206,42 @@ export default function AnalyticsPage() {
 
       // Recent conversations (last 10)
       setRecentConversations(allConvs.slice(0, 10) as any)
+
+      // Open escalations
+      const { data: escData, error: escError } = await supabase
+        .from('escalations')
+        .select('*, conversation:conversations!inner(*)')
+        .eq('conversations.business_id', business.id)
+        .in('status', ['open', 'in_progress'])
+        .order('created_at', { ascending: false })
+
+      if (escError) {
+        console.error('Escalations load error:', escError)
+      } else {
+        setOpenEscalations((escData || []).map((e: any) => ({
+          ...e,
+          conversation: e.conversation,
+        })))
+      }
+
+      setLastRefresh(new Date())
     } catch (err) {
       console.error('Analytics load error:', err)
+      toast.error('שגיאה בטעינת הנתונים — נסה שוב')
     }
     setDataLoading(false)
   }, [business, period])
 
   useEffect(() => {
     loadData()
+  }, [loadData])
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData()
+    }, 30000)
+    return () => clearInterval(interval)
   }, [loadData])
 
   function pctChange(current: number, prev: number): { value: number; up: boolean } {
@@ -218,6 +252,26 @@ export default function AnalyticsPage() {
 
   async function addToFAQ(question: string) {
     toast.success(`"${question}" נוסף ל-FAQ`)
+  }
+
+  async function resolveEscalation(escalationId: string, conversationId: string) {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('escalations')
+        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
+        .eq('id', escalationId)
+      if (error) {
+        toast.error('שגיאה בעדכון הסטטוס')
+        console.error('Resolve escalation error:', error)
+        return
+      }
+      toast.success('הסימון עודכן — טופל')
+      setOpenEscalations(prev => prev.filter(e => e.id !== escalationId))
+    } catch (err) {
+      console.error('Resolve escalation error:', err)
+      toast.error('שגיאה בעדכון')
+    }
   }
 
   if (bizLoading || dataLoading) {
@@ -247,16 +301,81 @@ export default function AnalyticsPage() {
             <BarChart3 className="h-6 w-6" />
             אנליטיקס
           </h1>
-          <p className="text-gray-500 text-sm mt-1">נתונים ותובנות על פעילות הבוט</p>
+          <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
+            <span>נתונים ותובנות על פעילות הבוט</span>
+            {lastRefresh && (
+              <span className="text-gray-400 text-xs">· עודכן {lastRefresh.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+            )}
+          </div>
         </div>
-        <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-          <TabsList>
-            <TabsTrigger value="today">היום</TabsTrigger>
-            <TabsTrigger value="week">שבוע</TabsTrigger>
-            <TabsTrigger value="month">חודש</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadData()}
+            disabled={dataLoading}
+            className="gap-1.5"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${dataLoading ? 'animate-spin' : ''}`} />
+            רענון
+          </Button>
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+            <TabsList>
+              <TabsTrigger value="today">היום</TabsTrigger>
+              <TabsTrigger value="week">שבוע</TabsTrigger>
+              <TabsTrigger value="month">חודש</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
+
+      {/* Open Escalations Alert */}
+      {openEscalations.length > 0 && (
+        <Card className="bg-orange-50 border-orange-200 rounded-2xl shadow-md mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-orange-800">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              {openEscalations.length} שיחות ממתינות למענה אנושי
+            </CardTitle>
+            <CardDescription className="text-orange-600">שיחות שהבוט העביר לנציג וטרם טופלו</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {openEscalations.map(esc => (
+                <div key={esc.id} className="flex items-center justify-between gap-3 bg-white rounded-xl p-3 border border-orange-100">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{esc.conversation?.customer_identifier || 'לקוח'}</p>
+                      <p className="text-xs text-gray-500 truncate">{esc.reason}</p>
+                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                        <Clock className="h-3 w-3" />
+                        {new Date(esc.created_at).toLocaleDateString('he-IL')} {new Date(esc.created_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link href={`/dashboard/conversations/${esc.conversation_id}`}>
+                      <Button variant="outline" size="sm" className="gap-1 text-xs">
+                        <ExternalLink className="h-3 w-3" />
+                        לשיחה
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="gap-1 text-xs bg-green-600 hover:bg-green-700"
+                      onClick={() => resolveEscalation(esc.id, esc.conversation_id)}
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      סמן כטופל
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { ArrowRight, Send, Loader2, Bot, User, UserCheck, Mail, MessageSquare } from 'lucide-react'
+import { ArrowRight, Send, Loader2, Bot, User, UserCheck, Mail, MessageSquare, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import type { Message, Conversation } from '@/types/database'
+import type { Message, Conversation, Escalation } from '@/types/database'
 
 const LAYER_COLORS: Record<string, string> = {
   faq: 'bg-blue-50 text-blue-700',
@@ -26,6 +26,8 @@ export default function ConversationDetailPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
+  const [escalation, setEscalation] = useState<Escalation | null>(null)
+  const [resolvingEscalation, setResolvingEscalation] = useState(false)
   const [agentInput, setAgentInput] = useState('')
   const [sending, setSending] = useState(false)
 
@@ -35,13 +37,38 @@ export default function ConversationDetailPage() {
 
   async function loadData() {
     const supabase = createClient()
-    const [msgRes, convRes] = await Promise.all([
+    const [msgRes, convRes, escRes] = await Promise.all([
       supabase.from('messages').select('*').eq('conversation_id', params.id as string).order('created_at', { ascending: true }),
       supabase.from('conversations').select('*').eq('id', params.id as string).single(),
+      supabase.from('escalations').select('*').eq('conversation_id', params.id as string).order('created_at', { ascending: false }).limit(1).single(),
     ])
     setMessages(msgRes.data || [])
     setConversation(convRes.data)
+    setEscalation(escRes.data || null)
     setLoading(false)
+  }
+
+  async function handleResolveEscalation() {
+    if (!escalation) return
+    setResolvingEscalation(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('escalations')
+        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
+        .eq('conversation_id', params.id as string)
+      if (error) {
+        toast.error('שגיאה בעדכון הסטטוס')
+        console.error('Resolve escalation error:', error)
+      } else {
+        toast.success('הסימון עודכן — טופל')
+        setEscalation(prev => prev ? { ...prev, status: 'resolved', resolved_at: new Date().toISOString() } : null)
+      }
+    } catch (err) {
+      console.error('Resolve error:', err)
+      toast.error('שגיאה בעדכון')
+    }
+    setResolvingEscalation(false)
   }
 
   async function sendAgentMessage() {
@@ -141,6 +168,46 @@ export default function ConversationDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Escalation status */}
+      {escalation && (
+        <div className={`flex items-center justify-between rounded-xl px-4 py-3 mb-4 border ${
+          escalation.status === 'resolved'
+            ? 'bg-green-50 border-green-200'
+            : 'bg-orange-50 border-orange-200'
+        }`}>
+          <div className="flex items-center gap-2">
+            {escalation.status === 'resolved' ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            ) : (
+              <AlertTriangle className="h-4 w-4 text-orange-500" />
+            )}
+            <div>
+              <span className={`text-sm font-medium ${escalation.status === 'resolved' ? 'text-green-800' : 'text-orange-800'}`}>
+                {escalation.status === 'resolved' ? 'טופל' : escalation.status === 'in_progress' ? 'בטיפול' : 'ממתין למענה אנושי'}
+              </span>
+              {escalation.reason && (
+                <p className="text-xs text-gray-500 mt-0.5">סיבה: {escalation.reason}</p>
+              )}
+            </div>
+          </div>
+          {escalation.status !== 'resolved' && (
+            <Button
+              size="sm"
+              className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleResolveEscalation}
+              disabled={resolvingEscalation}
+            >
+              {resolvingEscalation ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              )}
+              סמן כטופל
+            </Button>
+          )}
+        </div>
+      )}
 
       <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
         <CardContent className="p-0">
