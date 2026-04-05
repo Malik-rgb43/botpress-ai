@@ -85,9 +85,9 @@ export default function AnalyticsPage() {
   const [dataLoading, setDataLoading] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (silent = false) => {
     if (!business) return
-    setDataLoading(true)
+    if (!silent) setDataLoading(true)
     try {
       const supabase = createClient()
       const { start, prevStart, prevEnd } = getDateRange(period)
@@ -101,8 +101,8 @@ export default function AnalyticsPage() {
 
       if (error) {
         console.error('Analytics RPC error:', error)
-        toast.error('שגיאה בטעינת הנתונים')
-        setDataLoading(false)
+        if (!silent) toast.error('שגיאה בטעינת הנתונים')
+        if (!silent) setDataLoading(false)
         return
       }
 
@@ -137,13 +137,14 @@ export default function AnalyticsPage() {
     loadData()
   }, [loadData])
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 15 seconds (silent — no loading spinner)
   useEffect(() => {
+    if (!business) return
     const interval = setInterval(() => {
-      loadData()
-    }, 30000)
+      loadData(true)
+    }, 15000)
     return () => clearInterval(interval)
-  }, [loadData])
+  }, [business, period, loadData])
 
   function pctChange(current: number, prev: number): { value: number; up: boolean } {
     if (prev === 0) return { value: 0, up: true }
@@ -166,7 +167,7 @@ export default function AnalyticsPage() {
     setOpenEscalations(prev => prev.filter(e => e.id !== escalationId))
   }
 
-  if (bizLoading || dataLoading) {
+  if (bizLoading || (dataLoading && !lastRefresh)) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
   }
 
