@@ -76,8 +76,7 @@ export async function POST(request: NextRequest) {
           })
           await supabase.from('escalations').insert({
             conversation_id: convId, reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג', status: 'open',
-          }).then(() => {}).catch(() => {})
-        }
+          })        }
       } catch {}
 
       return NextResponse.json({
@@ -250,8 +249,7 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
               conversation_id: convId,
               reason: 'לקוח מהווידג׳ט ביקש נציג',
               status: 'open',
-            }).then(() => {}).catch(() => {})
-          }
+            })          }
         }
       } catch (dbErr) {
         console.error('Chat DB save error:', dbErr)
