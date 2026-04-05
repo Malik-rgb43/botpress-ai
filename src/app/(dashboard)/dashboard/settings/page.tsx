@@ -9,8 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader2, Save, Sparkles, Check, Globe, HelpCircle, FileText } from 'lucide-react'
+import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from '@/i18n/provider'
 import type { Language } from '@/i18n'
@@ -53,99 +52,6 @@ export default function SettingsPage() {
   const [offlineMessage, setOfflineMessage] = useState('אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות.')
   const [appLanguage, setAppLanguage] = useState('he')
   const [botLanguage, setBotLanguage] = useState('he')
-
-  // Website scan state
-  const [isScanning, setIsScanning] = useState(false)
-  const [scanResults, setScanResults] = useState<any>(null)
-  const [showScanPreview, setShowScanPreview] = useState(false)
-  const [scanSections, setScanSections] = useState<Record<string, boolean>>({
-    story: true, contact: true, faqs: true, policies: true,
-  })
-
-  async function scanWebsite() {
-    if (!website.trim()) {
-      toast.error(t.settings.scan_no_url)
-      return
-    }
-    let scanUrl = website.trim()
-    if (!scanUrl.startsWith('http')) scanUrl = 'https://' + scanUrl
-
-    setIsScanning(true)
-    try {
-      const res = await fetch('/api/ai/scan-website', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: scanUrl,
-          businessName: name || business?.name,
-          language: lang,
-          businessId: business?.id,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        toast.error(t.settings.scan_nothing)
-        setIsScanning(false)
-        return
-      }
-      setScanResults(data)
-      setScanSections({
-        story: !!data.story,
-        contact: !!(data.phone || data.email || data.address),
-        faqs: !!(data.faqs?.length),
-        policies: !!(data.policies?.length),
-      })
-      setShowScanPreview(true)
-    } catch {
-      toast.error(t.settings.scan_error)
-    }
-    setIsScanning(false)
-  }
-
-  async function applyScanResults() {
-    if (!scanResults || !business) return
-    const supabase = createClient()
-
-    // Apply story + contact info
-    if (scanSections.story && scanResults.story) {
-      setStory(scanResults.story)
-    }
-    if (scanSections.contact) {
-      if (scanResults.phone && !phone) setPhone(scanResults.phone)
-      if (scanResults.email && !email) setEmail(scanResults.email)
-      if (scanResults.address && !address) setAddress(scanResults.address)
-    }
-
-    // Save FAQs
-    if (scanSections.faqs && scanResults.faqs?.length) {
-      const { data: existingFaqs } = await supabase
-        .from('faqs').select('id').eq('business_id', business.id)
-      const startOrder = existingFaqs?.length || 0
-      const inserts = scanResults.faqs.map((f: any, i: number) => ({
-        business_id: business.id,
-        question: f.question,
-        answer: f.answer,
-        category: f.category || null,
-        order: startOrder + i,
-      }))
-      await supabase.from('faqs').insert(inserts)
-    }
-
-    // Save Policies
-    if (scanSections.policies && scanResults.policies?.length) {
-      const inserts = scanResults.policies.map((p: any) => ({
-        business_id: business.id,
-        type: p.type || 'custom',
-        title: p.title,
-        content: p.content,
-      }))
-      await supabase.from('policies').insert(inserts)
-    }
-
-    toast.success(t.settings.scan_saved)
-    setShowScanPreview(false)
-    setScanResults(null)
-  }
 
   // 24-hour time options for Israeli format
   const timeOptions = Array.from({ length: 48 }, (_, i) => {
@@ -270,144 +176,10 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>{t.settings.website}</Label>
-              <div className="flex gap-2">
-                <Input value={website} onChange={e => setWebsite(e.target.value)} dir="ltr" className="flex-1" />
-                <Button
-                  type="button"
-                  onClick={scanWebsite}
-                  disabled={isScanning || !website.trim()}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 rounded-lg shadow-sm px-4 shrink-0"
-                >
-                  {isScanning ? (
-                    <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />{t.settings.scanning}</>
-                  ) : (
-                    <><Sparkles className="h-4 w-4 ml-1.5" />{t.settings.scan_website}</>
-                  )}
-                </Button>
-              </div>
+              <Input value={website} onChange={e => setWebsite(e.target.value)} dir="ltr" />
             </div>
           </div>
         </div>
-
-        {/* Scan Results Preview Dialog */}
-        <Dialog open={showScanPreview} onOpenChange={setShowScanPreview}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle>{t.settings.scan_results}</DialogTitle>
-              <p className="text-sm text-gray-400 mt-1">{t.settings.scan_results_desc}</p>
-            </DialogHeader>
-            <div className="overflow-y-auto flex-1 px-6 space-y-4 pb-4">
-              {/* Story */}
-              {scanResults?.story && (
-                <div
-                  onClick={() => setScanSections(p => ({ ...p, story: !p.story }))}
-                  className={`rounded-xl border p-4 cursor-pointer transition-all ${
-                    scanSections.story ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      scanSections.story ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
-                    }`}>
-                      {scanSections.story && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">{t.settings.scan_story_found}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mr-8 leading-relaxed">{scanResults.story}</p>
-                </div>
-              )}
-
-              {/* Contact info */}
-              {(scanResults?.phone || scanResults?.email || scanResults?.address) && (
-                <div
-                  onClick={() => setScanSections(p => ({ ...p, contact: !p.contact }))}
-                  className={`rounded-xl border p-4 cursor-pointer transition-all ${
-                    scanSections.contact ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      scanSections.contact ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
-                    }`}>
-                      {scanSections.contact && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">{t.settings.scan_contact_found}</span>
-                  </div>
-                  <div className="text-sm text-gray-600 mr-8 space-y-1">
-                    {scanResults.phone && <p>📞 {scanResults.phone}</p>}
-                    {scanResults.email && <p>📧 {scanResults.email}</p>}
-                    {scanResults.address && <p>📍 {scanResults.address}</p>}
-                  </div>
-                </div>
-              )}
-
-              {/* FAQs */}
-              {scanResults?.faqs?.length > 0 && (
-                <div
-                  onClick={() => setScanSections(p => ({ ...p, faqs: !p.faqs }))}
-                  className={`rounded-xl border p-4 cursor-pointer transition-all ${
-                    scanSections.faqs ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      scanSections.faqs ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
-                    }`}>
-                      {scanSections.faqs && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <HelpCircle className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-semibold text-gray-900">{t.settings.scan_faqs_found} ({scanResults.faqs.length})</span>
-                  </div>
-                  <div className="mr-8 space-y-2">
-                    {scanResults.faqs.slice(0, 4).map((f: any, i: number) => (
-                      <div key={i} className="text-xs">
-                        <p className="font-medium text-gray-800">{f.question}</p>
-                        <p className="text-gray-500 line-clamp-1">{f.answer}</p>
-                      </div>
-                    ))}
-                    {scanResults.faqs.length > 4 && (
-                      <p className="text-xs text-gray-400">+{scanResults.faqs.length - 4} more...</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Policies */}
-              {scanResults?.policies?.length > 0 && (
-                <div
-                  onClick={() => setScanSections(p => ({ ...p, policies: !p.policies }))}
-                  className={`rounded-xl border p-4 cursor-pointer transition-all ${
-                    scanSections.policies ? 'border-blue-300 bg-blue-50/50' : 'border-gray-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      scanSections.policies ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
-                    }`}>
-                      {scanSections.policies && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <FileText className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm font-semibold text-gray-900">{t.settings.scan_policies_found} ({scanResults.policies.length})</span>
-                  </div>
-                  <div className="mr-8 space-y-1">
-                    {scanResults.policies.map((p: any, i: number) => (
-                      <p key={i} className="text-xs text-gray-600">• {p.title}</p>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="px-6 pb-6 pt-2 border-t border-gray-100">
-              <Button
-                onClick={applyScanResults}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-11 shadow-sm"
-              >
-                <Check className="h-4 w-4 ml-1.5" />
-                {t.settings.scan_save}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Language Settings */}
         <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
