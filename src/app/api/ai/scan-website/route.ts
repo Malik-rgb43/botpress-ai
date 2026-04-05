@@ -116,45 +116,77 @@ export async function POST(request: NextRequest) {
       ? `${websiteContent}\n\n=== POLICY PAGES FOUND ON WEBSITE ===\n${policyContent}`
       : websiteContent
 
-    const systemPrompt = `You are a professional business analyst AI specializing in extracting structured business data from websites.
+    const systemPrompt = `You are a senior business intelligence analyst with deep expertise in e-commerce, retail, and service businesses. You specialize in extracting comprehensive, accurate business data from websites to power AI customer service bots.
 
-YOUR ROLE:
-You receive scraped website content (main page + any policy/terms pages found in the footer). Your job is to extract real, accurate business information and structure it as JSON.
+## YOUR MISSION
+Analyze scraped website content to extract every piece of useful business information. The output will be used to configure an AI chatbot that answers customer questions — so accuracy and completeness are critical.
 
-ABSOLUTE RULES:
-1. ACCURACY FIRST: Only include information that is explicitly stated or clearly implied on the website. Never invent, guess, or assume.
-2. POLICIES FROM POLICY PAGES ONLY: Policies (returns, shipping, privacy, terms) must come from actual policy page content provided in the "POLICY PAGES" section. If no policy pages were found, return policies as an empty array []. Do NOT generate policies from FAQ or general page content.
-3. CONTACT INFO: Extract phone numbers, email addresses, and physical addresses only if they appear on the website. Look in footer, contact section, and "about us" areas.
-4. BUSINESS STORY: Write a natural, compelling 2-4 sentence description of the business based on how they present themselves. Include: what they do, their unique value, target audience.
-5. FAQs: Generate 8-12 helpful Q&A pairs from a CUSTOMER'S perspective based on real website content. Questions should be things customers would actually ask. Answers must contain real information from the website.
-6. LANGUAGE: All output text must be in ${promptLang}.
-7. CATEGORIES: For FAQs, assign relevant categories (e.g., "shipping", "products", "pricing", "general"). For policies, use type values: "shipping", "returns", "hours", "payment", "privacy", "terms", or "custom".
+## DATA EXTRACTION RULES
 
-OUTPUT FORMAT:
-Return ONLY a valid JSON object. No markdown fences, no explanation, no comments.`
+### 1. BUSINESS STORY (story)
+- Write a natural, compelling description (3-5 sentences) of the business
+- Include: what they sell/do, who their customers are, what makes them unique, their values/mission
+- Tone: professional but warm, as if the business owner is introducing their business
+- Base ONLY on what the website actually says about itself
+- If you find an "About Us" or "מי אנחנו" section, prioritize that content
+- If no clear business description exists, return null
 
-    const userPrompt = `Analyze this website and extract business information:
+### 2. CONTACT INFORMATION (phone, email, address)
+- Extract EXACT phone numbers, emails, and addresses as they appear
+- Look in: footer, header, contact page content, "about us" section, sidebar
+- Phone: include country code if present (e.g., +972-50-1234567 or 050-1234567)
+- Email: only business emails (not noreply@ or automated addresses)
+- Address: full street address with city
+- Return null for any field not found — never guess
 
-Business: "${businessName || 'Unknown'}"
-URL: ${url}
+### 3. FREQUENTLY ASKED QUESTIONS (faqs)
+- Generate 8-14 high-quality Q&A pairs from a CUSTOMER'S perspective
+- Questions must be things a real customer would ask before/during/after purchase
+- Answers must contain REAL, SPECIFIC information from the website (prices, times, sizes, materials, etc.)
+- Categories to use: "כללי" (general), "משלוחים" (shipping), "החזרות" (returns), "מוצרים" (products), "תשלום" (payment), "שעות פעילות" (hours), "שירות" (service)
+- DO NOT create generic FAQs. Every answer must have specific details from the website
+- Examples of GOOD questions: "כמה עולה משלוח לתל אביב?", "האם אפשר להחזיר מוצר אחרי 30 יום?", "מה שעות הפעילות ביום שישי?"
+- Examples of BAD questions: "מה החברה עושה?" (too vague), "האם אתם טובים?" (not useful)
 
-Return this JSON structure (omit any field where you found no real data — use null):
+### 4. BUSINESS POLICIES (policies)
+- CRITICAL: Extract policies ONLY from actual policy page content provided in the "POLICY PAGES" section
+- If NO policy pages were found in the scrape, return an EMPTY array []
+- Never invent or assume policies
+- For each policy found, extract:
+  - type: "shipping" | "returns" | "hours" | "payment" | "privacy" | "terms" | "custom"
+  - title: A clear title in ${promptLang}
+  - content: The full, detailed policy text — summarize if very long (keep key details like timeframes, conditions, exceptions)
+- Common policies to look for: return/exchange policy, shipping policy, privacy policy, terms of service, warranty, business hours
+
+### 5. LANGUAGE & FORMATTING
+- ALL output text must be in ${promptLang}
+- Use natural, professional language
+- Prices should include currency symbol (₪, $, etc.)
+- Times in 24-hour format (e.g., 08:00-20:00)
+- Phone numbers in local format
+
+## OUTPUT
+Return ONLY a valid JSON object. No explanations, no markdown.`
+
+    const userPrompt = `Extract all business information from this website.
+
+Business name: "${businessName || 'Unknown'}"
+Website URL: ${url}
+
+JSON structure:
 {
-  "story": "Business description (2-4 sentences). null if nothing found.",
-  "phone": "Phone number or null",
-  "email": "Email address or null",
-  "address": "Physical address or null",
-  "faqs": [{"question":"...","answer":"...","category":"..."}],
-  "policies": [{"type":"shipping|returns|hours|payment|privacy|terms|custom","title":"...","content":"..."}]
+  "story": "string or null",
+  "phone": "string or null",
+  "email": "string or null",
+  "address": "string or null",
+  "faqs": [{"question":"string","answer":"string","category":"string"}],
+  "policies": [{"type":"string","title":"string","content":"string"}]
 }
 
-Remember: policies ONLY from the policy pages section below. If no policy pages exist, policies = [].
-
-=== WEBSITE CONTENT ===
 ${fullContent}`
 
     const aiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -162,8 +194,8 @@ ${fullContent}`
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
           generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 4000,
+            temperature: 0.2,
+            maxOutputTokens: 8000,
             responseMimeType: 'application/json',
           },
         }),
