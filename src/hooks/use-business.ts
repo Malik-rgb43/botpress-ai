@@ -21,7 +21,9 @@ export function useBusiness() {
         .from('businesses')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
       setBusiness(data)
       setLoading(false)
