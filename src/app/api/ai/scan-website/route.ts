@@ -45,28 +45,28 @@ export async function POST(request: NextRequest) {
       })
       const html = await res.text()
 
-      // Extract footer links for policy pages before stripping HTML
-      const policyKeywords = /policy|policies|terms|privacy|return|refund|shipping|delivery|faq|about|hours|contact/i
-      const footerMatch = html.match(/<footer[^>]*>[\s\S]*?<\/footer>/i)
-      const linkSection = footerMatch?.[0] || html.slice(-3000) // fallback to last 3000 chars
-      const linkRegex = /href=["']([^"']+)["']/gi
+      // Extract ALL links that could be policy/info pages — search ENTIRE page
+      const policyKeywords = /policy|policies|terms|privacy|return|refund|exchange|shipping|delivery|faq|about|contact|hours|warranty|guarantee|cancell|תנאי|מדיניות|החזר|משלוח|פרטיות|שעות|אודות|צור.?קשר|ביטול|אחריות|תקנון|legal|tos|conditions|service/i
+      const linkRegex = /href=["']([^"'#]+)["']/gi
       const policyLinks: string[] = []
       let linkMatch
-      while ((linkMatch = linkRegex.exec(linkSection)) !== null) {
+      // Search entire HTML for relevant links
+      while ((linkMatch = linkRegex.exec(html)) !== null) {
         const href = linkMatch[1]
-        if (policyKeywords.test(href) && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
-          try {
-            const fullUrl = new URL(href, url).href
-            if (fullUrl.startsWith('http') && !policyLinks.includes(fullUrl)) {
-              policyLinks.push(fullUrl)
-            }
-          } catch { /* skip invalid */ }
-        }
+        if (href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) continue
+        if (!policyKeywords.test(href)) continue
+        try {
+          const fullUrl = new URL(href, url).href
+          // Only same domain
+          if (fullUrl.startsWith('http') && new URL(fullUrl).hostname === parsedUrl.hostname && !policyLinks.includes(fullUrl)) {
+            policyLinks.push(fullUrl)
+          }
+        } catch { /* skip invalid */ }
       }
 
-      // Scrape up to 3 policy pages
-      for (const policyUrl of policyLinks.slice(0, 3)) {
-        try {
+      // Scrape up to 5 policy pages IN PARALLEL for speed
+      const policyResults = await Promise.allSettled(
+        policyLinks.slice(0, 5).map(async (policyUrl) => {
           const pRes = await fetch(policyUrl, {
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
             signal: AbortSignal.timeout(5000),
@@ -80,10 +80,13 @@ export async function POST(request: NextRequest) {
             .replace(/\s+/g, ' ')
             .trim()
             .slice(0, 2000)
-          if (pText.length > 100) {
-            policyContent += `\n\n--- Policy page: ${policyUrl} ---\n${pText}`
-          }
-        } catch { /* skip failed pages */ }
+          return { url: policyUrl, text: pText }
+        })
+      )
+      for (const r of policyResults) {
+        if (r.status === 'fulfilled' && r.value.text.length > 100) {
+          policyContent += `\n\n--- Policy page: ${r.value.url} ---\n${r.value.text}`
+        }
       }
 
       // Main page content (keep footer for contact info)

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Loader2, Sparkles, Check, Globe, ArrowDown } from 'lucide-react'
+import { Sparkles, Check, Globe, Search, FileText, HelpCircle, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import type { OnboardingData } from '@/app/onboarding/page'
 
@@ -13,10 +13,45 @@ interface Props {
   updateData: (partial: Partial<OnboardingData>) => void
 }
 
+const SCAN_STEPS = [
+  { icon: Search, label: 'מתחבר לאתר...', duration: 2000 },
+  { icon: Globe, label: 'סורק את תוכן האתר...', duration: 3000 },
+  { icon: FileText, label: 'מחפש דפי מדיניות...', duration: 2500 },
+  { icon: HelpCircle, label: 'מייצר שאלות נפוצות...', duration: 3000 },
+  { icon: MessageSquare, label: 'מסכם את המידע...', duration: 2000 },
+]
+
 export default function StepBusinessInfo({ data, updateData }: Props) {
   const [isScanning, setIsScanning] = useState(false)
   const [scanDone, setScanDone] = useState(false)
   const [scanStats, setScanStats] = useState<string[]>([])
+  const [scanStep, setScanStep] = useState(0)
+  const scanTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Animated step progression during scan
+  useEffect(() => {
+    if (!isScanning) {
+      setScanStep(0)
+      return
+    }
+
+    let currentStep = 0
+    setScanStep(0)
+
+    function advanceStep() {
+      currentStep++
+      if (currentStep < SCAN_STEPS.length) {
+        setScanStep(currentStep)
+        scanTimerRef.current = setTimeout(advanceStep, SCAN_STEPS[currentStep].duration)
+      }
+    }
+
+    scanTimerRef.current = setTimeout(advanceStep, SCAN_STEPS[0].duration)
+
+    return () => {
+      if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+    }
+  }, [isScanning])
 
   async function scanWebsite() {
     const url = data.contactWebsite.trim()
@@ -29,6 +64,7 @@ export default function StepBusinessInfo({ data, updateData }: Props) {
     if (!scanUrl.startsWith('http')) scanUrl = 'https://' + scanUrl
 
     setIsScanning(true)
+    setScanDone(false)
     try {
       const res = await fetch('/api/ai/scan-website', {
         method: 'POST',
@@ -82,64 +118,120 @@ export default function StepBusinessInfo({ data, updateData }: Props) {
   return (
     <div className="space-y-4">
       {/* AI Scan — Primary CTA */}
-      <div className="bg-gradient-to-br from-blue-50 via-purple-50/50 to-blue-50 rounded-xl border border-blue-200/60 p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-white" />
+      <div className="bg-gradient-to-br from-blue-50 via-purple-50/50 to-blue-50 rounded-xl border border-blue-200/60 overflow-hidden">
+        <div className="p-5">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">מילוי אוטומטי מהאתר שלך</h3>
+              <p className="text-xs text-gray-500">הדבק את כתובת האתר ונמלא הכל בשבילך</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">מילוי אוטומטי מהאתר שלך</h3>
-            <p className="text-xs text-gray-500">הדבק את כתובת האתר ונמלא הכל בשבילך</p>
-          </div>
-        </div>
-        <div className="flex gap-2 mt-3">
-          <div className="flex-1 relative">
-            <Globe className="absolute top-1/2 -translate-y-1/2 right-3 h-4 w-4 text-gray-300 pointer-events-none" />
-            <Input
-              type="url"
-              dir="ltr"
-              placeholder="https://www.your-website.com"
-              value={data.contactWebsite}
-              onChange={(e) => { updateData({ contactWebsite: e.target.value }); setScanDone(false) }}
-              className="h-11 pr-10 rounded-lg border-blue-200/60 bg-white text-sm"
-              onKeyDown={(e) => e.key === 'Enter' && scanWebsite()}
-            />
-          </div>
-          <Button
-            type="button"
-            onClick={scanWebsite}
-            disabled={isScanning || !data.contactWebsite.trim()}
-            className={`shrink-0 h-11 px-5 border-0 rounded-lg shadow-sm text-sm ${
-              scanDone
-                ? 'bg-emerald-500 hover:bg-emerald-600'
-                : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-            } text-white`}
-          >
-            {isScanning ? (
-              <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />סורק...</>
-            ) : scanDone ? (
-              <><Check className="h-4 w-4 ml-1.5" />נסרק!</>
-            ) : (
-              <><Sparkles className="h-4 w-4 ml-1.5" />סרוק את האתר</>
+
+          <div className="flex gap-2 mt-3">
+            <div className="flex-1 relative">
+              <Globe className="absolute top-1/2 -translate-y-1/2 right-3 h-4 w-4 text-gray-300 pointer-events-none" />
+              <Input
+                type="url"
+                dir="ltr"
+                placeholder="https://www.your-website.com"
+                value={data.contactWebsite}
+                onChange={(e) => { updateData({ contactWebsite: e.target.value }); setScanDone(false) }}
+                disabled={isScanning}
+                className="h-11 pr-10 rounded-lg border-blue-200/60 bg-white text-sm"
+                onKeyDown={(e) => e.key === 'Enter' && !isScanning && scanWebsite()}
+              />
+            </div>
+            {!isScanning && (
+              <Button
+                type="button"
+                onClick={scanWebsite}
+                disabled={!data.contactWebsite.trim()}
+                className={`shrink-0 h-11 px-5 border-0 rounded-lg shadow-sm text-sm ${
+                  scanDone
+                    ? 'bg-emerald-500 hover:bg-emerald-600'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
+                } text-white`}
+              >
+                {scanDone ? (
+                  <><Check className="h-4 w-4 ml-1.5" />נסרק!</>
+                ) : (
+                  <><Sparkles className="h-4 w-4 ml-1.5" />סרוק את האתר</>
+                )}
+              </Button>
             )}
-          </Button>
+          </div>
         </div>
+
+        {/* Scanning animation */}
+        {isScanning && (
+          <div className="border-t border-blue-200/40 bg-white/60 backdrop-blur-sm px-5 py-4">
+            <div className="space-y-2.5">
+              {SCAN_STEPS.map((step, i) => {
+                const StepIcon = step.icon
+                const isActive = scanStep === i
+                const isDone = scanStep > i
+                const isPending = scanStep < i
+
+                return (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-3 transition-all duration-500 ${
+                      isPending ? 'opacity-30' : 'opacity-100'
+                    }`}
+                  >
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 ${
+                      isDone
+                        ? 'bg-emerald-500'
+                        : isActive
+                        ? 'bg-blue-500 shadow-md shadow-blue-500/30 animate-pulse'
+                        : 'bg-gray-200'
+                    }`}>
+                      {isDone ? (
+                        <Check className="h-3.5 w-3.5 text-white" />
+                      ) : (
+                        <StepIcon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                      )}
+                    </div>
+                    <span className={`text-sm transition-all duration-300 ${
+                      isActive ? 'text-blue-700 font-medium' : isDone ? 'text-emerald-700' : 'text-gray-400'
+                    }`}>
+                      {isDone ? step.label.replace('...', ' ✓') : step.label}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: `${((scanStep + 1) / SCAN_STEPS.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Scan results summary */}
         {scanDone && scanStats.length > 0 && (
-          <div className="mt-3 bg-emerald-50 rounded-lg p-3 border border-emerald-200/60">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Check className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm font-medium text-emerald-800">המידע נטען בהצלחה!</span>
+          <div className="border-t border-emerald-200/60 bg-emerald-50/80 px-5 py-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="h-3.5 w-3.5 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-emerald-800">הסריקה הושלמה!</span>
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 mb-2">
               {scanStats.map((stat, i) => (
-                <span key={i} className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                  {stat}
+                <span key={i} className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium">
+                  ✓ {stat}
                 </span>
               ))}
             </div>
-            <p className="text-xs text-emerald-600 mt-2">המשך לשלבים הבאים לצפות ולערוך את המידע שנמצא</p>
+            <p className="text-xs text-emerald-600">המשך לשלבים הבאים לצפות ולערוך את המידע שנמצא</p>
           </div>
         )}
       </div>
