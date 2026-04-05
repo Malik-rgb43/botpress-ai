@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 // Using button chips instead of Select for Hebrew support
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Plus, Trash2 } from 'lucide-react'
 import type { OnboardingData, PolicyItem } from '@/app/onboarding/page'
 
@@ -41,15 +40,15 @@ export default function StepPolicies({ data, updateData }: Props) {
   }
 
   return (
-    <Card className="border-blue-100/60 shadow-sm">
-      <CardHeader>
-        <CardTitle>מדיניות העסק</CardTitle>
-        <CardDescription>
+    <div className="bg-white rounded-xl border border-gray-200/60">
+      <div className="p-4 pb-3 border-b border-gray-100">
+        <h2 className="text-base font-semibold text-gray-900">מדיניות העסק</h2>
+        <p className="text-sm text-gray-400 mt-0.5">
           הגדר את מדיניות העסק — החזרות, משלוחים, שעות פעילות ועוד.
           הבוט ישתמש במידע הזה כדי לענות על שאלות שקשורות למדיניות.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </p>
+      </div>
+      <div className="p-4 space-y-4">
         <div className="space-y-2">
           <Label>סוג מדיניות</Label>
           <div className="flex flex-wrap gap-2">
@@ -60,7 +59,7 @@ export default function StepPolicies({ data, updateData }: Props) {
                 onClick={() => setType(p.value)}
                 className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                   type === p.value
-                    ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium'
+                    ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium shadow-sm'
                     : 'border-gray-200 text-gray-500 hover:border-blue-300'
                 }`}
               >
@@ -94,7 +93,7 @@ export default function StepPolicies({ data, updateData }: Props) {
         {data.policies.length > 0 && (
           <div className="space-y-3 mt-4">
             {data.policies.map((p, i) => (
-              <div key={i} className="bg-white border border-gray-100 rounded-lg p-4 flex items-start justify-between gap-3">
+              <div key={i} className="bg-white rounded-xl border border-gray-200/60 p-3 flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
                     {POLICY_TYPES.find(pt => pt.value === p.type)?.label || p.type}
@@ -109,7 +108,7 @@ export default function StepPolicies({ data, updateData }: Props) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

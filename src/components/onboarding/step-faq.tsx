@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react'
 import type { OnboardingData, FAQItem } from '@/app/onboarding/page'
 
@@ -56,17 +55,17 @@ export default function StepFAQ({ data, updateData }: Props) {
   }
 
   return (
-    <Card className="border-blue-100/60 shadow-sm">
-      <CardHeader>
-        <CardTitle>שאלות נפוצות (FAQ)</CardTitle>
-        <CardDescription>
+    <div className="bg-white rounded-xl border border-gray-200/60">
+      <div className="p-4 pb-3 border-b border-gray-100">
+        <h2 className="text-base font-semibold text-gray-900">שאלות נפוצות (FAQ)</h2>
+        <p className="text-sm text-gray-400 mt-0.5">
           הוסף שאלות ותשובות שהלקוחות שלך שואלים הכי הרבה.
           הבוט יחפש כאן קודם כל לפני שמפעיל AI.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+        </p>
+      </div>
+      <div className="p-4 space-y-6">
         {/* AI Generation */}
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100/60 space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Sparkles className="h-4 w-4" />
             <span>יצירת שאלות אוטומטית עם AI</span>
@@ -124,7 +123,7 @@ export default function StepFAQ({ data, updateData }: Props) {
           <div className="space-y-3">
             <p className="text-sm font-medium text-gray-700">{data.faqs.length} שאלות נוספו</p>
             {data.faqs.map((faq, i) => (
-              <div key={i} className="bg-white border border-gray-100 rounded-lg p-4 flex items-start justify-between gap-3">
+              <div key={i} className="bg-white rounded-xl border border-gray-200/60 p-3 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   {faq.category && (
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mb-1 inline-block">
@@ -141,7 +140,7 @@ export default function StepFAQ({ data, updateData }: Props) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

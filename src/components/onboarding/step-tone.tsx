@@ -2,7 +2,6 @@
 
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import type { OnboardingData } from '@/app/onboarding/page'
 
 interface Props {
@@ -20,20 +19,20 @@ const TONES = [
 
 export default function StepTone({ data, updateData }: Props) {
   return (
-    <Card className="border-blue-100/60 shadow-sm">
-      <CardHeader>
-        <CardTitle>טון דיבור</CardTitle>
-        <CardDescription>בחר איך הבוט ידבר עם הלקוחות שלך</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="bg-white rounded-xl border border-gray-200/60">
+      <div className="p-4 pb-3 border-b border-gray-100">
+        <h2 className="text-base font-semibold text-gray-900">טון דיבור</h2>
+        <p className="text-sm text-gray-400 mt-0.5">בחר איך הבוט ידבר עם הלקוחות שלך</p>
+      </div>
+      <div className="p-4 space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {TONES.map(tone => (
             <button
               key={tone.value}
               onClick={() => updateData({ tone: tone.value })}
               className={`text-right p-4 rounded-lg border transition-colors ${
                 data.tone === tone.value
-                  ? 'border-black bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50 shadow-sm'
                   : 'border-gray-100 hover:border-gray-200'
               }`}
             >
@@ -56,7 +55,7 @@ export default function StepTone({ data, updateData }: Props) {
             />
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

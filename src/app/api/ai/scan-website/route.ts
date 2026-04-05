@@ -35,16 +35,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'AI not configured' }, { status: 500 })
     }
 
-    // Scrape website
+    // Scrape website — main page + policy pages from footer links
     let websiteContent = ''
+    let policyContent = ''
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
         signal: AbortSignal.timeout(10000),
       })
       const html = await res.text()
+
+      // Extract footer links for policy pages before stripping HTML
+      const policyKeywords = /policy|policies|terms|privacy|return|refund|shipping|delivery|faq|about|hours|contact/i
+      const footerMatch = html.match(/<footer[^>]*>[\s\S]*?<\/footer>/i)
+      const linkSection = footerMatch?.[0] || html.slice(-3000) // fallback to last 3000 chars
+      const linkRegex = /href=["']([^"']+)["']/gi
+      const policyLinks: string[] = []
+      let linkMatch
+      while ((linkMatch = linkRegex.exec(linkSection)) !== null) {
+        const href = linkMatch[1]
+        if (policyKeywords.test(href) && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+          try {
+            const fullUrl = new URL(href, url).href
+            if (fullUrl.startsWith('http') && !policyLinks.includes(fullUrl)) {
+              policyLinks.push(fullUrl)
+            }
+          } catch { /* skip invalid */ }
+        }
+      }
+
+      // Scrape up to 3 policy pages
+      for (const policyUrl of policyLinks.slice(0, 3)) {
+        try {
+          const pRes = await fetch(policyUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
+            signal: AbortSignal.timeout(5000),
+          })
+          const pHtml = await pRes.text()
+          const pText = pHtml
+            .replace(/<(nav|header|footer|aside|menu|noscript)[^>]*>[\s\S]*?<\/\1>/gi, '')
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 2000)
+          if (pText.length > 100) {
+            policyContent += `\n\n--- Policy page: ${policyUrl} ---\n${pText}`
+          }
+        } catch { /* skip failed pages */ }
+      }
+
+      // Main page content (keep footer for contact info)
       websiteContent = html
-        .replace(/<(nav|header|footer|aside|menu|noscript)[^>]*>[\s\S]*?<\/\1>/gi, '')
+        .replace(/<(nav|menu|noscript)[^>]*>[\s\S]*?<\/\1>/gi, '')
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/<!--[\s\S]*?-->/g, '')
@@ -56,7 +100,7 @@ export async function POST(request: NextRequest) {
         .replace(/&quot;/g, '"')
         .replace(/\s+/g, ' ')
         .trim()
-        .slice(0, 10000)
+        .slice(0, 8000)
     } catch {
       websiteContent = `Website: ${url}`
     }
@@ -68,37 +112,46 @@ export async function POST(request: NextRequest) {
     const langMap: Record<string, string> = { he: 'Hebrew', en: 'English', ar: 'Arabic' }
     const promptLang = langMap[language] || 'Hebrew'
 
-    const prompt = `You are an expert at analyzing business websites. Analyze this website content and extract ALL relevant business information.
+    const fullContent = policyContent
+      ? `${websiteContent}\n\n=== POLICY PAGES FOUND ON WEBSITE ===\n${policyContent}`
+      : websiteContent
 
-Business name: "${businessName || 'Unknown'}"
-Website: ${url}
+    const systemPrompt = `You are a professional business analyst AI specializing in extracting structured business data from websites.
 
-Return a JSON object with these fields. ONLY include a field if you actually found relevant information on the website. If there's no info for a field, DO NOT include it — return null or omit it entirely. Never make up information.
+YOUR ROLE:
+You receive scraped website content (main page + any policy/terms pages found in the footer). Your job is to extract real, accurate business information and structure it as JSON.
 
+ABSOLUTE RULES:
+1. ACCURACY FIRST: Only include information that is explicitly stated or clearly implied on the website. Never invent, guess, or assume.
+2. POLICIES FROM POLICY PAGES ONLY: Policies (returns, shipping, privacy, terms) must come from actual policy page content provided in the "POLICY PAGES" section. If no policy pages were found, return policies as an empty array []. Do NOT generate policies from FAQ or general page content.
+3. CONTACT INFO: Extract phone numbers, email addresses, and physical addresses only if they appear on the website. Look in footer, contact section, and "about us" areas.
+4. BUSINESS STORY: Write a natural, compelling 2-4 sentence description of the business based on how they present themselves. Include: what they do, their unique value, target audience.
+5. FAQs: Generate 8-12 helpful Q&A pairs from a CUSTOMER'S perspective based on real website content. Questions should be things customers would actually ask. Answers must contain real information from the website.
+6. LANGUAGE: All output text must be in ${promptLang}.
+7. CATEGORIES: For FAQs, assign relevant categories (e.g., "shipping", "products", "pricing", "general"). For policies, use type values: "shipping", "returns", "hours", "payment", "privacy", "terms", or "custom".
+
+OUTPUT FORMAT:
+Return ONLY a valid JSON object. No markdown fences, no explanation, no comments.`
+
+    const userPrompt = `Analyze this website and extract business information:
+
+Business: "${businessName || 'Unknown'}"
+URL: ${url}
+
+Return this JSON structure (omit any field where you found no real data — use null):
 {
-  "story": "A 2-3 sentence business description/story. null if not found.",
-  "phone": "Business phone number if found. null if not.",
-  "email": "Business email if found. null if not.",
-  "address": "Business address if found. null if not.",
-
-  "faqs": [
-    {"question": "...", "answer": "...", "category": "..."}
-  ],
-  // Generate 6-10 FAQs based on REAL info from the website. Customer perspective.
-  // Only include FAQs where you have actual answers.
-
-  "policies": [
-    {"type": "shipping|returns|hours|payment|custom", "title": "...", "content": "..."}
-  ]
-  // Only include policies actually found (shipping, returns, hours, payment, etc.)
-  // Empty array if none found.
+  "story": "Business description (2-4 sentences). null if nothing found.",
+  "phone": "Phone number or null",
+  "email": "Email address or null",
+  "address": "Physical address or null",
+  "faqs": [{"question":"...","answer":"...","category":"..."}],
+  "policies": [{"type":"shipping|returns|hours|payment|privacy|terms|custom","title":"...","content":"..."}]
 }
 
-All text must be in ${promptLang}.
-Return ONLY valid JSON. No markdown, no explanation.
+Remember: policies ONLY from the policy pages section below. If no policy pages exist, policies = [].
 
-Website content:
-${websiteContent}`
+=== WEBSITE CONTENT ===
+${fullContent}`
 
     const aiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
@@ -106,8 +159,13 @@ ${websiteContent}`
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 4000 },
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 4000,
+            responseMimeType: 'application/json',
+          },
         }),
       }
     )

@@ -2,7 +2,6 @@
 
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import type { OnboardingData } from '@/app/onboarding/page'
 
 interface Props {
@@ -12,14 +11,14 @@ interface Props {
 
 export default function StepTemplates({ data, updateData }: Props) {
   return (
-    <Card className="border-blue-100/60 shadow-sm">
-      <CardHeader>
-        <CardTitle>תבניות תשובה</CardTitle>
-        <CardDescription>
+    <div className="bg-white rounded-xl border border-gray-200/60">
+      <div className="p-4 pb-3 border-b border-gray-100">
+        <h2 className="text-base font-semibold text-gray-900">תבניות תשובה</h2>
+        <p className="text-sm text-gray-400 mt-0.5">
           הגדר הודעות ברירת מחדל שהבוט ישתמש בהן. אפשר לשנות מתי שרוצים.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </p>
+      </div>
+      <div className="p-4 space-y-4">
         <div className="space-y-2">
           <Label>הודעת פתיחה</Label>
           <Textarea
@@ -56,7 +55,7 @@ export default function StepTemplates({ data, updateData }: Props) {
           />
           <p className="text-xs text-gray-400">הודעת סיום שיחה</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
