@@ -61,7 +61,7 @@ export default function SettingsPage() {
     setEmailFooter(business.contact_info?.email_footer || '')
     setSelectedTemplate((business.contact_info as Record<string, unknown>)?.email_template as string || 'modern')
     // Load agent availability
-    const avail = (business as Record<string, unknown>).agent_availability as Record<string, unknown> | null
+    const avail = (business as unknown as Record<string, unknown>).agent_availability as Record<string, unknown> | null
     if (avail) {
       setAgentEnabled(!!(avail.enabled))
       if (avail.schedule) setAgentSchedule(avail.schedule as typeof agentSchedule)
