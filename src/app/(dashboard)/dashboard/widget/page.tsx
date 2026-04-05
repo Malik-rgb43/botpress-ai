@@ -161,28 +161,102 @@ export default function WidgetPage() {
           </Card>
         </div>
 
-        {/* Preview */}
+        {/* Live Preview — shows exactly how the widget looks on a real website */}
         <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
           <CardHeader>
-            <CardTitle className="text-lg">תצוגה מקדימה</CardTitle>
+            <CardTitle className="text-lg">תצוגה מקדימה — ככה הלקוחות יראו את הצ׳אט באתר</CardTitle>
+            <CardDescription>זה בדיוק מה שיופיע באתר שלך כשתדביק את הקוד</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="relative bg-gray-50 rounded-lg h-[400px] flex items-end p-4" style={{ justifyContent: position === 'bottom-right' ? 'flex-start' : 'flex-end' }}>
-              <div className="w-80 bg-white rounded-2xl shadow-lg border overflow-hidden">
-                <div className="p-4 text-white text-sm font-medium" style={{ backgroundColor: primaryColor }}>
-                  {business?.name || 'העסק שלך'}
-                  {!whiteLabel && <span className="block text-xs opacity-70 mt-0.5">by BotPress AI</span>}
+            {/* Fake website preview */}
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white" style={{ height: '500px' }}>
+              {/* Browser chrome */}
+              <div className="bg-gray-100 border-b border-gray-200 px-4 py-2.5 flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
-                <div className="p-4 h-48 flex items-center justify-center text-gray-300 text-sm">
-                  תצוגת צ׳אט
+                <div className="flex-1 flex justify-center">
+                  <div className="bg-white rounded-lg px-4 py-1 text-xs text-gray-400 border border-gray-200 w-72 text-center">
+                    www.your-website.co.il
+                  </div>
                 </div>
-                <div className="border-t p-3">
-                  <div className="bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-400">
-                    {welcomeMessage || 'כתוב הודעה...'}
+              </div>
+
+              {/* Fake website content */}
+              <div className="p-8 h-full bg-gradient-to-b from-gray-50 to-white relative overflow-hidden" dir="rtl">
+                <div className="max-w-md">
+                  <div className="h-8 w-32 bg-gray-200 rounded-lg mb-6" />
+                  <div className="h-6 w-full bg-gray-100 rounded mb-3" />
+                  <div className="h-6 w-3/4 bg-gray-100 rounded mb-3" />
+                  <div className="h-6 w-1/2 bg-gray-100 rounded mb-8" />
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="h-24 bg-gray-100 rounded-xl" />
+                    <div className="h-24 bg-gray-100 rounded-xl" />
+                    <div className="h-24 bg-gray-100 rounded-xl" />
+                  </div>
+                </div>
+
+                {/* Widget FAB — positioned like the real widget */}
+                <div className="absolute" style={{
+                  bottom: '24px',
+                  [position === 'bottom-left' ? 'left' : 'right']: '24px',
+                }}>
+                  {/* Chat window (always open in preview) */}
+                  <div className="mb-3 w-[320px] rounded-2xl bg-white shadow-2xl border border-[rgba(0,0,0,0.06)] overflow-hidden" style={{ direction: 'rtl' }}>
+                    {/* Header */}
+                    <div className="px-4 py-3 flex items-center gap-3 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${primaryColor}, #7c3aed)` }}>
+                      <div className="absolute top-[-20px] right-[-20px] w-20 h-20 rounded-full bg-white/10" />
+                      <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 110 2h-1.27A7 7 0 0112 22a7 7 0 01-7.73-6H3a1 1 0 110-2h1a7 7 0 017-7h1V5.73A2 2 0 0112 2zm-2 13a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{business?.name || 'שירות לקוחות'}</p>
+                        <p className="text-[10px] text-white/60 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> מקוון
+                        </p>
+                      </div>
+                    </div>
+                    {/* Messages */}
+                    <div className="p-3 bg-[#fafbfe] space-y-2" style={{ minHeight: '160px' }}>
+                      <div className="flex justify-end">
+                        <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
+                          שלום! איך אפשר לעזור? 👋
+                        </div>
+                      </div>
+                      <div className="flex justify-start">
+                        <div className="rounded-2xl rounded-tr-lg px-3 py-2 text-xs text-white max-w-[80%]" style={{ background: primaryColor }}>
+                          מה שעות הפעילות?
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
+                          אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00.
+                        </div>
+                      </div>
+                    </div>
+                    {/* Input */}
+                    <div className="border-t border-[rgba(0,0,0,0.04)] p-2.5 flex gap-2 bg-white" dir="rtl">
+                      <div className="flex-1 bg-[#fafbfe] rounded-xl px-3 py-2 text-xs text-gray-400 border border-[rgba(0,0,0,0.06)]">שאל אותי משהו...</div>
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: primaryColor }}>
+                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                      </div>
+                    </div>
+                    {!whiteLabel && (
+                      <div className="text-center py-1.5 text-[9px] text-gray-400 border-t border-[rgba(0,0,0,0.03)]">Powered by BotPress AI</div>
+                    )}
+                  </div>
+
+                  {/* FAB bubble */}
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg" style={{ background: primaryColor, marginRight: position === 'bottom-left' ? 'auto' : '0', marginLeft: position === 'bottom-left' ? '0' : 'auto' }}>
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/></svg>
                   </div>
                 </div>
               </div>
             </div>
+
+            <p className="text-center text-xs text-gray-400 mt-3">ככה הלקוחות שלך יראו את הצ׳אט באתר — צבע ומיקום משתנים לפי ההגדרות שלך</p>
           </CardContent>
         </Card>
       </div>
