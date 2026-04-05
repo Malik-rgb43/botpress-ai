@@ -64,6 +64,22 @@ export async function POST(request: NextRequest) {
         ? 'أنا أحولك إلى ممثل خدمة. يرجى الانتظار.'
         : templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן רגע.'
 
+      // Save escalation to DB
+      try {
+        const { data: convId } = await supabase.rpc('insert_conversation', {
+          p_business_id: businessId, p_channel: 'widget', p_customer: 'widget-visitor', p_language: language,
+        })
+        if (convId) {
+          await supabase.rpc('insert_messages', {
+            p_conv_id: convId, p_customer_content: message.slice(0, 2000),
+            p_bot_content: transferMsg, p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
+          })
+          await supabase.from('escalations').insert({
+            conversation_id: convId, reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג', status: 'open',
+          }).then(() => {}).catch(() => {})
+        }
+      } catch {}
+
       return NextResponse.json({
         content: transferMsg,
         layer: 'transfer',
@@ -210,6 +226,37 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
 
       // Calculate confidence based on response quality
       const confidence = finalContent.length > 10 && !isTransfer ? 0.85 : 0.5
+
+      // ── Save to DB (via RPC, bypasses RLS) ──────────────
+      try {
+        const { data: convId } = await supabase.rpc('insert_conversation', {
+          p_business_id: businessId,
+          p_channel: 'widget',
+          p_customer: 'widget-visitor',
+          p_language: 'he',
+        })
+        if (convId) {
+          await supabase.rpc('insert_messages', {
+            p_conv_id: convId,
+            p_customer_content: message.slice(0, 2000),
+            p_bot_content: finalContent,
+            p_intent: intent,
+            p_sentiment: sentiment,
+            p_layer: layer,
+          })
+          // If escalation, create escalation record
+          if (isTransfer) {
+            await supabase.from('escalations').insert({
+              conversation_id: convId,
+              reason: 'לקוח מהווידג׳ט ביקש נציג',
+              status: 'open',
+            }).then(() => {}).catch(() => {})
+          }
+        }
+      } catch (dbErr) {
+        console.error('Chat DB save error:', dbErr)
+        // Don't fail the response — just log
+      }
 
       return NextResponse.json({
         content: finalContent,
