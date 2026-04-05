@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     // ── Analysis Layer ──────────────────────────────────
     const intent = detectIntent(message)
     const sentiment = detectSentiment(message)
+    console.log(`Chat: message="${message.substring(0, 50)}" intent=${intent} sentiment=${sentiment}`)
     const language = detectLanguage(message)
     const conversationLength = safeHistory.length
 
