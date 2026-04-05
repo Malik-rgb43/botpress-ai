@@ -37,36 +37,32 @@ export default function ConversationDetailPage() {
 
   async function loadData() {
     const supabase = createClient()
-    const [msgRes, convRes, escRes] = await Promise.all([
-      supabase.from('messages').select('*').eq('conversation_id', params.id as string).order('created_at', { ascending: true }),
-      supabase.from('conversations').select('*').eq('id', params.id as string).single(),
-      supabase.from('escalations').select('*').eq('conversation_id', params.id as string).order('created_at', { ascending: false }).limit(1).single(),
-    ])
-    setMessages(msgRes.data || [])
-    setConversation(convRes.data)
-    setEscalation(escRes.data || null)
+    const { data, error } = await supabase.rpc('get_conversation_detail', {
+      p_conversation_id: params.id as string
+    })
+
+    if (error || !data) {
+      setLoading(false)
+      return
+    }
+
+    const detail = data as any
+    setConversation(detail.conversation)
+    setMessages(detail.messages || [])
+    setEscalation(detail.escalation || null)
     setLoading(false)
   }
 
   async function handleResolveEscalation() {
     if (!escalation) return
     setResolvingEscalation(true)
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('escalations')
-        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
-        .eq('conversation_id', params.id as string)
-      if (error) {
-        toast.error('שגיאה בעדכון הסטטוס')
-        console.error('Resolve escalation error:', error)
-      } else {
-        toast.success('הסימון עודכן — טופל')
-        setEscalation(prev => prev ? { ...prev, status: 'resolved', resolved_at: new Date().toISOString() } : null)
-      }
-    } catch (err) {
-      console.error('Resolve error:', err)
+    const supabase = createClient()
+    const { error } = await supabase.rpc('resolve_escalation', { p_escalation_id: escalation.id })
+    if (error) {
       toast.error('שגיאה בעדכון')
+    } else {
+      toast.success('השיחה סומנה כטופלה')
+      setEscalation(prev => prev ? { ...prev, status: 'resolved', resolved_at: new Date().toISOString() } : null)
     }
     setResolvingEscalation(false)
   }
@@ -76,13 +72,11 @@ export default function ConversationDetailPage() {
     setSending(true)
 
     try {
-      // 1. Save message to DB
+      // 1. Save message to DB via RPC (bypasses RLS)
       const supabase = createClient()
-      const { error } = await supabase.from('messages').insert({
-        conversation_id: params.id as string,
-        role: 'agent',
-        content: agentInput,
-        response_layer: null,
+      const { error } = await supabase.rpc('insert_agent_message', {
+        p_conversation_id: params.id as string,
+        p_content: agentInput,
       })
 
       if (error) {

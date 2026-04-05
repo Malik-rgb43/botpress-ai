@@ -30,63 +30,37 @@ export default function ConversationsPage() {
     setLoading(true)
     const supabase = createClient()
 
-    let query = supabase
-      .from('conversations')
-      .select('*')
-      .eq('business_id', business.id)
-      .order('started_at', { ascending: false })
-      .limit(50)
-
-    // Time filter
+    // Build time filter date
     const now = new Date()
+    let startDate: string | null = null
     if (timeFilter === 'today') {
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
-      query = query.gte('started_at', today)
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
     } else if (timeFilter === 'week') {
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      query = query.gte('started_at', weekAgo)
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
     } else if (timeFilter === 'month') {
-      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString()
-      query = query.gte('started_at', monthAgo)
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString()
     }
 
-    // Channel filter
-    if (channelFilter !== 'all') {
-      query = query.eq('channel', channelFilter)
+    const { data, error } = await supabase.rpc('get_conversations_list', {
+      p_business_id: business.id,
+      p_start_date: startDate,
+      p_channel: channelFilter === 'all' ? null : channelFilter,
+      p_status: statusFilter === 'all' ? null : statusFilter,
+      p_limit: 50,
+    })
+
+    if (error) {
+      console.error('Conversations list RPC error:', error)
+      setLoading(false)
+      return
     }
 
-    const { data } = await query
-    const convs = data || []
+    const result = data as any
+    const convs: Conversation[] = result.conversations || []
     setConversations(convs)
 
-    // Check which conversations have escalations (needs agent / resolved)
-    if (convs.length > 0) {
-      const convIds = convs.map(c => c.id)
-      const { data: escalations } = await supabase
-        .from('escalations')
-        .select('conversation_id, status')
-        .in('conversation_id', convIds)
-
-      const escalatedSet = new Set<string>()
-      const resolvedSet = new Set<string>()
-      if (escalations) {
-        for (const esc of escalations) {
-          if (esc.status === 'resolved') {
-            resolvedSet.add(esc.conversation_id)
-          } else {
-            escalatedSet.add(esc.conversation_id)
-          }
-        }
-      }
-      setEscalatedIds(escalatedSet)
-
-      // Apply status filter client-side
-      if (statusFilter === 'needs_agent') {
-        setConversations(convs.filter(c => escalatedSet.has(c.id)))
-      } else if (statusFilter === 'resolved') {
-        setConversations(convs.filter(c => resolvedSet.has(c.id)))
-      }
-    }
+    const escalatedSet = new Set<string>(result.escalated_ids || [])
+    setEscalatedIds(escalatedSet)
 
     setLoading(false)
   }, [business, timeFilter, statusFilter, channelFilter])
@@ -99,7 +73,10 @@ export default function ConversationsPage() {
   async function handleDelete(id: string) {
     setDeletingId(id)
     const supabase = createClient()
-    await supabase.from('conversations').delete().eq('id', id)
+    const { error } = await supabase.rpc('delete_conversation', { p_conversation_id: id })
+    if (error) {
+      console.error('Delete conversation RPC error:', error)
+    }
     setConversations(prev => prev.filter(c => c.id !== id))
     setDeletingId(null)
   }

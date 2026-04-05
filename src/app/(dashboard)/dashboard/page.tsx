@@ -92,138 +92,39 @@ export default function AnalyticsPage() {
       const supabase = createClient()
       const { start, prevStart, prevEnd } = getDateRange(period)
 
-      // Current period counts
-      const [convRes, prevConvRes, escRes, prevEscRes] = await Promise.all([
-        supabase.from('conversations').select('id', { count: 'exact', head: true })
-          .eq('business_id', business.id)
-          .gte('started_at', start.toISOString()),
-        supabase.from('conversations').select('id', { count: 'exact', head: true })
-          .eq('business_id', business.id)
-          .gte('started_at', prevStart.toISOString())
-          .lt('started_at', prevEnd.toISOString()),
-        supabase.from('escalations').select('id, conversations!inner(business_id)', { count: 'exact', head: true })
-          .eq('conversations.business_id', business.id)
-          .gte('created_at', start.toISOString()),
-        supabase.from('escalations').select('id, conversations!inner(business_id)', { count: 'exact', head: true })
-          .eq('conversations.business_id', business.id)
-          .gte('created_at', prevStart.toISOString())
-          .lt('created_at', prevEnd.toISOString()),
-      ])
+      const { data, error } = await supabase.rpc('get_business_analytics', {
+        p_business_id: business.id,
+        p_start_date: start.toISOString(),
+        p_prev_start: prevStart.toISOString(),
+        p_prev_end: prevEnd.toISOString(),
+      })
 
-      // Fetch conversations with messages for the current period (for messages count, sentiment, top questions)
-      const { data: convWithMsgs } = await supabase
-        .from('conversations')
-        .select('*, messages(*)')
-        .eq('business_id', business.id)
-        .gte('started_at', start.toISOString())
-        .order('started_at', { ascending: false })
+      if (error) {
+        console.error('Analytics RPC error:', error)
+        toast.error('שגיאה בטעינת הנתונים')
+        setDataLoading(false)
+        return
+      }
 
-      const allConvs = convWithMsgs || []
-      const allMessages: Message[] = allConvs.flatMap((c: any) => c.messages || [])
-      const customerMessages = allMessages.filter(m => m.role === 'customer')
-
-      // Previous period messages count
-      const { data: prevConvWithMsgs } = await supabase
-        .from('conversations')
-        .select('id, messages(id)')
-        .eq('business_id', business.id)
-        .gte('started_at', prevStart.toISOString())
-        .lt('started_at', prevEnd.toISOString())
-      const prevMsgCount = (prevConvWithMsgs || []).reduce((sum: number, c: any) => sum + (c.messages?.length || 0), 0)
-
-      // Satisfaction average
-      const ratedConvs = allConvs.filter((c: any) => c.satisfaction_rating != null)
-      const avgSat = ratedConvs.length > 0
-        ? ratedConvs.reduce((sum: number, c: any) => sum + c.satisfaction_rating, 0) / ratedConvs.length
-        : 0
-
-      const prevRatedConvs = (prevConvWithMsgs || [] as any[]).filter((c: any) => c.satisfaction_rating != null)
-      const prevAvgSat = prevRatedConvs.length > 0
-        ? prevRatedConvs.reduce((sum: number, c: any) => sum + c.satisfaction_rating, 0) / prevRatedConvs.length
-        : 0
+      // data is already a JSON object with everything we need
+      const analytics = data as any
 
       setStats({
-        conversations: convRes.count || 0,
-        messages: allMessages.length,
-        escalations: escRes.count || 0,
-        satisfaction: parseFloat(avgSat.toFixed(1)),
-        prevConversations: prevConvRes.count || 0,
-        prevMessages: prevMsgCount,
-        prevEscalations: prevEscRes.count || 0,
-        prevSatisfaction: parseFloat(prevAvgSat.toFixed(1)),
+        conversations: analytics.conversations || 0,
+        prevConversations: analytics.prev_conversations || 0,
+        messages: analytics.messages || 0,
+        prevMessages: analytics.prev_messages || 0,
+        escalations: analytics.escalations || 0,
+        prevEscalations: analytics.prev_escalations || 0,
+        satisfaction: 0, // TODO: calculate from ratings
+        prevSatisfaction: 0,
       })
 
-      // Sentiment distribution
-      const sentimentCounts: Record<string, number> = { positive: 0, neutral: 0, negative: 0, angry: 0 }
-      customerMessages.forEach(m => {
-        if (m.sentiment && sentimentCounts[m.sentiment] !== undefined) {
-          sentimentCounts[m.sentiment]++
-        }
-      })
-      const totalSentiment = Object.values(sentimentCounts).reduce((a, b) => a + b, 0)
-      if (totalSentiment > 0) {
-        setSentiment({
-          positive: Math.round((sentimentCounts.positive / totalSentiment) * 100),
-          neutral: Math.round((sentimentCounts.neutral / totalSentiment) * 100),
-          negative: Math.round((sentimentCounts.negative / totalSentiment) * 100),
-          angry: Math.round((sentimentCounts.angry / totalSentiment) * 100),
-        })
-      } else {
-        setSentiment({ positive: 0, neutral: 0, negative: 0, angry: 0 })
-      }
-
-      // Channel distribution
-      const channelCounts: Record<string, number> = { widget: 0, whatsapp: 0, email: 0 }
-      allConvs.forEach((c: any) => {
-        if (c.channel && channelCounts[c.channel] !== undefined) {
-          channelCounts[c.channel]++
-        }
-      })
-      const totalChannels = Object.values(channelCounts).reduce((a, b) => a + b, 0)
-      if (totalChannels > 0) {
-        setChannels({
-          widget: Math.round((channelCounts.widget / totalChannels) * 100),
-          whatsapp: Math.round((channelCounts.whatsapp / totalChannels) * 100),
-          email: Math.round((channelCounts.email / totalChannels) * 100),
-        })
-      } else {
-        setChannels({ widget: 0, whatsapp: 0, email: 0 })
-      }
-
-      // Top questions — group customer messages by content (trimmed)
-      const questionMap = new Map<string, number>()
-      customerMessages.forEach(m => {
-        const q = m.content.trim().slice(0, 120)
-        if (q.length > 0) {
-          questionMap.set(q, (questionMap.get(q) || 0) + 1)
-        }
-      })
-      const sorted = Array.from(questionMap.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([question, count]) => ({ question, count }))
-      setTopQuestions(sorted)
-
-      // Recent conversations (last 10)
-      setRecentConversations(allConvs.slice(0, 10) as any)
-
-      // Open escalations
-      const { data: escData, error: escError } = await supabase
-        .from('escalations')
-        .select('*, conversation:conversations!inner(*)')
-        .eq('conversations.business_id', business.id)
-        .in('status', ['open', 'in_progress'])
-        .order('created_at', { ascending: false })
-
-      if (escError) {
-        console.error('Escalations load error:', escError)
-      } else {
-        setOpenEscalations((escData || []).map((e: any) => ({
-          ...e,
-          conversation: e.conversation,
-        })))
-      }
-
+      setSentiment(analytics.sentiment || { positive: 0, neutral: 0, negative: 0, angry: 0 })
+      setChannels(analytics.channels || { email: 0, whatsapp: 0, widget: 0 })
+      setTopQuestions(analytics.top_questions || [])
+      setRecentConversations(analytics.recent_conversations || [])
+      setOpenEscalations(analytics.open_escalations || [])
       setLastRefresh(new Date())
     } catch (err) {
       console.error('Analytics load error:', err)
@@ -254,24 +155,15 @@ export default function AnalyticsPage() {
     toast.success(`"${question}" נוסף ל-FAQ`)
   }
 
-  async function resolveEscalation(escalationId: string, conversationId: string) {
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('escalations')
-        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
-        .eq('id', escalationId)
-      if (error) {
-        toast.error('שגיאה בעדכון הסטטוס')
-        console.error('Resolve escalation error:', error)
-        return
-      }
-      toast.success('הסימון עודכן — טופל')
-      setOpenEscalations(prev => prev.filter(e => e.id !== escalationId))
-    } catch (err) {
-      console.error('Resolve escalation error:', err)
+  async function resolveEscalation(escalationId: string) {
+    const supabase = createClient()
+    const { error } = await supabase.rpc('resolve_escalation', { p_escalation_id: escalationId })
+    if (error) {
       toast.error('שגיאה בעדכון')
+      return
     }
+    toast.success('השיחה סומנה כטופלה')
+    setOpenEscalations(prev => prev.filter(e => e.id !== escalationId))
   }
 
   if (bizLoading || dataLoading) {
@@ -364,7 +256,7 @@ export default function AnalyticsPage() {
                       variant="default"
                       size="sm"
                       className="gap-1 text-xs bg-green-600 hover:bg-green-700"
-                      onClick={() => resolveEscalation(esc.id, esc.conversation_id)}
+                      onClick={() => resolveEscalation(esc.id)}
                     >
                       <CheckCircle2 className="h-3 w-3" />
                       סמן כטופל
