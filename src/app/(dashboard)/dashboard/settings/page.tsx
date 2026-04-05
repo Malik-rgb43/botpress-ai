@@ -37,6 +37,17 @@ export default function SettingsPage() {
   const [brandColor, setBrandColor] = useState('#2563eb')
   const [emailFooter, setEmailFooter] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('modern')
+  const [agentEnabled, setAgentEnabled] = useState(false)
+  const [agentSchedule, setAgentSchedule] = useState({
+    sunday: { active: true, start: '09:00', end: '18:00' },
+    monday: { active: true, start: '09:00', end: '18:00' },
+    tuesday: { active: true, start: '09:00', end: '18:00' },
+    wednesday: { active: true, start: '09:00', end: '18:00' },
+    thursday: { active: true, start: '09:00', end: '18:00' },
+    friday: { active: true, start: '09:00', end: '13:00' },
+    saturday: { active: false, start: '00:00', end: '00:00' },
+  })
+  const [offlineMessage, setOfflineMessage] = useState('אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות.')
 
   useEffect(() => {
     if (!business) return
@@ -49,6 +60,13 @@ export default function SettingsPage() {
     setBrandColor(business.contact_info?.brand_color || '#2563eb')
     setEmailFooter(business.contact_info?.email_footer || '')
     setSelectedTemplate((business.contact_info as Record<string, unknown>)?.email_template as string || 'modern')
+    // Load agent availability
+    const avail = (business as Record<string, unknown>).agent_availability as Record<string, unknown> | null
+    if (avail) {
+      setAgentEnabled(!!(avail.enabled))
+      if (avail.schedule) setAgentSchedule(avail.schedule as typeof agentSchedule)
+      if (avail.offline_message) setOfflineMessage(avail.offline_message as string)
+    }
     loadSummarySettings()
   }, [business])
 
@@ -69,6 +87,12 @@ export default function SettingsPage() {
       name,
       story,
       contact_info: { ...business?.contact_info, phone, email, address, website, brand_color: brandColor, email_footer: emailFooter },
+      agent_availability: {
+        enabled: agentEnabled,
+        timezone: 'Asia/Jerusalem',
+        schedule: agentSchedule,
+        offline_message: offlineMessage,
+      },
     }).eq('id', business!.id)
     await supabase.from('summary_settings').update({
       enabled: summaryEnabled,
@@ -174,6 +198,78 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label>אימייל לסיכומים</Label>
                   <Input value={summaryEmail} onChange={e => setSummaryEmail(e.target.value)} dir="ltr" />
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Agent Availability */}
+        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
+          <CardHeader>
+            <CardTitle className="text-lg">זמינות נציג</CardTitle>
+            <CardDescription>הגדר מתי הנציג זמין. כשלא זמין, הבוט יודיע ללקוח ויבקש לחזור בשעות הפעילות.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>הפעל לו״ז זמינות</Label>
+              <Switch checked={agentEnabled} onCheckedChange={setAgentEnabled} />
+            </div>
+            {agentEnabled && (
+              <>
+                <div className="space-y-2">
+                  {[
+                    { key: 'sunday', label: 'ראשון' },
+                    { key: 'monday', label: 'שני' },
+                    { key: 'tuesday', label: 'שלישי' },
+                    { key: 'wednesday', label: 'רביעי' },
+                    { key: 'thursday', label: 'חמישי' },
+                    { key: 'friday', label: 'שישי' },
+                    { key: 'saturday', label: 'שבת' },
+                  ].map(day => {
+                    const sched = agentSchedule[day.key as keyof typeof agentSchedule]
+                    return (
+                      <div key={day.key} className="flex items-center gap-3">
+                        <Switch
+                          checked={sched.active}
+                          onCheckedChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], active: v } }))}
+                        />
+                        <span className="w-14 text-sm font-medium">{day.label}</span>
+                        {sched.active ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="time"
+                              value={sched.start}
+                              onChange={(e) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], start: e.target.value } }))}
+                              className="w-28 h-9 rounded-xl text-sm"
+                              dir="ltr"
+                            />
+                            <span className="text-gray-400 text-sm">עד</span>
+                            <Input
+                              type="time"
+                              value={sched.end}
+                              onChange={(e) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], end: e.target.value } }))}
+                              className="w-28 h-9 rounded-xl text-sm"
+                              dir="ltr"
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">סגור</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="space-y-2">
+                  <Label>הודעה כשלא זמין</Label>
+                  <Textarea
+                    value={offlineMessage}
+                    onChange={(e) => setOfflineMessage(e.target.value)}
+                    rows={2}
+                    className="rounded-xl"
+                    placeholder="למשל: אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות."
+                  />
+                  <p className="text-xs text-gray-400">ההודעה שהבוט ישלח כשלקוח מבקש נציג מחוץ לשעות הפעילות</p>
                 </div>
               </>
             )}

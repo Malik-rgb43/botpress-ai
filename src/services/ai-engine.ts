@@ -194,6 +194,37 @@ export function detectSentiment(message: string): 'positive' | 'neutral' | 'nega
   return 'neutral'
 }
 
+// Check if agent is currently available based on schedule
+export function isAgentAvailable(availability: Record<string, unknown> | null): { available: boolean; message: string } {
+  if (!availability || !(availability as Record<string, unknown>).enabled) {
+    return { available: true, message: '' } // No schedule set = always available
+  }
+
+  const schedule = (availability as Record<string, unknown>).schedule as Record<string, { active: boolean; start: string; end: string }>
+  const offlineMsg = ((availability as Record<string, unknown>).offline_message as string) || 'אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות.'
+  const tz = ((availability as Record<string, unknown>).timezone as string) || 'Asia/Jerusalem'
+
+  const now = new Date()
+  // Get current time in business timezone
+  const formatter = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false })
+  const parts = formatter.formatToParts(now)
+  const weekday = parts.find(p => p.type === 'weekday')?.value?.toLowerCase() || ''
+  const hour = parts.find(p => p.type === 'hour')?.value || '00'
+  const minute = parts.find(p => p.type === 'minute')?.value || '00'
+  const currentTime = `${hour}:${minute}`
+
+  const daySchedule = schedule[weekday]
+  if (!daySchedule || !daySchedule.active) {
+    return { available: false, message: offlineMsg }
+  }
+
+  if (currentTime < daySchedule.start || currentTime >= daySchedule.end) {
+    return { available: false, message: offlineMsg }
+  }
+
+  return { available: true, message: '' }
+}
+
 // Determine if we should auto-escalate based on conversation context
 export function shouldEscalate(
   sentiment: string,

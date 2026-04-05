@@ -6,6 +6,7 @@ import {
   detectLanguage,
   buildSystemPrompt,
   shouldEscalate,
+  isAgentAvailable,
 } from '@/services/ai-engine'
 import type { AIContext } from '@/services/ai-engine'
 
@@ -59,11 +60,21 @@ export async function POST(request: NextRequest) {
 
     // ── Auto-Escalation Check ──────────────────────────
     if (shouldEscalate(sentiment, intent, conversationLength)) {
-      const transferMsg = language === 'en'
-        ? "I'm connecting you with a human agent. Please hold on."
-        : language === 'ar'
-        ? 'أنا أحولك إلى ممثل خدمة. يرجى الانتظار.'
-        : templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן רגע.'
+      // Check if agent is available right now
+      const agentStatus = isAgentAvailable(businessData.agent_availability as Record<string, unknown> | null)
+
+      let transferMsg: string
+      if (agentStatus.available) {
+        transferMsg = language === 'en'
+          ? "I'm connecting you with a human agent. Please hold on."
+          : language === 'ar'
+          ? 'أنا أحולك إلى ممثل خدמة. يرجى الانتظار.'
+          : templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן רגע.'
+      } else {
+        transferMsg = language === 'en'
+          ? `Our team is currently offline. ${agentStatus.message} We'll get back to you as soon as possible.`
+          : agentStatus.message + ' נחזור אליך בהקדם.'
+      }
 
       // Save escalation to DB
       let savedConvId = existingConvId
