@@ -985,6 +985,15 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Live Widget Demo — visitors can try the bot */}
+      <script
+        src="/widget.js"
+        data-business-id="ee032509-4f7e-4cc3-b2ad-acaeb616d9a2"
+        data-color="#2e90fa"
+        data-position="right"
+        defer
+      />
     </div>
   )
 }

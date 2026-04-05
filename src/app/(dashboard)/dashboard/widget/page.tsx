@@ -50,7 +50,8 @@ export default function WidgetPage() {
   }
 
   function copyEmbed() {
-    const code = `<script src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js" data-business-id="${business?.id}"></script>`
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'
+    const code = `<script src="${origin}/widget.js" data-business-id="${business?.id}" data-color="${primaryColor}" data-position="${position === 'bottom-left' ? 'left' : 'right'}"></script>`
     navigator.clipboard.writeText(code)
     toast.success('הקוד הועתק!')
   }
@@ -94,13 +95,20 @@ export default function WidgetPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>מיקום</Label>
-                <Select value={position} onValueChange={(v) => v && setPosition(v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bottom-right">ימין למטה</SelectItem>
-                    <SelectItem value="bottom-left">שמאל למטה</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  {[
+                    { value: 'bottom-right', label: 'ימין למטה' },
+                    { value: 'bottom-left', label: 'שמאל למטה' },
+                  ].map(p => (
+                    <button key={p.value} type="button" onClick={() => setPosition(p.value)}
+                      className={`flex-1 px-4 py-2.5 rounded-xl text-sm border transition-all ${
+                        position === p.value
+                          ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                          : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                      }`}
+                    >{p.label}</button>
+                  ))}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>צבע ראשי</Label>
@@ -139,13 +147,16 @@ export default function WidgetPage() {
               <CardDescription>העתק את הקוד והדבק אותו לפני תג {'</body>'} באתר שלך</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-900 text-green-400 rounded-lg p-4 text-sm font-mono text-left direction-ltr overflow-x-auto">
-                {`<script src="${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}/widget.js" data-business-id="${business?.id || 'YOUR_ID'}"></script>`}
+              <div className="bg-gray-950 text-green-400 rounded-xl p-5 text-sm font-mono text-left direction-ltr overflow-x-auto border border-gray-800">
+                <pre className="whitespace-pre-wrap break-all">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
               </div>
-              <Button variant="outline" size="sm" className="mt-3" onClick={copyEmbed}>
-                <Copy className="h-4 w-4 ml-1" />
-                העתק קוד
-              </Button>
+              <div className="flex gap-2 mt-3">
+                <Button variant="outline" size="sm" onClick={copyEmbed} className="rounded-xl">
+                  <Copy className="h-4 w-4 ml-1" />
+                  העתק קוד
+                </Button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">הדבק את הקוד לפני תג {'</body>'} באתר שלך</p>
             </CardContent>
           </Card>
         </div>
