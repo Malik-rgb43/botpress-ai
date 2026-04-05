@@ -239,6 +239,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {business?.contact_info?.gmail_connected && (
         <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
           <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.summaries_title}</h2>
@@ -299,6 +300,7 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+        )}
 
         {/* Agent Availability */}
         <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">

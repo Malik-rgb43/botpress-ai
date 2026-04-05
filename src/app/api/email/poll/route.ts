@@ -379,15 +379,32 @@ export async function POST(request: NextRequest) {
               })
               console.log('Starred escalated email from', senderEmail)
 
-              // Save to DB via RPC (bypasses RLS)
-              const { data: convId } = await supabase.rpc('insert_conversation', {
+              // Save to DB — reuse existing conversation thread if one exists for this sender
+              const { data: existingEscConv } = await supabase
+                .from('conversations')
+                .select('id')
+                .eq('business_id', business.id)
+                .eq('customer', senderEmail)
+                .eq('channel', 'email')
+                .order('started_at', { ascending: false })
+                .limit(1)
+                .maybeSingle()
+
+              const convId = existingEscConv?.id || (await supabase.rpc('insert_conversation', {
                 p_business_id: business.id, p_channel: 'email', p_customer: senderEmail, p_language: language,
-              })
+              })).data
+
               if (convId) {
                 await supabase.rpc('insert_messages', {
                   p_conv_id: convId, p_customer_content: email.body.slice(0, 2000),
                   p_bot_content: `[העברה לנציג] ${escalationReason}`,
                   p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
+                })
+
+                // Insert escalation record so dashboard shows alert
+                await supabase.rpc('insert_escalation', {
+                  p_conversation_id: convId,
+                  p_reason: escalationReason,
                 })
               }
 
@@ -411,10 +428,21 @@ export async function POST(request: NextRequest) {
               if (sent) {
                 await markAsRead(accessToken, email.id)
 
-                // Save via RPC (bypasses RLS)
-                const { data: convId } = await supabase.rpc('insert_conversation', {
+                // Save via RPC — reuse existing conversation thread if one exists for this sender
+                const { data: existingNormConv } = await supabase
+                  .from('conversations')
+                  .select('id')
+                  .eq('business_id', business.id)
+                  .eq('customer', senderEmail)
+                  .eq('channel', 'email')
+                  .order('started_at', { ascending: false })
+                  .limit(1)
+                  .maybeSingle()
+
+                const convId = existingNormConv?.id || (await supabase.rpc('insert_conversation', {
                   p_business_id: business.id, p_channel: 'email', p_customer: senderEmail, p_language: language,
-                })
+                })).data
+
                 if (convId) {
                   await supabase.rpc('insert_messages', {
                     p_conv_id: convId, p_customer_content: email.body.slice(0, 2000),

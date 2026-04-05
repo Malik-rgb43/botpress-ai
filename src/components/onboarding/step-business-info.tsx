@@ -130,7 +130,7 @@ export default function StepBusinessInfo({ data, updateData }: Props) {
             </div>
           </div>
 
-          <div className="flex gap-2 mt-3">
+          <div className="flex flex-col sm:flex-row gap-2 mt-3">
             <div className="flex-1 relative">
               <Globe className="absolute top-1/2 -translate-y-1/2 right-3 h-4 w-4 text-gray-300 pointer-events-none" />
               <Input
@@ -167,8 +167,8 @@ export default function StepBusinessInfo({ data, updateData }: Props) {
 
         {/* Scanning animation */}
         {isScanning && (
-          <div className="border-t border-blue-200/40 bg-white/60 backdrop-blur-sm px-5 py-4">
-            <div className="space-y-2.5">
+          <div className="border-t border-blue-200/40 bg-white/60 backdrop-blur-sm px-4 sm:px-5 py-3 sm:py-4">
+            <div className="space-y-2">
               {SCAN_STEPS.map((step, i) => {
                 const StepIcon = step.icon
                 const isActive = scanStep === i

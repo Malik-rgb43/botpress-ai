@@ -28,21 +28,18 @@ function FadeIn({ children, className = '', delay = 0, direction = 'up' }: {
   direction?: 'up' | 'down' | 'left' | 'right'
 }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-80px" })
+  const isInView = useInView(ref, { once: true, amount: 0.1 })
 
-  const directions = {
-    up: { y: 20, x: 0 },
-    down: { y: -20, x: 0 },
-    left: { y: 0, x: 20 },
-    right: { y: 0, x: -20 },
-  }
+  const dirs: Record<string, { y?: number; x?: number }> = { up: { y: 15 }, down: { y: -15 }, left: { x: 15 }, right: { x: -15 } }
+  const dir = dirs[direction] || { y: 15 }
+  const initial = { opacity: 0, y: dir.y || 0, x: dir.x || 0 }
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: directions[direction].y, x: directions[direction].x }}
+      initial={initial}
       animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.5, delay: Math.min(delay, 0.2), ease: "easeOut" }}
       className={className}
     >
       {children}

@@ -273,47 +273,62 @@ export default function OnboardingPage() {
 
       {/* Progress bar */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
-          {/* Step indicators */}
-          <div className="flex items-center justify-between mb-3">
-            {STEPS.map((s, i) => {
-              const stepNum = i + 1
-              const isDone = step > stepNum
-              const isCurrent = step === stepNum
-              return (
-                <button
-                  key={i}
-                  onClick={() => stepNum <= step && setStep(stepNum)}
-                  className={`flex flex-col items-center gap-1.5 transition-all ${
-                    stepNum <= step ? 'cursor-pointer' : 'cursor-default'
-                  }`}
-                >
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                      isDone
-                        ? 'bg-emerald-500 text-white'
-                        : isCurrent
-                        ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30'
-                        : 'bg-gray-100 text-gray-400'
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          {/* Mobile: simple progress bar + step count */}
+          <div className="sm:hidden">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-gray-500">{STEPS[step - 1].label}</span>
+              <span className="text-xs text-gray-400">{step}/7</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Desktop: step indicators */}
+          <div className="hidden sm:block">
+            <div className="flex items-center justify-between mb-3">
+              {STEPS.map((s, i) => {
+                const stepNum = i + 1
+                const isDone = step > stepNum
+                const isCurrent = step === stepNum
+                return (
+                  <button
+                    key={i}
+                    onClick={() => stepNum <= step && setStep(stepNum)}
+                    className={`flex flex-col items-center gap-1.5 transition-all ${
+                      stepNum <= step ? 'cursor-pointer' : 'cursor-default'
                     }`}
                   >
-                    {isDone ? <Check className="h-4 w-4" /> : stepNum}
-                  </div>
-                  <span className={`text-[11px] font-medium hidden sm:block ${
-                    isCurrent ? 'text-blue-600' : isDone ? 'text-emerald-600' : 'text-gray-400'
-                  }`}>
-                    {s.label}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-          {/* Progress line */}
-          <div className="w-full bg-gray-100 rounded-full h-1.5">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                        isDone
+                          ? 'bg-emerald-500 text-white'
+                          : isCurrent
+                          ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}
+                    >
+                      {isDone ? <Check className="h-4 w-4" /> : stepNum}
+                    </div>
+                    <span className={`text-[11px] font-medium ${
+                      isCurrent ? 'text-blue-600' : isDone ? 'text-emerald-600' : 'text-gray-400'
+                    }`}>
+                      {s.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>
