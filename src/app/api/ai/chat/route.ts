@@ -75,9 +75,10 @@ export async function POST(request: NextRequest) {
             p_conv_id: convId, p_customer_content: message.slice(0, 2000),
             p_bot_content: transferMsg, p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
           })
-          await supabase.from('escalations').insert({
-            conversation_id: convId, reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג', status: 'open',
-          })        }
+          await supabase.rpc('insert_escalation', {
+            p_conversation_id: convId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
+          })
+        }
       } catch {}
 
       return NextResponse.json({
@@ -246,11 +247,11 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
           })
           // If escalation, create escalation record
           if (isTransfer) {
-            await supabase.from('escalations').insert({
-              conversation_id: convId,
-              reason: 'לקוח מהווידג׳ט ביקש נציג',
-              status: 'open',
-            })          }
+            await supabase.rpc('insert_escalation', {
+              p_conversation_id: convId,
+              p_reason: 'לקוח ביקש נציג דרך הווידג׳ט',
+            })
+          }
         }
       } catch (dbErr) {
         console.error('Chat DB save error:', dbErr)
