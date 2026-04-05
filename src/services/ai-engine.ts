@@ -159,7 +159,7 @@ export function detectLanguage(message: string): string {
 export function detectIntent(message: string): string {
   const lower = message.toLowerCase()
   const intents: [string, RegExp[]][] = [
-    ['agent_request', [/נציג/, /אדם אמיתי/, /בן אדם/, /רוצה לדבר עם/, /תעביר אותי/, /\bagent\b/, /\bhuman\b/, /representative/]],
+    ['agent_request', [/נציג/, /אדם אמיתי/, /בן אדם/, /רוצה לדבר/, /תעביר אותי/, /לדבר עם מישהו/, /עם בנאדם/, /מישהו אמיתי/, /שירות לקוחות/, /תקשר אותי/, /\bagent\b/, /\bhuman\b/, /representative/, /real person/, /speak to someone/]],
     ['return', [/החזר/, /להחזיר/, /\breturn\b/, /\brefund\b/]],
     ['shipping', [/\bמשלוח\b/, /\bshipping\b/, /\bdelivery\b/]],
     ['hours', [/שעות פעילות/, /שעות עבודה/, /\bפתוח\b/, /\bסגור\b/, /opening hours/]],
