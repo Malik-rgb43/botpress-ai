@@ -82,12 +82,96 @@ export default function OnboardingPage() {
   }
 
   async function handleFinish() {
+    // Validate required fields
+    if (!data.businessName.trim()) {
+      toast.error('חסר שם העסק — חזור לשלב 1')
+      setStep(1)
+      return
+    }
+
     setSaving(true)
     try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('לא מחובר')
+      if (!user) throw new Error('לא מחובר — התחבר מחדש')
 
+      // Check if business already exists for this user
+      const { data: existing } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
+
+      if (existing) {
+        // Update existing business instead of creating new one
+        const { error: updateErr } = await supabase
+          .from('businesses')
+          .update({
+            name: data.businessName,
+            logo_url: data.logoUrl,
+            contact_info: {
+              phone: data.contactPhone,
+              email: data.contactEmail,
+              address: data.contactAddress,
+              website: data.contactWebsite,
+            },
+            story: data.story,
+            tone: data.tone,
+            tone_custom: data.toneCustom || null,
+          })
+          .eq('id', existing.id)
+
+        if (updateErr) {
+          console.error('Update business error:', updateErr)
+          throw new Error('שגיאה בעדכון פרטי העסק')
+        }
+
+        // Delete old FAQs/policies and re-insert
+        await supabase.from('faqs').delete().eq('business_id', existing.id)
+        await supabase.from('policies').delete().eq('business_id', existing.id)
+        await supabase.from('response_templates').delete().eq('business_id', existing.id)
+
+        const businessId = existing.id
+
+        if (data.faqs.length > 0) {
+          await supabase.from('faqs').insert(
+            data.faqs.map((f, i) => ({
+              business_id: businessId,
+              category: f.category || null,
+              question: f.question,
+              answer: f.answer,
+              order: i,
+            }))
+          )
+        }
+
+        if (data.policies.length > 0) {
+          await supabase.from('policies').insert(
+            data.policies.map(p => ({
+              business_id: businessId,
+              type: p.type,
+              title: p.title,
+              content: p.content,
+            }))
+          )
+        }
+
+        await supabase.from('response_templates').insert(
+          [
+            { type: 'greeting', content: data.templateGreeting },
+            { type: 'no_answer', content: data.templateNoAnswer },
+            { type: 'transfer', content: data.templateTransfer },
+            { type: 'goodbye', content: data.templateGoodbye },
+          ].map(t => ({ business_id: businessId, ...t }))
+        )
+
+        toast.success('העסק עודכן בהצלחה!')
+        router.push('/dashboard')
+        return
+      }
+
+      // Create new business
       const { data: business, error: bizErr } = await supabase
         .from('businesses')
         .insert({
@@ -107,7 +191,10 @@ export default function OnboardingPage() {
         .select()
         .single()
 
-      if (bizErr) throw bizErr
+      if (bizErr) {
+        console.error('Create business error:', bizErr)
+        throw new Error('שגיאה ביצירת העסק — ' + (bizErr.message || ''))
+      }
 
       if (data.faqs.length > 0) {
         const { error: faqErr } = await supabase.from('faqs').insert(
@@ -119,7 +206,7 @@ export default function OnboardingPage() {
             order: i,
           }))
         )
-        if (faqErr) throw faqErr
+        if (faqErr) console.error('FAQ insert error:', faqErr)
       }
 
       if (data.policies.length > 0) {
@@ -131,19 +218,17 @@ export default function OnboardingPage() {
             content: p.content,
           }))
         )
-        if (polErr) throw polErr
+        if (polErr) console.error('Policy insert error:', polErr)
       }
 
-      const templates = [
-        { type: 'greeting', content: data.templateGreeting },
-        { type: 'no_answer', content: data.templateNoAnswer },
-        { type: 'transfer', content: data.templateTransfer },
-        { type: 'goodbye', content: data.templateGoodbye },
-      ]
-      const { error: tmpErr } = await supabase.from('response_templates').insert(
-        templates.map(t => ({ business_id: business.id, ...t }))
+      await supabase.from('response_templates').insert(
+        [
+          { type: 'greeting', content: data.templateGreeting },
+          { type: 'no_answer', content: data.templateNoAnswer },
+          { type: 'transfer', content: data.templateTransfer },
+          { type: 'goodbye', content: data.templateGoodbye },
+        ].map(t => ({ business_id: business.id, ...t }))
       )
-      if (tmpErr) throw tmpErr
 
       await supabase.from('summary_settings').insert({
         business_id: business.id,
@@ -163,7 +248,8 @@ export default function OnboardingPage() {
       toast.success('העסק נוצר בהצלחה!')
       router.push('/dashboard')
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'שגיאה בשמירה'
+      console.error('Onboarding error:', err)
+      const message = err instanceof Error ? err.message : 'שגיאה בשמירה — נסה שוב'
       toast.error(message)
     } finally {
       setSaving(false)
