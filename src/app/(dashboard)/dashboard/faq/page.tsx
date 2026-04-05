@@ -119,20 +119,20 @@ export default function FAQPage() {
             <DialogHeader>
               <DialogTitle>{editingFaq ? 'ערוך שאלה' : 'שאלה חדשה'}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-4 px-6 pb-6">
               <div className="space-y-2">
                 <Label>קטגוריה</Label>
-                <Input placeholder="למשל: משלוחים" value={category} onChange={(e) => setCategory(e.target.value)} />
+                <Input placeholder="למשל: משלוחים" value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl h-11" />
               </div>
               <div className="space-y-2">
                 <Label>שאלה *</Label>
-                <Input placeholder="מה השאלה?" value={question} onChange={(e) => setQuestion(e.target.value)} />
+                <Input placeholder="מה השאלה?" value={question} onChange={(e) => setQuestion(e.target.value)} className="rounded-xl h-11" />
               </div>
               <div className="space-y-2">
                 <Label>תשובה *</Label>
-                <Textarea placeholder="התשובה..." value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} />
+                <Textarea placeholder="התשובה..." value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} className="rounded-xl" />
               </div>
-              <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl">{editingFaq ? 'עדכן' : 'הוסף'}</Button>
+              <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl h-11 shadow-md shadow-[#2e90fa]/25 hover:shadow-lg transition-all">{editingFaq ? 'עדכן' : 'הוסף'}</Button>
             </div>
           </DialogContent>
         </Dialog>

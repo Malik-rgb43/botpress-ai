@@ -100,7 +100,7 @@ export default function PoliciesPage() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? 'ערוך מדיניות' : 'מדיניות חדשה'}</DialogTitle></DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-4 px-6 pb-6">
               <div className="space-y-2">
                 <Label>סוג</Label>
                 <div className="flex flex-wrap gap-2">
@@ -109,10 +109,10 @@ export default function PoliciesPage() {
                       key={p.value}
                       type="button"
                       onClick={() => setType(p.value)}
-                      className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                      className={`px-3 py-2 rounded-xl text-sm border transition-all ${
                         type === p.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium'
-                          : 'border-gray-200 text-gray-500 hover:border-blue-300'
+                          ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                          : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
                       }`}
                     >
                       {p.label}
@@ -122,13 +122,13 @@ export default function PoliciesPage() {
               </div>
               <div className="space-y-2">
                 <Label>כותרת *</Label>
-                <Input value={title} onChange={e => setTitle(e.target.value)} />
+                <Input value={title} onChange={e => setTitle(e.target.value)} className="rounded-xl h-11" />
               </div>
               <div className="space-y-2">
                 <Label>תוכן *</Label>
-                <Textarea value={content} onChange={e => setContent(e.target.value)} rows={5} />
+                <Textarea value={content} onChange={e => setContent(e.target.value)} rows={5} className="rounded-xl" />
               </div>
-              <Button onClick={save} className="w-full bg-[#2e90fa] border-0 rounded-xl">{editing ? 'עדכן' : 'הוסף'}</Button>
+              <Button onClick={save} className="w-full bg-[#2e90fa] border-0 rounded-xl h-11 shadow-md shadow-[#2e90fa]/25 hover:shadow-lg transition-all">{editing ? 'עדכן' : 'הוסף'}</Button>
             </div>
           </DialogContent>
         </Dialog>
