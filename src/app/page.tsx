@@ -304,8 +304,8 @@ export default function LandingPage() {
                 transition={{ duration: 0.6, delay: 0.25 }}
                 className="text-lg md:text-xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
               >
-                בוט AI שמכיר את העסק שלך, עונה ללקוחות בוואטסאפ ובאימייל,
-                ומעביר לנציג כשצריך. בלי קוד, בלי מתכנתים.
+                בוט AI שעונה ללקוחות שלך בוואטסאפ, אימייל ובאתר —
+                מהאימייל והמספר של העסק שלך. מוכן תוך 5 דקות.
               </motion.p>
 
               <motion.div
@@ -397,6 +397,84 @@ export default function LandingPage() {
               </FadeIn>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── 3 Channels Showcase ── */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2e90fa]/[0.02] to-transparent" />
+        <div className="max-w-6xl mx-auto px-6 relative">
+          <FadeIn className="text-center mb-14">
+            <p className="text-[#2e90fa] font-semibold text-sm mb-3 tracking-wide">3 ערוצים, מערכת אחת</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+              הבוט עונה בכל מקום שהלקוחות שלך נמצאים
+            </h2>
+            <p className="text-gray-500 max-w-lg mx-auto">חבר את הערוצים שלך בלחיצה. הבוט עונה מהאימייל ומהמספר של העסק — הלקוח לא יודע שזה AI.</p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <FadeIn delay={0.1}>
+              <div className="relative bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] p-8 text-center hover:shadow-xl hover:border-[#2e90fa]/10 transition-all duration-300 group">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform">
+                  <MessageSquare className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">וואטסאפ</h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">הבוט עונה מהמספר של העסק שלך. לקוחות שולחים הודעה ומקבלים תשובה מיידית.</p>
+                <div className="inline-flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  WhatsApp Business API
+                </div>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.2}>
+              <div className="relative bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] p-8 text-center hover:shadow-xl hover:border-[#2e90fa]/10 transition-all duration-300 group">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#2e90fa] to-indigo-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#2e90fa]/20 group-hover:scale-110 transition-transform">
+                  <Mail className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">אימייל</h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">חבר Gmail בלחיצה. הבוט קורא מיילים ועונה אוטומטית מהאימייל של העסק שלך.</p>
+                <div className="inline-flex items-center gap-1.5 text-xs text-[#2e90fa] bg-blue-50 px-3 py-1.5 rounded-full font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2e90fa]" />
+                  Gmail OAuth
+                </div>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.3}>
+              <div className="relative bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] p-8 text-center hover:shadow-xl hover:border-[#2e90fa]/10 transition-all duration-300 group">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform">
+                  <Code className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">וידג׳ט באתר</h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">שורת קוד אחת באתר שלך — ויש לך צ׳אט בוט שעונה ללקוחות ישירות באתר.</p>
+                <div className="inline-flex items-center gap-1.5 text-xs text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  שורת קוד אחת
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+
+          {/* Speed callout */}
+          <FadeIn delay={0.4} className="mt-12">
+            <div className="bg-gradient-to-r from-[#2e90fa]/5 via-white to-violet-500/5 rounded-2xl border border-[rgba(0,0,0,0.04)] p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] flex items-center justify-center shadow-lg shadow-[#2e90fa]/20 shrink-0">
+                  <Zap className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">מוכן תוך 5 דקות</h3>
+                  <p className="text-gray-500 text-sm">הירשם → מלא פרטי עסק → חבר Gmail → הבוט עובד. בלי מתכנתים, בלי הדרכה.</p>
+                </div>
+              </div>
+              <Link href="/signup">
+                <Button className="bg-[#2e90fa] border-0 rounded-xl px-8 py-6 text-base shadow-lg shadow-[#2e90fa]/25 hover:shadow-xl transition-all whitespace-nowrap">
+                  נסה ב-₪1 <ArrowLeft className="h-4 w-4 mr-2" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -621,20 +699,21 @@ export default function LandingPage() {
       <section id="how" className="py-28" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
         <div className="max-w-[1200px] mx-auto px-6">
           <FadeIn className="text-center mb-20">
+            <p className="text-[#2e90fa] font-semibold text-sm mb-3 tracking-wide">בלי ידע טכני, בלי מתכנתים</p>
             <h2
               className="text-3xl md:text-[2.75rem] font-extrabold text-gray-900 mb-5"
               style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
             >
-              איך זה עובד?
+              איך מקימים בוט ב-5 דקות?
             </h2>
-            <p className="text-gray-500 text-lg max-w-lg mx-auto">3 צעדים פשוטים ויש לך בוט חכם שעובד בשבילך</p>
+            <p className="text-gray-500 text-lg max-w-xl mx-auto">לא צריך להיות טכנולוג. האשף שלנו מנחה אותך צעד אחרי צעד — פשוט ממלאים את הפרטים והבוט מוכן.</p>
           </FadeIn>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "הירשם והגדר", desc: "מלא פרטי עסק, FAQ ומדיניות דרך אשף פשוט. ה-AI גם יכול ליצור FAQ אוטומטית מהאתר שלך.", icon: Code, gradient: 'linear-gradient(135deg, #2e90fa, #5a7af7)', shadow: 'rgba(46,144,250,0.3)' },
-              { step: "02", title: "הבוט לומד", desc: "ה-AI לומד את העסק שלך — הטון, המדיניות, והתשובות. תוך דקות הוא מוכן.", icon: Bot, gradient: 'linear-gradient(135deg, #7c3aed, #a855f7)', shadow: 'rgba(124,58,237,0.3)' },
-              { step: "03", title: "חבר ותתחיל", desc: "חבר וואטסאפ, אימייל, או צ׳אט באתר. הבוט מתחיל לעבוד 24/7.", icon: Zap, gradient: 'linear-gradient(135deg, #10b981, #059669)', shadow: 'rgba(16,185,129,0.3)' },
+              { step: "01", title: "ספר על העסק שלך", desc: "מלא שם, טלפון ושעות פעילות. הוסף שאלות שלקוחות שואלים הכי הרבה ומדיניות (החזרות, משלוחים). אפשר גם להדביק קישור לאתר וה-AI ייצר FAQ בשבילך.", icon: Code, gradient: 'linear-gradient(135deg, #2e90fa, #5a7af7)', shadow: 'rgba(46,144,250,0.3)' },
+              { step: "02", title: "הבוט לומד ומתאמן", desc: "תוך שניות ה-AI קורא את כל המידע שהזנת — שאלות, מדיניות, טון דיבור — ומתחיל לענות בדיוק כמו שאתה היית עונה. אפשר לבדוק אותו בסימולטור לפני שמתחילים.", icon: Bot, gradient: 'linear-gradient(135deg, #7c3aed, #a855f7)', shadow: 'rgba(124,58,237,0.3)' },
+              { step: "03", title: "חבר ועובדים", desc: "חבר את ה-Gmail בלחיצה אחת (גם @gmail.com רגיל). הוסף וואטסאפ או שים צ׳אט באתר. מעכשיו הבוט עונה 24/7 מהאימייל ומהמספר שלך.", icon: Zap, gradient: 'linear-gradient(135deg, #10b981, #059669)', shadow: 'rgba(16,185,129,0.3)' },
             ].map((s, i) => (
               <FadeIn key={i} delay={i * 0.15}>
                 <div
@@ -663,6 +742,23 @@ export default function LandingPage() {
               </FadeIn>
             ))}
           </div>
+
+          {/* No-code reassurance */}
+          <FadeIn delay={0.5} className="mt-14">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              {[
+                { icon: '🚫', text: 'בלי קוד' },
+                { icon: '🚫', text: 'בלי מתכנתים' },
+                { icon: '🚫', text: 'בלי הדרכה' },
+                { icon: '✅', text: 'פשוט ממלאים ומתחילים' },
+              ].map((item, i) => (
+                <div key={i} className="bg-white rounded-xl border border-[rgba(0,0,0,0.04)] py-4 px-3">
+                  <span className="text-xl mb-1 block">{item.icon}</span>
+                  <span className="text-sm font-medium text-gray-700">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
         </div>
       </section>
 
