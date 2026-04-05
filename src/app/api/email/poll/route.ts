@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
-import type { AIContext } from '@/services/ai-engine'
+import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
+import { getOrBuildPrompt } from '@/services/prompt-builder'
 import { buildEmailHtml } from '@/services/email-template'
+import { stripHtml } from '@/lib/sanitize'
 
 // Refresh Gmail access token using refresh token
 async function refreshGmailToken(refreshToken: string): Promise<string | null> {
@@ -80,9 +81,9 @@ async function getUnreadEmails(accessToken: string): Promise<Array<{id: string, 
       body = Buffer.from(msgData.payload.body.data, 'base64').toString('utf-8')
     }
 
-    // Clean up body — remove quoted replies
+    // Clean up body — remove quoted replies and strip HTML
     body = body.split(/\n--\n|\nOn .* wrote:|\n>/).shift() || body
-    body = body.trim().slice(0, 3000)
+    body = stripHtml(body).trim().slice(0, 3000)
 
     if (body.length > 0) {
       emails.push({ id: msg.id, from, subject, body })
@@ -182,9 +183,9 @@ export async function POST(request: NextRequest) {
   try {
     // Verify — accept Vercel Cron header OR Bearer token
     const cronHeader = request.headers.get('authorization')
-    const cronSecret = process.env.CRON_SECRET || 'botpress-poll-secret-2026'
+    const cronSecret = process.env.CRON_SECRET
     const vercelCron = request.headers.get('x-vercel-cron')
-    if (!vercelCron && cronHeader !== `Bearer ${cronSecret}`) {
+    if (!vercelCron && (!cronSecret || cronHeader !== `Bearer ${cronSecret}`)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -259,21 +260,41 @@ export async function POST(request: NextRequest) {
               p_minutes: 2,
             })
             if (isDuplicate) continue
+
+            // Check if this sender has an active escalation — don't let AI respond
+            const { data: activeEsc } = await supabase
+              .from('conversations')
+              .select('id, escalations!inner(id, status)')
+              .eq('business_id', business.id)
+              .eq('customer', senderEmail)
+              .eq('channel', 'email')
+              .in('escalations.status', ['open', 'in_progress'])
+              .limit(1)
+
+            if (activeEsc && activeEsc.length > 0) {
+              // Mark as read but don't reply — agent is handling
+              await markAsRead(accessToken, email.id)
+              console.log(`Skipping AI reply to ${senderEmail} — active escalation exists`)
+              continue
+            }
+
             const intent = detectIntent(email.body)
             const sentiment = detectSentiment(email.body)
             const language = detectLanguage(email.body)
 
-            // Build AI context
-            const context: AIContext = {
+            // Build optimized prompt (cached per business+intent)
+            const botLanguage = (business.contact_info as Record<string, unknown>)?.bot_language as string || 'auto'
+            const systemPrompt = getOrBuildPrompt({
               business,
               faqs: faqRes.data || [],
               policies: polRes.data || [],
-              templates,
-              conversationHistory: [],
-              customerLanguage: language,
-            }
+              message: email.body,
+              intent,
+              botLanguage,
+              isFirstMessage: true,
+            })
 
-            const systemPrompt = buildSystemPrompt(context)
+            const emailSuffix = `\n\nזו הודעת אימייל. ענה מפורט קצת יותר מצ׳אט. אם אין לך מספיק מידע, התחל עם ESCALATE.`
 
             // Call Gemini
             const geminiKey = process.env.GEMINI_API_KEY
@@ -285,14 +306,9 @@ export async function POST(request: NextRequest) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  system_instruction: { parts: [{ text: systemPrompt + `\n\nזו הודעת אימייל מלקוח. ענה בצורה מתאימה — מפורט קצת יותר מצ׳אט אבל ממוקד.
-
-חשוב מאוד: אם אתה לא יכול לענות על השאלה (למשל: צריך גישה למערכת, שאלה מורכבת מדי, תלונה רצינית, או שאין לך מספיק מידע), התחל את התשובה שלך עם המילה ESCALATE ואז הסבר בקצרה למה.
-
-דוגמה לתשובה רגילה: "אנחנו פתוחים א-ה 9:00-18:00."
-דוגמה ל-ESCALATE: "ESCALATE - הלקוח שואל על הזמנה ספציפית שצריך לבדוק במערכת"` }] },
+                  system_instruction: { parts: [{ text: systemPrompt + emailSuffix }] },
                   contents: [{ role: 'user', parts: [{ text: `נושא: ${email.subject}\n\n${email.body}` }] }],
-                  generationConfig: { temperature: 0.3, maxOutputTokens: 600 },
+                  generationConfig: { temperature: 0.3, maxOutputTokens: 500, topP: 0.8, topK: 30 },
                 }),
               }
             )

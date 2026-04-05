@@ -6,19 +6,20 @@ import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
-
-const TONES = [
-  { value: 'formal', label: 'רשמי', emoji: '👔' },
-  { value: 'friendly', label: 'ידידותי', emoji: '😊' },
-  { value: 'professional', label: 'מקצועי', emoji: '💼' },
-  { value: 'casual', label: 'קז׳ואל', emoji: '🤙' },
-  { value: 'custom', label: 'מותאם', emoji: '✏️' },
-]
+import { useTranslation } from '@/i18n/provider'
 
 export default function TemplatesPage() {
+  const { t } = useTranslation()
+
+  const TONES = [
+    { value: 'formal', label: t.templates.tone_formal, emoji: '👔' },
+    { value: 'friendly', label: t.templates.tone_friendly, emoji: '😊' },
+    { value: 'professional', label: t.templates.tone_professional, emoji: '💼' },
+    { value: 'casual', label: t.templates.tone_casual, emoji: '🤙' },
+    { value: 'custom', label: t.templates.tone_custom, emoji: '✏️' },
+  ]
   const { business, loading: bizLoading } = useBusiness()
   const [tone, setTone] = useState('friendly')
   const [toneCustom, setToneCustom] = useState('')
@@ -56,7 +57,7 @@ export default function TemplatesPage() {
     for (const [type, content] of Object.entries(templates)) {
       await supabase.from('response_templates').update({ content }).eq('business_id', business!.id).eq('type', type)
     }
-    toast.success('נשמר בהצלחה')
+    toast.success(t.templates.saved)
     setSaving(false)
   }
 
@@ -68,32 +69,32 @@ export default function TemplatesPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <Loader2 className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">טון דיבור ותבניות</h1>
-          <p className="text-gray-500 text-sm mt-1">התאם את הטון והתבניות של הבוט</p>
+          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.templates.title}</h1>
+          <p className="text-gray-400 text-sm mt-1">{t.templates.subtitle}</p>
         </div>
-        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
+        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
-          שמור שינויים
+          {t.templates.save}
         </Button>
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">טון דיבור</CardTitle>
-            <CardDescription>בחר איך הבוט ידבר עם הלקוחות</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.templates.tone_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.templates.tone_subtitle}</p>
+          </div>
+          <div className="p-6">
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {TONES.map(t => (
                 <button
@@ -109,22 +110,22 @@ export default function TemplatesPage() {
               ))}
             </div>
             {tone === 'custom' && (
-              <Textarea className="mt-4" placeholder="תאר את הטון..." value={toneCustom} onChange={e => setToneCustom(e.target.value)} rows={3} />
+              <Textarea className="mt-4" placeholder={t.templates.tone_custom_placeholder} value={toneCustom} onChange={e => setToneCustom(e.target.value)} rows={3} />
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">תבניות תשובה</CardTitle>
-            <CardDescription>הודעות ברירת מחדל שהבוט משתמש בהן</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.templates.responses_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.templates.responses_subtitle}</p>
+          </div>
+          <div className="p-6 space-y-4">
             {[
-              { key: 'greeting' as const, label: 'הודעת פתיחה', desc: 'ההודעה הראשונה שהלקוח מקבל' },
-              { key: 'no_answer' as const, label: 'לא נמצאה תשובה', desc: 'כשהבוט לא מוצא תשובה' },
-              { key: 'transfer' as const, label: 'העברה לנציג', desc: 'כשמעבירים לנציג אנושי' },
-              { key: 'goodbye' as const, label: 'סיום', desc: 'הודעת סיום שיחה' },
+              { key: 'greeting' as const, label: t.templates.greeting_label, desc: t.templates.greeting_desc },
+              { key: 'no_answer' as const, label: t.templates.no_answer_label, desc: t.templates.no_answer_desc },
+              { key: 'transfer' as const, label: t.templates.transfer_label, desc: t.templates.transfer_desc },
+              { key: 'goodbye' as const, label: t.templates.goodbye_label, desc: t.templates.goodbye_desc },
             ].map(tmpl => (
               <div key={tmpl.key} className="space-y-2">
                 <Label>{tmpl.label}</Label>
@@ -136,8 +137,8 @@ export default function TemplatesPage() {
                 <p className="text-xs text-gray-400">{tmpl.desc}</p>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

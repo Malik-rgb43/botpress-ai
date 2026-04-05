@@ -9,7 +9,7 @@ import {
   Check, Sparkles, ChevronDown, Star, Clock, Globe, Play, Quote,
   X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck, Menu
 } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import LiveChatDemo from "@/components/landing/live-chat-demo"
@@ -31,10 +31,10 @@ function FadeIn({ children, className = '', delay = 0, direction = 'up' }: {
   const isInView = useInView(ref, { once: true, margin: "-80px" })
 
   const directions = {
-    up: { y: 40, x: 0 },
-    down: { y: -40, x: 0 },
-    left: { y: 0, x: 40 },
-    right: { y: 0, x: -40 },
+    up: { y: 20, x: 0 },
+    down: { y: -20, x: 0 },
+    left: { y: 0, x: 20 },
+    right: { y: 0, x: -20 },
   }
 
   return (
@@ -234,21 +234,41 @@ export default function LandingPage() {
                 <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-[#2e90fa]" aria-label="תפריט ניווט">
                   <Menu className="h-5 w-5" />
                 </SheetTrigger>
-                <SheetContent side="right" className="w-72">
-                  <nav className="flex flex-col gap-4 mt-8">
-                    <a href="#features" className="text-lg text-gray-700 hover:text-[#2e90fa]">פיצ׳רים</a>
-                    <a href="#how" className="text-lg text-gray-700 hover:text-[#2e90fa]">איך זה עובד</a>
-                    <a href="#pricing" className="text-lg text-gray-700 hover:text-[#2e90fa]">תוכניות</a>
-                    <a href="#faq" className="text-lg text-gray-700 hover:text-[#2e90fa]">שאלות</a>
-                    <div className="border-t border-gray-100 pt-4 mt-2 space-y-3">
-                      <Link href="/login"><Button variant="outline" className="w-full">התחברות</Button></Link>
+                <SheetContent side="right" className="w-72 p-0" showCloseButton={false}>
+                  <div className="flex flex-col h-full" dir="rtl">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                      <div className="flex items-center gap-2.5">
+                        <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-lg" />
+                        <span className="font-bold text-gray-900 text-[15px]">BotPress AI</span>
+                      </div>
+                      <SheetClose className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                        <X className="h-5 w-5" />
+                      </SheetClose>
+                    </div>
+                    {/* Nav */}
+                    <nav className="flex flex-col gap-1 px-3 py-4">
+                      {[
+                        { href: "#features", label: "פיצ׳רים" },
+                        { href: "#how", label: "איך זה עובד" },
+                        { href: "#pricing", label: "תוכניות" },
+                        { href: "#faq", label: "שאלות" },
+                      ].map((l) => (
+                        <a key={l.href} href={l.href} className="px-4 py-3 text-[15px] font-medium text-gray-700 hover:text-[#2e90fa] hover:bg-blue-50/50 rounded-xl transition-colors">
+                          {l.label}
+                        </a>
+                      ))}
+                    </nav>
+                    {/* CTA */}
+                    <div className="mt-auto px-4 pb-6 space-y-3 border-t border-gray-100 pt-4">
+                      <Link href="/login"><Button variant="outline" className="w-full rounded-xl">התחברות</Button></Link>
                       <Link href="/signup">
-                        <Button className="w-full border-0 text-white" style={{ background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)' }}>
+                        <Button className="w-full border-0 text-white rounded-xl" style={{ background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)' }}>
                           נסה ב-₪1
                         </Button>
                       </Link>
                     </div>
-                  </nav>
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>
@@ -259,7 +279,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 2. HERO                                         */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-40 pb-24">
+      <section className="relative overflow-hidden pt-28 md:pt-40 pb-16 md:pb-24">
         {/* Hero glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[800px] -z-10 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at center, rgba(46,144,250,0.07) 0%, transparent 65%)' }} />
@@ -290,11 +310,12 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-[1.08]"
-                style={{ letterSpacing: '-0.03em' }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-[1.15]"
+                style={{ letterSpacing: '-0.02em' }}
               >
-                בוט AI שעונה ב
+                הלקוחות שלך מחכים.
                 <br />
+                <span className="text-[#2e90fa]">הבוט שלך עונה</span>{' '}
                 <RotatingText />
               </motion.h1>
 
@@ -380,7 +401,7 @@ export default function LandingPage() {
               { value: "4.9/5", label: "שביעות רצון", icon: Star },
               { value: "<2 דק׳", label: "זמן תגובה ממוצע", icon: Clock },
             ].map((s, i) => (
-              <FadeIn key={i} delay={i * 0.1} className="text-center">
+              <div key={i} className="text-center">
                 <div
                   className="inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3"
                   style={{ background: 'rgba(46,144,250,0.06)' }}
@@ -388,13 +409,13 @@ export default function LandingPage() {
                   <s.icon className="h-5 w-5 text-[#2e90fa]" />
                 </div>
                 <div
-                  className="text-4xl font-extrabold mb-1"
+                  className="text-2xl md:text-4xl font-extrabold mb-1"
                   style={{ background: 'linear-gradient(135deg, #2e90fa, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}
                 >
                   {s.value}
                 </div>
                 <div className="text-sm text-gray-500 font-medium">{s.label}</div>
-              </FadeIn>
+              </div>
             ))}
           </div>
         </div>
@@ -403,14 +424,14 @@ export default function LandingPage() {
       {/* ── 3 Channels Showcase ── */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2e90fa]/[0.02] to-transparent" />
-        <div className="max-w-6xl mx-auto px-6 relative">
-          <FadeIn className="text-center mb-14">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 relative">
+          <div className="text-center mb-14">
             <p className="text-[#2e90fa] font-semibold text-sm mb-3 tracking-wide">3 ערוצים, מערכת אחת</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
               הבוט עונה בכל מקום שהלקוחות שלך נמצאים
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">חבר את הערוצים שלך בלחיצה. הבוט עונה מהאימייל ומהמספר של העסק — הלקוח לא יודע שזה AI.</p>
-          </FadeIn>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             <FadeIn delay={0.1}>
@@ -457,8 +478,8 @@ export default function LandingPage() {
           </div>
 
           {/* Speed callout */}
-          <FadeIn delay={0.4} className="mt-12">
-            <div className="bg-gradient-to-r from-[#2e90fa]/5 via-white to-violet-500/5 rounded-2xl border border-[rgba(0,0,0,0.04)] p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="mt-12">
+            <div className="bg-gradient-to-r from-[#2e90fa]/5 via-white to-violet-500/5 rounded-2xl border border-[rgba(0,0,0,0.04)] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] flex items-center justify-center shadow-lg shadow-[#2e90fa]/20 shrink-0">
                   <Zap className="h-7 w-7 text-white" />
@@ -474,15 +495,15 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
-          </FadeIn>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* 4. FEATURES                                     */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="features" className="max-w-[1200px] mx-auto px-6 py-28">
-        <FadeIn className="text-center mb-20">
+      <section id="features" className="max-w-[1200px] mx-auto px-4 md:px-6 py-16 md:py-28">
+        <div className="text-center mb-20">
           <div
             className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm mb-5 font-medium"
             style={{ background: 'rgba(46,144,250,0.06)', border: '1px solid rgba(46,144,250,0.1)', color: '#2e90fa' }}
@@ -499,7 +520,7 @@ export default function LandingPage() {
             </span>
           </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">מערכת אחת שמנהלת את כל התקשורת עם הלקוחות</p>
-        </FadeIn>
+        </div>
 
         {/* 2 Big Feature Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -646,59 +667,57 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 5. WHATSAPP PHONE DEMO                          */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="max-w-[1200px] mx-auto px-6 pb-28">
-        <FadeIn>
-          <div
-            className="rounded-3xl p-8 md:p-14 grid md:grid-cols-2 gap-10 items-center"
-            style={{
-              background: 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(0,0,0,0.04)',
-            }}
-          >
-            <div className="order-2 md:order-1 flex justify-center">
-              <LiveChatDemo />
-            </div>
-            <div className="order-1 md:order-2 space-y-6">
-              <div
-                className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold"
-                style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', color: '#059669' }}
-              >
-                <Smartphone className="h-3.5 w-3.5" /> WhatsApp Ready
-              </div>
-              <h3
-                className="text-2xl md:text-3xl font-extrabold text-gray-900"
-                style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
-              >
-                בוט שמדבר כמוך בוואטסאפ
-              </h3>
-              <p className="text-gray-500 leading-relaxed text-base">
-                כשלקוח שולח הודעה בוואטסאפ, הבוט עונה מיד עם תשובה מותאמת אישית — על בסיס ה-FAQ, המדיניות, והטון שלך.
-              </p>
-              <ul className="space-y-3">
-                {["תשובות מותאמות אישית לעסק", "זיכרון שיחות ללקוחות חוזרים", "העברה לנציג בלחיצה", "ניתוח רגש בזמן אמת"].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: 'rgba(46,144,250,0.08)' }}
-                    >
-                      <Check className="h-3.5 w-3.5 text-[#2e90fa]" />
-                    </div>
-                    <span className="text-gray-600 font-medium">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      <section className="max-w-[1200px] mx-auto px-4 md:px-6 pb-16 md:pb-28">
+        <div
+          className="rounded-3xl p-6 md:p-14 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center"
+          style={{
+            background: 'rgba(255,255,255,0.8)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(0,0,0,0.04)',
+          }}
+        >
+          <div className="order-2 md:order-1 flex justify-center">
+            <LiveChatDemo />
           </div>
-        </FadeIn>
+          <div className="order-1 md:order-2 space-y-6">
+            <div
+              className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold"
+              style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', color: '#059669' }}
+            >
+              <Smartphone className="h-3.5 w-3.5" /> WhatsApp Ready
+            </div>
+            <h3
+              className="text-2xl md:text-3xl font-extrabold text-gray-900"
+              style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
+            >
+              בוט שמדבר כמוך בוואטסאפ
+            </h3>
+            <p className="text-gray-500 leading-relaxed text-base">
+              כשלקוח שולח הודעה בוואטסאפ, הבוט עונה מיד עם תשובה מותאמת אישית — על בסיס ה-FAQ, המדיניות, והטון שלך.
+            </p>
+            <ul className="space-y-3">
+              {["תשובות מותאמות אישית לעסק", "זיכרון שיחות ללקוחות חוזרים", "העברה לנציג בלחיצה", "ניתוח רגש בזמן אמת"].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm">
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: 'rgba(46,144,250,0.08)' }}
+                  >
+                    <Check className="h-3.5 w-3.5 text-[#2e90fa]" />
+                  </div>
+                  <span className="text-gray-600 font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* 6. HOW IT WORKS                                 */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="how" className="py-28" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
-        <div className="max-w-[1200px] mx-auto px-6">
-          <FadeIn className="text-center mb-20">
+      <section id="how" className="py-16 md:py-28" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6">
+          <div className="text-center mb-20">
             <p className="text-[#2e90fa] font-semibold text-sm mb-3 tracking-wide">בלי ידע טכני, בלי מתכנתים</p>
             <h2
               className="text-3xl md:text-[2.75rem] font-extrabold text-gray-900 mb-5"
@@ -707,7 +726,7 @@ export default function LandingPage() {
               איך מקימים בוט ב-5 דקות?
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">לא צריך להיות טכנולוג. האשף שלנו מנחה אותך צעד אחרי צעד — פשוט ממלאים את הפרטים והבוט מוכן.</p>
-          </FadeIn>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -744,7 +763,7 @@ export default function LandingPage() {
           </div>
 
           {/* No-code reassurance */}
-          <FadeIn delay={0.5} className="mt-14">
+          <div className="mt-14">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               {[
                 { icon: '🚫', text: 'בלי קוד' },
@@ -758,15 +777,15 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-          </FadeIn>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* 7. COMPARISON TABLE                             */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="max-w-[900px] mx-auto px-6 py-28">
-        <FadeIn className="text-center mb-14">
+      <section className="max-w-[900px] mx-auto px-4 md:px-6 py-16 md:py-28">
+        <div className="text-center mb-14">
           <h2
             className="text-3xl md:text-[2.75rem] font-extrabold text-gray-900 mb-5"
             style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
@@ -776,9 +795,9 @@ export default function LandingPage() {
               כל מתחרה
             </span>
           </h2>
-        </FadeIn>
+        </div>
 
-        <FadeIn delay={0.15}>
+        <div>
           <div
             className="rounded-2xl overflow-hidden"
             style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.04)' }}
@@ -807,7 +826,7 @@ export default function LandingPage() {
             ].map((row, i) => (
               <div
                 key={i}
-                className="grid grid-cols-3 text-center text-sm border-b last:border-0"
+                className="grid grid-cols-3 text-center text-xs md:text-sm border-b last:border-0"
                 style={{ borderColor: 'rgba(0,0,0,0.03)', background: i % 2 === 0 ? 'transparent' : 'rgba(249,250,251,0.4)' }}
               >
                 <div className="p-3 md:p-4 text-gray-600 text-right pr-4 md:pr-6 text-xs md:text-sm font-medium">{row.feature}</div>
@@ -826,15 +845,15 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </FadeIn>
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* 8. TESTIMONIALS                                 */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="py-28 overflow-hidden" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
-        <div className="max-w-[1200px] mx-auto px-6">
-          <FadeIn className="text-center mb-14">
+      <section className="py-16 md:py-28 overflow-hidden" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6">
+          <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm mb-5 font-medium"
               style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)', color: '#d97706' }}
@@ -850,7 +869,7 @@ export default function LandingPage() {
                 תוצאות אמיתיות
               </span>
             </h2>
-          </FadeIn>
+          </div>
 
           <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[600px] overflow-hidden">
             <TestimonialsColumn testimonials={firstColumn} duration={15} />
@@ -863,8 +882,8 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 9. PRICING                                      */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="pricing" className="max-w-[1200px] mx-auto px-6 py-28">
-        <FadeIn className="text-center mb-20">
+      <section id="pricing" className="max-w-[1200px] mx-auto px-4 md:px-6 py-16 md:py-28">
+        <div className="text-center mb-20">
           <h2
             className="text-3xl md:text-[2.75rem] font-extrabold text-gray-900 mb-5"
             style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
@@ -872,7 +891,7 @@ export default function LandingPage() {
             תוכניות ומחירים
           </h2>
           <p className="text-gray-500 text-lg max-w-lg mx-auto">נסה 7 ימים ב-₪1 בלבד, בחר תוכנית כשמתאים לך</p>
-        </FadeIn>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 pt-4 max-w-[1000px] mx-auto">
           {[
@@ -880,7 +899,7 @@ export default function LandingPage() {
             { name: "בסיסי", price: "99", trial: false, popular: true, features: ["1,000 הודעות/חודש", "כל הערוצים", "AI מתקדם + זיכרון", "אנליטיקס מלא", "סיכומים אוטומטיים"] },
             { name: "פרימיום", price: "299", trial: false, popular: false, features: ["הודעות ללא הגבלה", "כל הערוצים", "White Label", "תמיכה מועדפת", "AI מתקדם + זיכרון"] },
           ].map((plan, i) => (
-            <FadeIn key={i} delay={i * 0.12}>
+            <div key={i}>
               <motion.div
                 whileHover={{ y: -6, scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -945,7 +964,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
               </motion.div>
-            </FadeIn>
+            </div>
           ))}
         </div>
       </section>
@@ -953,9 +972,9 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 10. FAQ                                         */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="faq" className="py-28" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
-        <div className="max-w-[700px] mx-auto px-6">
-          <FadeIn className="text-center mb-14">
+      <section id="faq" className="py-16 md:py-28" style={{ background: 'linear-gradient(180deg, #fafbfc 0%, white 100%)' }}>
+        <div className="max-w-[700px] mx-auto px-4 md:px-6">
+          <div className="text-center mb-14">
             <h2
               className="text-3xl md:text-[2.75rem] font-extrabold text-gray-900 mb-5"
               style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
@@ -965,7 +984,7 @@ export default function LandingPage() {
                 נפוצות
               </span>
             </h2>
-          </FadeIn>
+          </div>
 
           <div className="space-y-3">
             {[
@@ -976,9 +995,7 @@ export default function LandingPage() {
               { q: "באילו שפות הבוט תומך?", a: "עברית, אנגלית וערבית — הבוט מזהה אוטומטית ועונה באותה שפה." },
               { q: "מה כשהבוט לא יודע?", a: "מעביר לנציג ומודיע לך בזמן אמת. אתה עונה ישירות מהדשבורד." },
             ].map((item, i) => (
-              <FadeIn key={i} delay={i * 0.06}>
-                <FAQItem q={item.q} a={item.a} />
-              </FadeIn>
+              <FAQItem key={i} q={item.q} a={item.a} />
             ))}
           </div>
         </div>
@@ -987,50 +1004,48 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* 11. CTA                                         */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="max-w-[1100px] mx-auto px-6 pb-28">
-        <FadeIn>
-          <div
-            className="rounded-3xl px-8 py-16 md:px-16 md:py-20 text-center relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 40%, #7c3aed 100%)',
-            }}
-          >
-            {/* Decorative circles */}
-            <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full opacity-10 bg-white blur-[60px]" />
-            <div className="absolute bottom-[-30px] left-[-30px] w-[150px] h-[150px] rounded-full opacity-10 bg-white blur-[50px]" />
+      <section className="max-w-[1100px] mx-auto px-4 md:px-6 pb-16 md:pb-28">
+        <div
+          className="rounded-3xl px-6 py-12 md:px-16 md:py-20 text-center relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 40%, #7c3aed 100%)',
+          }}
+        >
+          {/* Decorative circles */}
+          <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full opacity-10 bg-white blur-[60px]" />
+          <div className="absolute bottom-[-30px] left-[-30px] w-[150px] h-[150px] rounded-full opacity-10 bg-white blur-[50px]" />
 
-            <div className="relative z-10">
-              <h2
-                className="text-3xl md:text-[2.75rem] font-extrabold text-white mb-5"
-                style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
+          <div className="relative z-10">
+            <h2
+              className="text-3xl md:text-[2.75rem] font-extrabold text-white mb-5"
+              style={{ letterSpacing: '-0.025em', lineHeight: '1.15' }}
+            >
+              מוכן לשדרג את השירות?
+            </h2>
+            <p className="text-white/80 text-lg mb-10 max-w-lg mx-auto">
+              הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום עם בוט AI חכם
+            </p>
+            <Link href="/signup">
+              <Button
+                size="lg"
+                className="text-base px-12 py-7 text-lg rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.03]"
+                style={{
+                  background: 'white',
+                  color: '#2e90fa',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+                }}
               >
-                מוכן לשדרג את השירות?
-              </h2>
-              <p className="text-white/80 text-lg mb-10 max-w-lg mx-auto">
-                הצטרף ל-500+ עסקים שכבר חוסכים שעות כל יום עם בוט AI חכם
-              </p>
-              <Link href="/signup">
-                <Button
-                  size="lg"
-                  className="text-base px-12 py-7 text-lg rounded-2xl border-0 font-semibold transition-all duration-300 hover:scale-[1.03]"
-                  style={{
-                    background: 'white',
-                    color: '#2e90fa',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-                  }}
-                >
-                  התחל ניסיון ב-₪1
-                  <ArrowLeft className="h-5 w-5 mr-2" />
-                </Button>
-              </Link>
-              <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-white/70">
-                <span className="flex items-center gap-2"><Check className="h-4 w-4" />ללא התחייבות</span>
-                <span className="flex items-center gap-2"><Check className="h-4 w-4" />ביטול בכל עת</span>
-                <span className="flex items-center gap-2"><Check className="h-4 w-4" />התקנה ב-5 דקות</span>
-              </div>
+                התחל ניסיון ב-₪1
+                <ArrowLeft className="h-5 w-5 mr-2" />
+              </Button>
+            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-white/70">
+              <span className="flex items-center gap-2"><Check className="h-4 w-4" />ללא התחייבות</span>
+              <span className="flex items-center gap-2"><Check className="h-4 w-4" />ביטול בכל עת</span>
+              <span className="flex items-center gap-2"><Check className="h-4 w-4" />התקנה ב-5 דקות</span>
             </div>
           </div>
-        </FadeIn>
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}

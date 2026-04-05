@@ -20,8 +20,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only HTTP/HTTPS URLs allowed' }, { status: 400 })
     }
 
-    const hostname = parsedUrl.hostname
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('10.') || hostname.startsWith('192.168.') || hostname.startsWith('172.16.')) {
+    const hostname = parsedUrl.hostname.toLowerCase()
+    // Comprehensive SSRF protection — block all private/reserved ranges
+    const isPrivate =
+      hostname === 'localhost' ||
+      hostname === '::1' ||
+      hostname.endsWith('.local') ||
+      hostname.endsWith('.internal') ||
+      /^127\./.test(hostname) ||                          // Loopback
+      /^10\./.test(hostname) ||                           // RFC 1918 Class A
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||     // RFC 1918 Class B
+      /^192\.168\./.test(hostname) ||                     // RFC 1918 Class C
+      /^169\.254\./.test(hostname) ||                     // Link-local
+      /^0\./.test(hostname) ||                            // Current network
+      /^100\.(6[4-9]|[7-9]\d|1[0-2]\d)\./.test(hostname) || // CGNAT
+      hostname === '[::1]' ||
+      hostname.startsWith('fc') ||                        // IPv6 unique local
+      hostname.startsWith('fe80') ||                      // IPv6 link-local
+      hostname.startsWith('fd')                           // IPv6 unique local
+    if (isPrivate) {
       return NextResponse.json({ error: 'Private URLs not allowed' }, { status: 400 })
     }
 

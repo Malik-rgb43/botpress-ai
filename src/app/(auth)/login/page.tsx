@@ -3,10 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Bot, Loader2, Star } from 'lucide-react'
+import { Bot, Loader2, Star, MessageSquare, TrendingUp, Users } from 'lucide-react'
 
 export default function LoginPage() {
   const { signIn, loading, error } = useAuth()
@@ -19,72 +16,138 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side — Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 relative">
-        <div className="absolute inset-0 bg-[#fafbfe]" />
-        <div className="absolute top-[30%] left-[20%] w-96 h-96 bg-[#2e90fa]/5 rounded-full blur-[100px] -z-0" />
+    <div className="min-h-screen flex flex-row-reverse">
+      {/* Right side (RTL) — Dark branded panel */}
+      <div className="hidden lg:flex lg:w-[50%] relative overflow-hidden items-center justify-center p-12">
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] to-[#1e293b]" />
 
-        <div className="relative z-10 w-full max-w-sm">
-          <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#2e90fa]/20">
-              <Bot className="h-7 w-7 text-white" />
+        {/* Animated gradient orbs */}
+        <div className="absolute top-[15%] right-[20%] w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[20%] left-[10%] w-[300px] h-[300px] bg-indigo-500/15 rounded-full blur-[100px] animate-pulse [animation-delay:2s]" />
+        <div className="absolute top-[50%] left-[40%] w-[250px] h-[250px] bg-purple-500/10 rounded-full blur-[80px] animate-pulse [animation-delay:4s]" />
+
+        <div className="relative z-10 max-w-md w-full">
+          {/* Brand logo */}
+          <div className="mb-12">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/25">
+              <Bot className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">התחברות</h1>
-            <p className="text-gray-400 text-sm mt-1">הזן אימייל וסיסמה</p>
+            <h2 className="text-white text-2xl font-bold mt-4">BotPress AI</h2>
+            <p className="text-white/50 text-sm mt-1">הבוט החכם לעסק שלך</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">אימייל</Label>
-              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="h-11 rounded-xl border-gray-200 focus:border-[#2e90fa]" />
+          {/* Glass card testimonial */}
+          <div className="backdrop-blur-xl bg-white/[0.07] border border-white/[0.1] rounded-2xl p-6 shadow-2xl">
+            <div className="flex gap-0.5 mb-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              ))}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">סיסמה</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required dir="ltr" className="h-11 rounded-xl border-gray-200 focus:border-[#2e90fa]" />
+            <blockquote className="text-white/90 text-base leading-relaxed mb-5">
+              &ldquo;הבוט חסך לנו שעות ביום. 80% מהשאלות נענות אוטומטית ושביעות הרצון עלתה משמעותית.&rdquo;
+            </blockquote>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-lg shadow-lg">
+                🍕
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">יוסי לוי</p>
+                <p className="text-white/40 text-xs">בעלים, מסעדת הגג — תל אביב</p>
+              </div>
             </div>
-            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-            <Button type="submit" className="w-full bg-[#2e90fa] border-0 shadow-lg shadow-[#2e90fa]/30 rounded-xl py-3 hover:shadow-xl transition-all" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'התחבר'}
-            </Button>
-          </form>
-          <p className="text-center text-sm text-gray-400 mt-6">
-            אין לך חשבון?{' '}
-            <Link href="/signup" className="text-[#2e90fa] font-medium hover:underline">הירשם</Link>
-          </p>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="backdrop-blur-xl bg-white/[0.05] border border-white/[0.08] rounded-xl p-4 text-center">
+              <Users className="h-5 w-5 text-blue-400 mx-auto mb-2" />
+              <div className="text-white text-xl font-bold">500+</div>
+              <div className="text-white/40 text-xs mt-0.5">עסקים</div>
+            </div>
+            <div className="backdrop-blur-xl bg-white/[0.05] border border-white/[0.08] rounded-xl p-4 text-center">
+              <TrendingUp className="h-5 w-5 text-indigo-400 mx-auto mb-2" />
+              <div className="text-white text-xl font-bold">4.9</div>
+              <div className="text-white/40 text-xs mt-0.5">דירוג</div>
+            </div>
+            <div className="backdrop-blur-xl bg-white/[0.05] border border-white/[0.08] rounded-xl p-4 text-center">
+              <MessageSquare className="h-5 w-5 text-purple-400 mx-auto mb-2" />
+              <div className="text-white text-xl font-bold">50K+</div>
+              <div className="text-white/40 text-xs mt-0.5">הודעות</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Right side — Testimonials (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] items-center justify-center p-12 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-20 right-20 w-64 h-64 border border-white/20 rounded-full" />
-          <div className="absolute bottom-20 left-10 w-48 h-48 border border-white/20 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 border border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
-        </div>
-
-        <div className="relative z-10 max-w-md text-white">
-          <div className="flex gap-0.5 mb-6">
-            {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
-          </div>
-          <blockquote className="text-xl font-medium leading-relaxed mb-6">
-            &ldquo;הבוט חסך לנו שעות ביום. 80% מהשאלות נענות אוטומטית ושביעות הרצון עלתה משמעותית.&rdquo;
-          </blockquote>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg">🍕</div>
-            <div>
-              <p className="font-semibold">יוסי לוי</p>
-              <p className="text-sm text-white/60">בעלים, מסעדת הגג — תל אביב</p>
+      {/* Left side (RTL) — White form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+        <div className="w-full max-w-sm">
+          {/* Logo icon */}
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/20">
+              <Bot className="h-7 w-7 text-white" />
             </div>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">התחברות</h1>
+            <p className="text-gray-400 text-sm mt-1.5">הזן אימייל וסיסמה כדי להיכנס</p>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-white/10">
-            <div className="grid grid-cols-3 gap-6 text-center">
-              <div><div className="text-2xl font-bold">500+</div><div className="text-xs text-white/50">עסקים</div></div>
-              <div><div className="text-2xl font-bold">4.9</div><div className="text-xs text-white/50">דירוג</div></div>
-              <div><div className="text-2xl font-bold">50K+</div><div className="text-xs text-white/50">הודעות</div></div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                אימייל
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                dir="ltr"
+                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+              />
             </div>
-          </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                סיסמה
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                dir="ltr"
+                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                <p className="text-sm text-red-600 text-center">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 rounded-xl bg-gradient-to-l from-blue-500 to-indigo-600 text-white font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : 'התחבר'}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-gray-400 mt-8">
+            אין לך חשבון?{' '}
+            <Link
+              href="/signup"
+              className="text-blue-500 font-medium hover:text-blue-600 transition-colors"
+            >
+              הירשם
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -1,19 +1,21 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from '@/i18n/provider'
 import { useBusiness } from '@/hooks/use-business'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   MessageSquare, TrendingUp, TrendingDown, UserX, Star,
   ArrowUp, ArrowDown, Plus, Loader2, BarChart3, RefreshCw,
-  AlertTriangle, CheckCircle2, ExternalLink, Clock
+  AlertTriangle, CheckCircle2, ExternalLink, Clock, Bell, BellRing,
+  Hash, Send, Mail, Smartphone, Globe
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useEscalationContext } from '@/components/providers/escalation-provider'
 import type { Conversation, Message, Escalation } from '@/types/database'
 
 type Period = 'today' | 'week' | 'month'
@@ -74,7 +76,10 @@ function getDateRange(period: Period): { start: Date; prevStart: Date; prevEnd: 
 }
 
 export default function AnalyticsPage() {
+  const { t, lang } = useTranslation()
+  const locale = lang === 'he' ? 'he-IL' : lang === 'ar' ? 'ar-SA' : 'en-US'
   const { business, loading: bizLoading } = useBusiness()
+  const { newConversationSignal, newMessageSignal, pendingCount, notificationsEnabled, enableNotifications } = useEscalationContext()
   const [period, setPeriod] = useState<Period>('week')
   const [stats, setStats] = useState<PeriodStats>(EMPTY_STATS)
   const [sentiment, setSentiment] = useState<SentimentDist>({ positive: 0, neutral: 0, negative: 0, angry: 0 })
@@ -101,12 +106,11 @@ export default function AnalyticsPage() {
 
       if (error) {
         console.error('Analytics RPC error:', error)
-        if (!silent) toast.error('שגיאה בטעינת הנתונים')
+        if (!silent) toast.error(t.common.error_loading)
         if (!silent) setDataLoading(false)
         return
       }
 
-      // data is already a JSON object with everything we need
       const analytics = data as any
 
       setStats({
@@ -116,7 +120,7 @@ export default function AnalyticsPage() {
         prevMessages: analytics.prev_messages || 0,
         escalations: analytics.escalations || 0,
         prevEscalations: analytics.prev_escalations || 0,
-        satisfaction: 0, // TODO: calculate from ratings
+        satisfaction: 0,
         prevSatisfaction: 0,
       })
 
@@ -128,7 +132,7 @@ export default function AnalyticsPage() {
       setLastRefresh(new Date())
     } catch (err) {
       console.error('Analytics load error:', err)
-      toast.error('שגיאה בטעינת הנתונים — נסה שוב')
+      toast.error(t.common.error_loading)
     }
     setDataLoading(false)
   }, [business, period])
@@ -137,14 +141,22 @@ export default function AnalyticsPage() {
     loadData()
   }, [loadData])
 
-  // Auto-refresh every 15 seconds (silent — no loading spinner)
+  // Auto-refresh every 30 seconds as fallback (silent — no loading spinner)
   useEffect(() => {
     if (!business) return
     const interval = setInterval(() => {
       loadData(true)
-    }, 15000)
+    }, 30000)
     return () => clearInterval(interval)
   }, [business, period, loadData])
+
+  // REALTIME: Instant refresh when new conversation or message arrives via Supabase Realtime
+  useEffect(() => {
+    if (!business) return
+    if (newConversationSignal > 0 || newMessageSignal > 0) {
+      loadData(true)
+    }
+  }, [newConversationSignal, newMessageSignal, business, loadData])
 
   function pctChange(current: number, prev: number): { value: number; up: boolean } {
     if (prev === 0) return { value: 0, up: true }
@@ -153,30 +165,38 @@ export default function AnalyticsPage() {
   }
 
   async function addToFAQ(question: string) {
-    toast.success(`"${question}" נוסף ל-FAQ`)
+    toast.success(t.analytics.added_to_faq)
   }
 
   async function resolveEscalation(escalationId: string) {
     const supabase = createClient()
     const { error } = await supabase.rpc('resolve_escalation', { p_escalation_id: escalationId })
     if (error) {
-      toast.error('שגיאה בעדכון')
+      toast.error(t.common.error_loading)
       return
     }
-    toast.success('השיחה סומנה כטופלה')
+    toast.success(t.analytics.marked_resolved)
     setOpenEscalations(prev => prev.filter(e => e.id !== escalationId))
   }
 
   if (bizLoading || (dataLoading && !lastRefresh)) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-[#3b82f6]" />
+      </div>
+    )
   }
 
   if (!business) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
-        <BarChart3 className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+        <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+          <BarChart3 className="h-7 w-7 text-[#3b82f6]" />
+        </div>
+        <p className="text-gray-900 font-semibold text-lg">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1">
+          <a href="/onboarding" className="text-[#3b82f6] hover:underline">{t.common.go_to_setup}</a>
+        </p>
       </div>
     )
   }
@@ -186,236 +206,313 @@ export default function AnalyticsPage() {
   const escChange = pctChange(stats.escalations, stats.prevEscalations)
   const satChange = pctChange(stats.satisfaction, stats.prevSatisfaction)
 
+  const kpis = [
+    {
+      label: t.analytics.kpi_conversations,
+      value: stats.conversations,
+      change: convChange,
+      icon: MessageSquare,
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-[#3b82f6]',
+    },
+    {
+      label: t.analytics.kpi_messages,
+      value: stats.messages,
+      change: msgChange,
+      icon: Send,
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-[#10b981]',
+    },
+    {
+      label: t.analytics.kpi_escalations,
+      value: stats.escalations,
+      change: escChange,
+      icon: UserX,
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-[#f59e0b]',
+      invertColor: true,
+    },
+    {
+      label: t.analytics.kpi_satisfaction,
+      value: stats.satisfaction.toFixed(1),
+      change: satChange,
+      icon: Star,
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-500',
+    },
+  ]
+
+  const sentimentBars = [
+    { label: t.analytics.sentiment_positive, value: sentiment.positive, color: 'bg-[#10b981]' },
+    { label: t.analytics.sentiment_neutral, value: sentiment.neutral, color: 'bg-gray-300' },
+    { label: t.analytics.sentiment_negative, value: sentiment.negative, color: 'bg-[#f59e0b]' },
+    { label: t.analytics.sentiment_angry, value: sentiment.angry, color: 'bg-[#ef4444]' },
+  ]
+
+  const channelBars = [
+    { label: t.analytics.channel_widget, value: channels.widget, color: 'bg-[#3b82f6]' },
+    { label: t.analytics.channel_whatsapp, value: channels.whatsapp, color: 'bg-[#10b981]' },
+    { label: t.analytics.channel_email, value: channels.email, color: 'bg-purple-500' },
+  ]
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
-            <BarChart3 className="h-6 w-6" />
-            אנליטיקס
-          </h1>
-          <div className="flex items-center gap-2 text-gray-500 text-sm mt-1">
-            <span>נתונים ותובנות על פעילות הבוט</span>
+    <div className="space-y-6">
+      {/* ───── Header Row ───── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.analytics.title}</h1>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-gray-400">
+            <span className="hidden md:inline">{t.analytics.subtitle}</span>
             {lastRefresh && (
-              <span className="text-gray-400 text-xs">· עודכן {lastRefresh.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+              <span className="text-gray-400 text-xs">
+                {t.analytics.updated_at} {lastRefresh.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
             )}
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#10b981] bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 bg-[#10b981] rounded-full animate-pulse" />
+              {t.analytics.realtime}
+            </span>
           </div>
         </div>
+
         <div className="flex items-center gap-3">
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+            <TabsList className="bg-white border border-gray-200/60 shadow-sm">
+              <TabsTrigger value="today">{t.analytics.today}</TabsTrigger>
+              <TabsTrigger value="week">{t.analytics.week}</TabsTrigger>
+              <TabsTrigger value="month">{t.analytics.month}</TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Button
             variant="outline"
             size="sm"
             onClick={() => loadData()}
             disabled={dataLoading}
-            className="gap-1.5"
+            className="gap-1.5 border-gray-200/60 shadow-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${dataLoading ? 'animate-spin' : ''}`} />
-            רענון
+            {t.analytics.refresh}
           </Button>
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <TabsList>
-              <TabsTrigger value="today">היום</TabsTrigger>
-              <TabsTrigger value="week">שבוע</TabsTrigger>
-              <TabsTrigger value="month">חודש</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
       </div>
 
-      {/* Open Escalations Alert */}
+      {/* ───── Escalation Alert ───── */}
       {openEscalations.length > 0 && (
-        <Card className="bg-orange-50 border-orange-200 rounded-2xl shadow-md mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2 text-orange-800">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              {openEscalations.length} שיחות ממתינות למענה אנושי
-            </CardTitle>
-            <CardDescription className="text-orange-600">שיחות שהבוט העביר לנציג וטרם טופלו</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm overflow-hidden">
+          <div className="border-r-4 border-[#ef4444] p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-[#ef4444]" />
+                </div>
+                <span className="absolute -top-0.5 -left-0.5 w-3 h-3 bg-[#ef4444] rounded-full animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {openEscalations.length} {t.analytics.pending_human}
+                </h3>
+                <p className="text-sm text-gray-400">{t.analytics.bot_escalated}</p>
+              </div>
+            </div>
+
             <div className="space-y-3">
               {openEscalations.map(esc => (
-                <div key={esc.id} className="flex items-center justify-between gap-3 bg-white rounded-xl p-3 border border-orange-100">
+                <div key={esc.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/80 rounded-xl p-4 border border-gray-100">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{esc.conversation?.customer_identifier || 'לקוח'}</p>
-                      <p className="text-xs text-gray-500 truncate">{esc.reason}</p>
-                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {esc.conversation?.customer_identifier || t.analytics.customer}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">{esc.reason}</p>
+                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(esc.created_at).toLocaleDateString('he-IL')} {new Date(esc.created_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(esc.created_at).toLocaleDateString(locale)}{' '}
+                        {new Date(esc.created_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Link href={`/dashboard/conversations/${esc.conversation_id}`}>
-                      <Button variant="outline" size="sm" className="gap-1 text-xs">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-xl border-gray-200/60">
                         <ExternalLink className="h-3 w-3" />
-                        לשיחה
+                        {t.analytics.go_to_conversation}
                       </Button>
                     </Link>
                     <Button
-                      variant="default"
                       size="sm"
-                      className="gap-1 text-xs bg-green-600 hover:bg-green-700"
+                      className="gap-1.5 text-xs bg-[#10b981] hover:bg-emerald-600 text-white rounded-xl"
                       onClick={() => resolveEscalation(esc.id)}
                     >
                       <CheckCircle2 className="h-3 w-3" />
-                      סמן כטופל
+                      {t.analytics.mark_resolved}
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'שיחות', value: stats.conversations, change: convChange, icon: MessageSquare, color: 'text-blue-500' },
-          { label: 'הודעות', value: stats.messages, change: msgChange, icon: TrendingUp, color: 'text-green-500' },
-          { label: 'העברות לנציג', value: stats.escalations, change: escChange, icon: UserX, color: 'text-orange-500', invertColor: true },
-          { label: 'שביעות רצון', value: stats.satisfaction.toFixed(1), change: satChange, icon: Star, color: 'text-yellow-500' },
-        ].map((kpi, i) => (
-          <Card key={i} className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-500">{kpi.label}</span>
-                <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+      {/* ───── KPI Grid ───── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {kpis.map((kpi, i) => (
+          <div
+            key={i}
+            className="bg-white border border-gray-200/60 rounded-xl shadow-sm p-6"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-10 h-10 rounded-xl ${kpi.iconBg} flex items-center justify-center`}>
+                <kpi.icon className={`h-5 w-5 ${kpi.iconColor}`} />
               </div>
-              <div className="text-2xl font-bold mb-1">{kpi.value}</div>
-              <div className="flex items-center gap-1 text-xs">
-                {kpi.change.up ? (
-                  <ArrowUp className={`h-3 w-3 ${kpi.invertColor ? 'text-red-500' : 'text-green-500'}`} />
-                ) : (
-                  <ArrowDown className={`h-3 w-3 ${kpi.invertColor ? 'text-green-500' : 'text-red-500'}`} />
-                )}
-                <span className={kpi.change.up ? (kpi.invertColor ? 'text-red-500' : 'text-green-500') : (kpi.invertColor ? 'text-green-500' : 'text-red-500')}>
+            </div>
+            <p className="text-sm text-gray-500 mb-1">{kpi.label}</p>
+            <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{kpi.value}</p>
+            <div className="flex items-center gap-1.5 text-xs">
+              {kpi.change.up ? (
+                <span className={`inline-flex items-center gap-0.5 font-medium px-1.5 py-0.5 rounded-md ${kpi.invertColor ? 'bg-red-50 text-[#ef4444]' : 'bg-emerald-50 text-[#10b981]'}`}>
+                  <ArrowUp className="h-3 w-3" />
                   {kpi.change.value}%
                 </span>
-                <span className="text-gray-400">מהתקופה הקודמת</span>
-              </div>
-            </CardContent>
-          </Card>
+              ) : (
+                <span className={`inline-flex items-center gap-0.5 font-medium px-1.5 py-0.5 rounded-md ${kpi.invertColor ? 'bg-emerald-50 text-[#10b981]' : 'bg-red-50 text-[#ef4444]'}`}>
+                  <ArrowDown className="h-3 w-3" />
+                  {kpi.change.value}%
+                </span>
+              )}
+              <span className="text-gray-400">{t.analytics.from_previous}</span>
+            </div>
+          </div>
         ))}
       </div>
 
+      {/* ───── Top Questions + Recent Conversations ───── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Questions */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">שאלות נפוצות ביותר</CardTitle>
-            <CardDescription>מה הלקוחות שואלים הכי הרבה</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.analytics.top_questions}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.top_questions_sub}</p>
+          </div>
+          <div className="p-6">
             {topQuestions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center text-gray-400">
-                <BarChart3 className="h-8 w-8 text-blue-200 mb-2" />
-                <p className="text-sm">עדיין אין נתונים</p>
-                <p className="text-xs">שאלות נפוצות יופיעו כאן כשהבוט יתחיל לעבוד</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+                  <BarChart3 className="h-6 w-6 text-[#3b82f6]/40" />
+                </div>
+                <p className="text-sm text-gray-500 font-medium">{t.common.no_data}</p>
+                <p className="text-xs text-gray-400 mt-1">{t.analytics.questions_appear}</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {topQuestions.map((q, i) => (
-                  <div key={i} className="flex items-center justify-between gap-2">
-                    <p className="text-sm truncate flex-1">{q.question}</p>
-                    <Badge variant="secondary" className="text-xs shrink-0">{q.count} פעמים</Badge>
+              <div className="space-y-1">
+                {topQuestions.slice(0, 5).map((q, i) => (
+                  <div key={i} className="flex items-center gap-2.5 py-1.5">
+                    <span className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-[11px] font-semibold text-gray-400 shrink-0">
+                      {i + 1}
+                    </span>
+                    <p className="text-sm text-gray-700 truncate flex-1">{q.question}</p>
+                    <span className="text-[11px] text-gray-400 shrink-0">{q.count}x</span>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Recent Conversations */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">שיחות אחרונות</CardTitle>
-            <CardDescription>השיחות האחרונות עם לקוחות</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.analytics.recent_conversations}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.recent_conversations_sub}</p>
+          </div>
+          <div className="p-6">
             {recentConversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center text-gray-400">
-                <MessageSquare className="h-8 w-8 text-blue-200 mb-2" />
-                <p className="text-sm">עדיין אין שיחות</p>
-                <p className="text-xs">שיחות יופיעו כאן כשלקוחות ידברו עם הבוט</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+                  <MessageSquare className="h-6 w-6 text-[#3b82f6]/40" />
+                </div>
+                <p className="text-sm text-gray-500 font-medium">{t.analytics.no_conversations}</p>
+                <p className="text-xs text-gray-400 mt-1">{t.analytics.conversations_appear}</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {recentConversations.map(conv => (
-                  <div key={conv.id} className="flex items-center justify-between gap-2">
+              <div className="space-y-0.5">
+                {recentConversations.slice(0, 5).map(conv => (
+                  <Link key={conv.id} href={`/dashboard/conversations/${conv.id}`} className="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-2 min-w-0">
-                      <MessageSquare className="h-4 w-4 text-gray-400 shrink-0" />
+                      <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                      </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{conv.customer_identifier}</p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(conv.started_at).toLocaleDateString('he-IL')} · {conv.messages?.length || 0} הודעות
+                        <p className="text-sm text-gray-800 truncate">{conv.customer_identifier}</p>
+                        <p className="text-[11px] text-gray-400">
+                          {new Date(conv.started_at).toLocaleDateString(locale)} · {conv.messages?.length || 0} {t.analytics.kpi_messages}
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-xs shrink-0">{conv.channel}</Badge>
-                  </div>
+                    <span className="text-[11px] text-gray-400 shrink-0">
+                      {conv.channel === 'email' ? t.analytics.channel_email : conv.channel === 'whatsapp' ? t.analytics.channel_whatsapp : t.common.channel_widget}
+                    </span>
+                  </Link>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
 
-        {/* Sentiment */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">ניתוח רגש</CardTitle>
-            <CardDescription>איך הלקוחות מרגישים בשיחות</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { label: 'חיובי', value: sentiment.positive, color: 'bg-green-400' },
-                { label: 'ניטרלי', value: sentiment.neutral, color: 'bg-gray-300' },
-                { label: 'שלילי', value: sentiment.negative, color: 'bg-orange-400' },
-                { label: 'כועס', value: sentiment.angry, color: 'bg-red-400' },
-              ].map((s, i) => (
+      {/* ───── Sentiment + Channels ───── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sentiment Analysis */}
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.analytics.sentiment_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.sentiment_sub}</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-5">
+              {sentimentBars.map((s, i) => (
                 <div key={i}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span>{s.label}</span>
-                    <span className="text-gray-500">{s.value}%</span>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-gray-900 font-medium">{s.label}</span>
+                    <span className="text-gray-500 font-medium">{s.value}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className={`${s.color} h-2 rounded-full transition-all`} style={{ width: `${s.value}%` }} />
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div
+                      className={`${s.color} h-2.5 rounded-full transition-all duration-500`}
+                      style={{ width: `${s.value}%` }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Channels */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">חלוקה לפי ערוצים</CardTitle>
-            <CardDescription>מאיפה מגיעות השיחות</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { label: 'וידג׳ט באתר', value: channels.widget, color: 'bg-blue-400' },
-                { label: 'וואטסאפ', value: channels.whatsapp, color: 'bg-green-500' },
-                { label: 'אימייל', value: channels.email, color: 'bg-purple-400' },
-              ].map((c, i) => (
+        {/* Channel Distribution */}
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.analytics.channels_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.channels_sub}</p>
+          </div>
+          <div className="p-6">
+            <div className="space-y-5">
+              {channelBars.map((c, i) => (
                 <div key={i}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span>{c.label}</span>
-                    <span className="text-gray-500">{c.value}%</span>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-gray-900 font-medium">{c.label}</span>
+                    <span className="text-gray-500 font-medium">{c.value}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className={`${c.color} h-2 rounded-full transition-all`} style={{ width: `${c.value}%` }} />
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div
+                      className={`${c.color} h-2.5 rounded-full transition-all duration-500`}
+                      style={{ width: `${c.value}%` }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

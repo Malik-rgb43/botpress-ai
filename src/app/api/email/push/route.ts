@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
-import type { AIContext } from '@/services/ai-engine'
+import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
+import { getOrBuildPrompt } from '@/services/prompt-builder'
 
 // Gmail Push Notification handler — called by Google Pub/Sub when new email arrives
 export async function POST(request: NextRequest) {
@@ -132,15 +132,16 @@ export async function POST(request: NextRequest) {
       const sentiment = detectSentiment(emailBody)
       const language = detectLanguage(emailBody)
 
-      const context: AIContext = {
+      const botLanguage = (business.contact_info as Record<string, unknown>)?.bot_language as string || 'auto'
+      const systemPrompt = getOrBuildPrompt({
         business,
         faqs: faqRes.data || [],
         policies: polRes.data || [],
-        templates,
-        conversationHistory: [],
-        customerLanguage: language,
-      }
-      const systemPrompt = buildSystemPrompt(context)
+        message: emailBody,
+        intent,
+        botLanguage,
+        isFirstMessage: true,
+      })
 
       const geminiKey = process.env.GEMINI_API_KEY
       if (!geminiKey) continue
@@ -151,9 +152,9 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת אימייל מלקוח. ענה בצורה מתאימה. אם אתה לא יכול לענות, התחל עם ESCALATE.' }] },
+            system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת אימייל. ענה מפורט קצת יותר. אם אין מידע, התחל עם ESCALATE.' }] },
             contents: [{ role: 'user', parts: [{ text: `נושא: ${subject}\n\n${emailBody}` }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 600 },
+            generationConfig: { temperature: 0.3, maxOutputTokens: 500, topP: 0.8, topK: 30 },
           }),
         }
       )

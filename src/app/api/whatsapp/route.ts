@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
-import type { AIContext } from '@/services/ai-engine'
+import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
+import { getOrBuildPrompt } from '@/services/prompt-builder'
+import { sanitizeMessage } from '@/lib/sanitize'
 
-const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'botpress-whatsapp-verify'
+const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN
+if (!VERIFY_TOKEN) {
+  console.warn('WHATSAPP_VERIFY_TOKEN not set — WhatsApp webhook will reject all verification requests')
+}
 
 // WhatsApp Webhook Verification (GET)
 export async function GET(request: NextRequest) {
@@ -11,9 +15,15 @@ export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('hub.verify_token')
   const challenge = request.nextUrl.searchParams.get('hub.challenge')
 
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('WhatsApp webhook verified')
-    return new NextResponse(challenge, { status: 200 })
+  if (mode === 'subscribe' && VERIFY_TOKEN && token) {
+    // Constant-time comparison to prevent timing attacks
+    const crypto = await import('crypto')
+    const tokenBuf = Buffer.from(token)
+    const expectedBuf = Buffer.from(VERIFY_TOKEN)
+    if (tokenBuf.length === expectedBuf.length && crypto.timingSafeEqual(tokenBuf, expectedBuf)) {
+      console.log('WhatsApp webhook verified')
+      return new NextResponse(challenge, { status: 200 })
+    }
   }
 
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -36,11 +46,17 @@ export async function POST(request: NextRequest) {
 
     const message = value.messages[0]
     const from = message.from // Customer phone number
-    const msgBody = message.text?.body // Message text
+    const rawBody = message.text?.body // Message text
     const phoneNumberId = value.metadata?.phone_number_id
 
-    if (!msgBody || !from) {
+    if (!rawBody || !from) {
       return NextResponse.json({ status: 'no text' })
+    }
+
+    // Sanitize message input
+    const msgBody = sanitizeMessage(rawBody, 3000)
+    if (!msgBody) {
+      return NextResponse.json({ status: 'empty message' })
     }
 
     console.log(`WhatsApp message from ${from}: ${msgBody.substring(0, 50)}`)
@@ -57,16 +73,10 @@ export async function POST(request: NextRequest) {
     })
 
     if (!business) {
-      // Fallback: use the first business if only one exists
-      if (allBiz && allBiz.length === 1) {
-        var biz = allBiz[0]
-      } else {
-        console.log('No business found for WhatsApp phone:', phoneNumberId)
-        return NextResponse.json({ status: 'no business' })
-      }
-    } else {
-      var biz = business
+      console.log('No business found for WhatsApp phone:', phoneNumberId)
+      return NextResponse.json({ status: 'no business' })
     }
+    const biz = business
 
     // Load business data
     const [faqRes, polRes, tmpRes] = await Promise.all([
@@ -76,6 +86,22 @@ export async function POST(request: NextRequest) {
     ])
     const templates: Record<string, string> = {}
     tmpRes.data?.forEach((t: { type: string; content: string }) => { templates[t.type] = t.content })
+
+    // Check if this customer already has an escalated conversation
+    const { data: existingEsc } = await supabase
+      .from('conversations')
+      .select('id, escalations!inner(id, status)')
+      .eq('business_id', biz.id)
+      .eq('customer', from)
+      .eq('channel', 'whatsapp')
+      .in('escalations.status', ['open', 'in_progress'])
+      .limit(1)
+
+    if (existingEsc && existingEsc.length > 0) {
+      // Don't let AI respond — agent is handling this conversation
+      await sendWhatsAppMessage(phoneNumberId, from, templates.transfer || 'השיחה שלך מטופלת על ידי נציג. הנציג יחזור אליך בהקדם.')
+      return NextResponse.json({ status: 'escalated_existing' })
+    }
 
     // Detect intent/sentiment
     const intent = detectIntent(msgBody)
@@ -88,16 +114,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'escalated' })
     }
 
-    // Build AI context
-    const context: AIContext = {
+    // Build optimized prompt (cached per business+intent)
+    const botLanguage = (biz.contact_info as Record<string, unknown>)?.bot_language as string || 'auto'
+    const systemPrompt = getOrBuildPrompt({
       business: biz,
       faqs: faqRes.data || [],
       policies: polRes.data || [],
-      templates,
-      conversationHistory: [],
-      customerLanguage: language,
-    }
-    const systemPrompt = buildSystemPrompt(context)
+      message: msgBody,
+      intent,
+      botLanguage,
+      isFirstMessage: true,
+    })
 
     // Call Gemini
     const geminiKey = process.env.GEMINI_API_KEY
@@ -112,9 +139,9 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת וואטסאפ מלקוח. ענה בקצרה וממוקד.' }] },
+          system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת וואטסאפ. ענה בקצרה. אם אין מידע, התחל עם ESCALATE.' }] },
           contents: [{ role: 'user', parts: [{ text: msgBody }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 300 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: 250, topP: 0.8, topK: 30 },
         }),
       }
     )

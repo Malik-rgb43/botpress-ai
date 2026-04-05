@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildEmailHtml } from '@/services/email-template'
+import { sanitizeText, sanitizeEmail, isValidEmail } from '@/lib/sanitize'
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, message, channel } = await request.json()
+    const body = await request.json()
+    const to = sanitizeEmail(body.to)
+    const message = sanitizeText(body.message, 5000)
+    const channel = typeof body.channel === 'string' ? body.channel : ''
 
     if (!to || !message || !channel) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    }
+
+    if (!['email', 'whatsapp', 'widget'].includes(channel)) {
+      return NextResponse.json({ error: 'Invalid channel' }, { status: 400 })
+    }
+
+    if (channel === 'email' && !isValidEmail(to)) {
+      return NextResponse.json({ error: 'כתובת אימייל לא תקינה' }, { status: 400 })
     }
 
     const supabase = await createClient()
@@ -88,7 +100,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true })
       } else {
         const err = await sendRes.text()
-        return NextResponse.json({ success: false, error: 'Gmail error: ' + err.substring(0, 100) })
+        console.error('Gmail send error:', err.substring(0, 200))
+        return NextResponse.json({ success: false, error: 'שגיאה בשליחת האימייל' })
       }
 
     } else if (channel === 'whatsapp') {
@@ -115,7 +128,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true })
       } else {
         const err = await res.text()
-        return NextResponse.json({ success: false, error: 'WhatsApp error: ' + err.substring(0, 100) })
+        console.error('WhatsApp send error:', err.substring(0, 200))
+        return NextResponse.json({ success: false, error: 'שגיאה בשליחת ההודעה בוואטסאפ' })
       }
 
     } else {

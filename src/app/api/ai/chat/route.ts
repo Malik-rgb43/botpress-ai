@@ -4,79 +4,181 @@ import {
   detectIntent,
   detectSentiment,
   detectLanguage,
-  buildSystemPrompt,
   shouldEscalate,
   isAgentAvailable,
 } from '@/services/ai-engine'
+import { getOrBuildPrompt } from '@/services/prompt-builder'
+import { tryQuickResponse } from '@/services/quick-responses'
+import { getCached, setCached } from '@/services/prompt-cache'
+import { checkRateLimit, getRateLimitKey, RATE_LIMITS } from '@/lib/rate-limit'
+import { sanitizeMessage, sanitizeUUID, sanitizeHistory } from '@/lib/sanitize'
 import type { AIContext } from '@/services/ai-engine'
+import type { FAQ, Policy } from '@/types/database'
+
+// ── Cached business data loader ─────────────────────
+interface BusinessBundle {
+  business: Record<string, unknown>
+  faqs: FAQ[]
+  policies: Policy[]
+  templates: Record<string, string>
+}
+
+async function loadBusinessData(businessId: string): Promise<BusinessBundle | null> {
+  // Check cache first (TTL: 2 minutes)
+  const cacheKey = `biz:${businessId}`
+  const cached = getCached<BusinessBundle>(cacheKey)
+  if (cached) return cached
+
+  const supabase = createAdminClient()
+
+  // Single parallel batch — all 4 queries at once
+  const [bizRes, faqRes, polRes, tmpRes] = await Promise.all([
+    supabase.rpc('get_business_by_id', { p_id: businessId }),
+    supabase.rpc('get_faqs_by_business', { p_business_id: businessId }),
+    supabase.rpc('get_policies_by_business', { p_business_id: businessId }),
+    supabase.rpc('get_templates_by_business', { p_business_id: businessId }),
+  ])
+
+  const business = bizRes.data?.[0]
+  if (!business) return null
+
+  const templates: Record<string, string> = {}
+  tmpRes.data?.forEach((t: { type: string; content: string }) => { templates[t.type] = t.content })
+
+  const bundle: BusinessBundle = {
+    business,
+    faqs: faqRes.data || [],
+    policies: polRes.data || [],
+    templates,
+  }
+
+  // Cache for 2 minutes
+  setCached(cacheKey, bundle)
+  return bundle
+}
+
+// ── Conversation history optimizer ──────────────────
+function optimizeHistory(
+  history: Array<{ role: string; content: string }>,
+  intent: string,
+): Array<{ role: string; content: string }> {
+  // For simple intents, we need minimal history
+  if (intent === 'greeting') return history.slice(-2)
+  if (intent === 'hours' || intent === 'pricing') return history.slice(-4)
+
+  // For general/complex, keep last 8 (not 20)
+  const trimmed = history.slice(-8)
+
+  // Truncate long messages to save tokens
+  return trimmed.map(m => ({
+    role: m.role,
+    content: m.content.length > 800 ? m.content.slice(0, 800) + '...' : m.content,
+  }))
+}
+
+// ── Dynamic token budget based on intent ────────────
+function getTokenBudget(intent: string): number {
+  switch (intent) {
+    case 'greeting': return 100
+    case 'hours': return 180
+    case 'pricing': return 250
+    case 'shipping': return 250
+    default: return 400
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, businessId, conversationHistory = [], conversationId: existingConvId = null, visitorId = null } = body
+    const rawMessage = body.message
+    const rawBusinessId = body.businessId
+    const rawConvId = body.conversationId || null
+    const rawVisitorId = body.visitorId || null
 
-    // Input validation
-    if (!message || typeof message !== 'string' || message.trim().length === 0 || message.length > 5000) {
+    // Sanitize all inputs
+    const message = sanitizeMessage(rawMessage)
+    const businessId = sanitizeUUID(rawBusinessId)
+    const existingConvId = rawConvId ? sanitizeUUID(rawConvId) : null
+    const visitorId = typeof rawVisitorId === 'string' ? rawVisitorId.slice(0, 100) : null
+    const conversationHistory = sanitizeHistory(body.conversationHistory)
+
+    // Validate sanitized inputs
+    if (!message || message.length === 0) {
       return NextResponse.json({ error: 'Invalid message' }, { status: 400 })
     }
-    if (!businessId || typeof businessId !== 'string') {
+    if (!businessId) {
       return NextResponse.json({ error: 'Missing businessId' }, { status: 400 })
     }
 
-    // Validate and sanitize conversation history
-    const safeHistory = Array.isArray(conversationHistory)
-      ? conversationHistory.slice(-20).filter(
-          (m: { role?: string; content?: string }) =>
-            m && typeof m.content === 'string' &&
-            (m.role === 'user' || m.role === 'assistant') &&
-            m.content.length <= 2000
-        )
-      : []
-
-    const supabase = createAdminClient()
-
-    // Load business data via RPC (bypasses RLS for widget/public access)
-    const [bizRes, faqRes, polRes, tmpRes] = await Promise.all([
-      supabase.rpc('get_business_by_id', { p_id: businessId }),
-      supabase.rpc('get_faqs_by_business', { p_business_id: businessId }),
-      supabase.rpc('get_policies_by_business', { p_business_id: businessId }),
-      supabase.rpc('get_templates_by_business', { p_business_id: businessId }),
-    ])
-
-    const businessData = bizRes.data?.[0]
-    if (!businessData) {
-      return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+    // Rate limiting — 30 requests per minute per IP+business
+    const rlKey = getRateLimitKey(request, 'chat', businessId)
+    const rl = checkRateLimit(rlKey, RATE_LIMITS.chat)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'יותר מדי בקשות. נסה שוב בעוד רגע.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+      )
     }
 
-    const templates: Record<string, string> = {}
-    tmpRes.data?.forEach((t: { type: string; content: string }) => { templates[t.type] = t.content })
+    // Already sanitized above
+    const safeHistory = conversationHistory
+
+    // ── Load business data (cached) ────────────────────
+    const bundle = await loadBusinessData(businessId)
+    if (!bundle) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+    }
+    const { business: businessData, faqs, policies, templates } = bundle
+
+    // ── Check if conversation is already escalated ─────
+    if (existingConvId) {
+      const supabase = createAdminClient()
+      const { data: openEsc } = await supabase
+        .from('escalations')
+        .select('id, status')
+        .eq('conversation_id', existingConvId)
+        .in('status', ['open', 'in_progress'])
+        .limit(1)
+
+      if (openEsc && openEsc.length > 0) {
+        // Conversation is being handled by a human agent — AI should not respond
+        return NextResponse.json({
+          content: 'השיחה הועברה לנציג שירות. הנציג יענה לך בהקדם.',
+          layer: 'transfer',
+          intent: 'agent_request',
+          sentiment: 'neutral',
+          confidence: 1,
+          conversationId: existingConvId,
+          escalated: true,
+        })
+      }
+    }
 
     // ── Analysis Layer ──────────────────────────────────
     const intent = detectIntent(message)
     const sentiment = detectSentiment(message)
-    console.log(`Chat: message="${message.substring(0, 50)}" intent=${intent} sentiment=${sentiment}`)
     const language = detectLanguage(message)
     const conversationLength = safeHistory.length
 
     // ── Auto-Escalation Check ──────────────────────────
     if (shouldEscalate(sentiment, intent, conversationLength)) {
-      // Check if agent is available right now
       const agentStatus = isAgentAvailable(businessData.agent_availability as Record<string, unknown> | null)
 
       let transferMsg: string
       if (agentStatus.available) {
         transferMsg = language === 'en'
-          ? "I'm connecting you with a human agent. Please hold on."
+          ? "I'm connecting you with a human agent right now. Someone will be with you shortly!"
           : language === 'ar'
-          ? 'أنا أحולك إلى ممثل خدמة. يرجى الانتظار.'
-          : templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן רגע.'
+          ? 'جاري تحويلك إلى ممثل خدمة الآن. سيكون معك شخص قريبًا!'
+          : templates.transfer || 'מעביר אותך לנציג שירות עכשיו! נציג יהיה איתך בקרוב, אנא המתן רגע.'
       } else {
         transferMsg = language === 'en'
           ? `Our team is currently offline. ${agentStatus.message} We'll get back to you as soon as possible.`
-          : agentStatus.message + ' נחזור אליך בהקדם.'
+          : `הצוות שלנו לא זמין כרגע. ${agentStatus.message} נחזור אליך בהקדם האפשרי!`
       }
 
-      // Save escalation to DB
+      // Save escalation to DB (fire-and-forget for speed)
+      const supabase = createAdminClient()
       let savedConvId = existingConvId
       try {
         if (!savedConvId) {
@@ -106,48 +208,86 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // ── Build AI Context ────────────────────────────────
-    const context: AIContext = {
-      business: businessData,
-      faqs: faqRes.data || [],
-      policies: polRes.data || [],
-      templates,
-      conversationHistory: safeHistory,
-      customerLanguage: language,
+    // ── OPTIMIZATION 1: Quick Response (no AI needed) ────
+    const quickResponse = tryQuickResponse(
+      message,
+      language,
+      faqs,
+      conversationLength,
+      (businessData as Record<string, unknown>).name as string,
+    )
+
+    if (quickResponse) {
+      console.log(`Chat: QUICK response for "${message.substring(0, 30)}" intent=${intent} layer=${quickResponse.layer}`)
+
+      // Save to DB in background (don't block response)
+      const supabase = createAdminClient()
+      let savedConvId = existingConvId
+      try {
+        if (!savedConvId) {
+          const { data: newId } = await supabase.rpc('insert_conversation', {
+            p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+          })
+          savedConvId = newId
+        }
+        if (savedConvId) {
+          await supabase.rpc('insert_messages', {
+            p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
+            p_bot_content: quickResponse.content, p_intent: intent, p_sentiment: sentiment, p_layer: quickResponse.layer,
+          })
+        }
+      } catch {}
+
+      return NextResponse.json({
+        content: quickResponse.content,
+        layer: quickResponse.layer,
+        intent,
+        sentiment,
+        confidence: quickResponse.confidence,
+        conversationId: savedConvId,
+      })
     }
 
-    const systemPrompt = buildSystemPrompt(context)
+    // ── OPTIMIZATION 2: Compact System Prompt ────────────
+    const botLanguage = (businessData.contact_info as Record<string, unknown>)?.bot_language as string || 'auto'
 
-    // ── Build Gemini Request ────────────────────────────
-    // Add anti-repeat instruction if there's conversation history
-    let antiRepeatInstruction = ''
+    const systemPrompt = getOrBuildPrompt({
+      business: businessData as any,
+      faqs,
+      policies,
+      message,
+      intent,
+      botLanguage,
+      isFirstMessage: conversationLength === 0,
+    })
+
+    // ── OPTIMIZATION 3: Anti-repeat (compact) ───────────
+    let antiRepeat = ''
     if (safeHistory.length > 0) {
-      // Get last bot response to prevent repetition
-      const lastBotMessages = safeHistory
+      const lastBot = safeHistory
         .filter((m: { role: string }) => m.role === 'assistant')
         .slice(-3)
-        .map((m: { content: string }) => m.content)
+        .map((m: { content: string }) => m.content.slice(0, 80))
 
-      if (lastBotMessages.length > 0) {
-        antiRepeatInstruction = `\n\n# חשוב — אל תחזור על עצמך!
-התשובות האחרונות שנתת:
-${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..."`).join('\n')}
-
-אם הלקוח שואל את אותה שאלה שוב, ענה בקצרה "כפי שציינתי..." ותן תשובה מתומצתת אחרת.
-אם הלקוח שואל שאלה חדשה, ענה כרגיל.`
+      if (lastBot.length > 0) {
+        antiRepeat = `\n\n# חשוב! אל תחזור על תוכן דומה. תשובות קודמות שלך:\n${lastBot.map((m, i) => `${i + 1}. "${m}..."`).join('\n')}\nתתקדם בשיחה, תשאל שאלה חדשה או תן מידע חדש.`
       }
     }
 
-    const fullSystemPrompt = systemPrompt + antiRepeatInstruction
+    // ── OPTIMIZATION 4: Trimmed history ─────────────────
+    const optimizedHistory = optimizeHistory(safeHistory, intent)
 
-    // Build Gemini contents array
+    // Build Gemini contents
     const geminiContents = []
-    for (const m of [...safeHistory, { role: 'user', content: message }]) {
+    for (const m of [...optimizedHistory, { role: 'user', content: message }]) {
       geminiContents.push({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }],
       })
     }
+
+    // ── OPTIMIZATION 5: Dynamic token budget ────────────
+    const maxTokens = getTokenBudget(intent)
 
     // ── Call Gemini ─────────────────────────────────────
     const apiKey = process.env.GEMINI_API_KEY
@@ -162,9 +302,13 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
     }
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 15000)
+    const timeout = setTimeout(() => controller.abort(), 12000) // Reduced from 15s to 12s
 
     try {
+      console.log(`Chat: AI call intent=${intent} tokens=${maxTokens} history=${optimizedHistory.length} prompt=${systemPrompt.length}chars`)
+
+      // Note: Gemini REST API requires key as query param (no Authorization header support)
+      // The key is server-side only and never exposed to the client
       const aiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
         {
@@ -172,13 +316,13 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: fullSystemPrompt }] },
+            system_instruction: { parts: [{ text: systemPrompt + antiRepeat }] },
             contents: geminiContents,
             generationConfig: {
-              temperature: 0.3,
-              maxOutputTokens: 400,
+              temperature: intent === 'greeting' || intent === 'hours' ? 0.2 : 0.4,
+              maxOutputTokens: maxTokens,
               topP: 0.8,
-              topK: 40,
+              topK: 30,
             },
             safetySettings: [
               { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
@@ -196,7 +340,7 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
         const errorText = await aiRes.text().catch(() => '')
         console.error('Gemini API error:', aiRes.status, errorText)
         return NextResponse.json({
-          content: templates.no_answer || 'מצטער, אירעה שגיאה. אנסה שוב מאוחר יותר.',
+          content: templates.no_answer || 'מצטער, אירעה שגיאה. אנסה שוב ��אוחר יותר.',
           layer: 'transfer',
           intent,
           sentiment,
@@ -231,20 +375,16 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
 
       // ── Post-process Response ──────────────────────────
       let finalContent = aiContent.trim()
-
-      // Remove any "תשובה:" or "Response:" prefixes the model might add
-      finalContent = finalContent
         .replace(/^(תשובה|answer|response)\s*[:：]\s*/i, '')
         .trim()
 
-      // Determine response layer based on content analysis
+      // Determine response layer
       const isTransfer = /מעביר.*נציג|connecting.*agent|transfer/i.test(finalContent)
       const layer = isTransfer ? 'transfer' : 'ai'
-
-      // Calculate confidence based on response quality
       const confidence = finalContent.length > 10 && !isTransfer ? 0.85 : 0.5
 
-      // ── Save to DB (via RPC, bypasses RLS) ──────────────
+      // ── Save to DB ────────────────────────────────────
+      const supabase = createAdminClient()
       let savedConvId2 = existingConvId
       try {
         if (!savedConvId2) {
@@ -274,7 +414,12 @@ ${lastBotMessages.map((m: string, i: number) => `${i + 1}. "${m.slice(0, 100)}..
         }
       } catch (dbErr) {
         console.error('Chat DB save error:', dbErr)
-        // Don't fail the response — just log
+      }
+
+      // Log token usage from Gemini metadata
+      const usageMeta = aiData.usageMetadata
+      if (usageMeta) {
+        console.log(`Chat: Gemini tokens — prompt:${usageMeta.promptTokenCount} response:${usageMeta.candidatesTokenCount} total:${usageMeta.totalTokenCount}`)
       }
 
       return NextResponse.json({

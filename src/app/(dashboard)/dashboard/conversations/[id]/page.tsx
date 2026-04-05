@@ -1,28 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { ArrowRight, Send, Loader2, Bot, User, UserCheck, Mail, MessageSquare, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useTranslation } from '@/i18n/provider'
 import type { Message, Conversation, Escalation } from '@/types/database'
 
-const LAYER_COLORS: Record<string, string> = {
-  faq: 'bg-blue-50 text-blue-700',
-  ai: 'bg-purple-50 text-purple-700',
-  transfer: 'bg-orange-50 text-orange-700',
+function ChannelBadge({ channel, t }: { channel: string; t: any }) {
+  const config: Record<string, { bg: string; text: string; label: string }> = {
+    email: { bg: 'bg-blue-100', text: 'text-blue-700', label: t.common.channel_email },
+    whatsapp: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t.common.channel_whatsapp },
+    widget: { bg: 'bg-purple-100', text: 'text-purple-700', label: t.common.channel_widget },
+  }
+  const c = config[channel] || { bg: 'bg-gray-100', text: 'text-gray-600', label: channel }
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${c.bg} ${c.text}`}>
+      {c.label}
+    </span>
+  )
 }
 
 export default function ConversationDetailPage() {
   const params = useParams()
   const { business } = useBusiness()
+  const { t, lang } = useTranslation()
+  const locale = lang === 'he' ? 'he-IL' : lang === 'ar' ? 'ar-SA' : 'en-US'
+
+  const LAYER_LABELS: Record<string, { label: string; color: string }> = {
+    faq: { label: t.chat.layer_faq, color: 'bg-blue-100 text-blue-700' },
+    ai: { label: t.chat.layer_ai, color: 'bg-purple-100 text-purple-700' },
+    transfer: { label: t.chat.layer_transfer, color: 'bg-orange-100 text-orange-700' },
+  }
   const [messages, setMessages] = useState<Message[]>([])
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
@@ -30,10 +45,15 @@ export default function ConversationDetailPage() {
   const [resolvingEscalation, setResolvingEscalation] = useState(false)
   const [agentInput, setAgentInput] = useState('')
   const [sending, setSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadData()
   }, [params.id])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   async function loadData() {
     const supabase = createClient()
@@ -59,9 +79,9 @@ export default function ConversationDetailPage() {
     const supabase = createClient()
     const { error } = await supabase.rpc('resolve_escalation', { p_escalation_id: escalation.id })
     if (error) {
-      toast.error('שגיאה בעדכון')
+      toast.error(t.common.error_updating)
     } else {
-      toast.success('השיחה סומנה כטופלה')
+      toast.success(t.chat.marked_resolved)
       setEscalation(prev => prev ? { ...prev, status: 'resolved', resolved_at: new Date().toISOString() } : null)
     }
     setResolvingEscalation(false)
@@ -72,7 +92,6 @@ export default function ConversationDetailPage() {
     setSending(true)
 
     try {
-      // 1. Save message to DB via RPC (bypasses RLS)
       const supabase = createClient()
       const { error } = await supabase.rpc('insert_agent_message', {
         p_conversation_id: params.id as string,
@@ -80,17 +99,15 @@ export default function ConversationDetailPage() {
       })
 
       if (error) {
-        toast.error('שגיאה בשמירה')
+        toast.error(t.chat.error_saving)
         setSending(false)
         return
       }
 
-      // 2. Send to customer via the right channel
       const customerEmail = conversation.customer_identifier
       const channel = conversation.channel
 
       if (channel === 'email' && customerEmail.includes('@')) {
-        // Send via Gmail API
         const res = await fetch('/api/agent/reply', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -107,7 +124,6 @@ export default function ConversationDetailPage() {
           toast.warning('נשמר אבל לא נשלח — ' + (data.error || 'שגיאה'))
         }
       } else if (channel === 'whatsapp') {
-        // Send via WhatsApp API
         const res = await fetch('/api/agent/reply', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -124,71 +140,99 @@ export default function ConversationDetailPage() {
           toast.warning('נשמר אבל לא נשלח — ' + (data.error || 'שגיאה'))
         }
       } else {
-        toast.success('ההודעה נשמרה')
+        toast.success(t.chat.message_saved)
       }
 
       setAgentInput('')
       loadData()
     } catch {
-      toast.error('שגיאה בשליחה')
+      toast.error(t.chat.error_sending)
     }
     setSending(false)
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+      </div>
+    )
   }
 
-  const channelLabel = conversation?.channel === 'email' ? 'אימייל' : conversation?.channel === 'whatsapp' ? 'וואטסאפ' : 'וידג׳ט'
-  const channelIcon = conversation?.channel === 'email' ? Mail : MessageSquare
+  const channelSendLabel = t.chat.will_save
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/conversations">
-            <Button variant="ghost" size="sm"><ArrowRight className="h-4 w-4" /></Button>
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold">{conversation?.customer_identifier}</h1>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Badge variant="outline" className="text-xs gap-1">
-                {channelLabel}
-              </Badge>
-              {conversation?.started_at && (
-                <span>{new Date(conversation.started_at).toLocaleDateString('he-IL')} {new Date(conversation.started_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
-              )}
-            </div>
+    <div className="max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/dashboard/conversations">
+          <button className="h-9 w-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+            <ArrowRight className="h-4 w-4 text-gray-600" />
+          </button>
+        </Link>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-lg font-bold text-gray-900 truncate">
+              {conversation?.customer_identifier}
+            </h1>
+            {conversation?.channel && <ChannelBadge channel={conversation.channel} t={t} />}
           </div>
+          {conversation?.started_at && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              {new Date(conversation.started_at).toLocaleDateString(locale, {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}{' '}
+              {new Date(conversation.started_at).toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Escalation status */}
+      {/* Escalation status bar */}
       {escalation && (
-        <div className={`flex items-center justify-between rounded-xl px-4 py-3 mb-4 border ${
-          escalation.status === 'resolved'
-            ? 'bg-green-50 border-green-200'
-            : 'bg-orange-50 border-orange-200'
-        }`}>
-          <div className="flex items-center gap-2">
+        <div
+          className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl px-4 py-3 mb-4 border ${
+            escalation.status === 'resolved'
+              ? 'bg-emerald-50 border-emerald-200'
+              : 'bg-orange-50 border-orange-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
             {escalation.status === 'resolved' ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              </div>
             ) : (
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
+              <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+              </div>
             )}
             <div>
-              <span className={`text-sm font-medium ${escalation.status === 'resolved' ? 'text-green-800' : 'text-orange-800'}`}>
-                {escalation.status === 'resolved' ? 'טופל' : escalation.status === 'in_progress' ? 'בטיפול' : 'ממתין למענה אנושי'}
+              <span
+                className={`text-sm font-medium ${
+                  escalation.status === 'resolved' ? 'text-emerald-800' : 'text-orange-800'
+                }`}
+              >
+                {escalation.status === 'resolved'
+                  ? t.chat.status_resolved
+                  : escalation.status === 'in_progress'
+                  ? t.chat.status_in_progress
+                  : t.chat.status_awaiting}
               </span>
               {escalation.reason && (
-                <p className="text-xs text-gray-500 mt-0.5">סיבה: {escalation.reason}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t.chat.reason} {escalation.reason}</p>
               )}
             </div>
           </div>
           {escalation.status !== 'resolved' && (
             <Button
               size="sm"
-              className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
+              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm"
               onClick={handleResolveEscalation}
               disabled={resolvingEscalation}
             >
@@ -197,69 +241,104 @@ export default function ConversationDetailPage() {
               ) : (
                 <CheckCircle2 className="h-3.5 w-3.5" />
               )}
-              סמן כטופל
+              {t.chat.mark_resolved}
             </Button>
           )}
         </div>
       )}
 
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-        <CardContent className="p-0">
-          <ScrollArea className="h-[500px] p-6">
-            <div className="space-y-4">
-              {messages.map(msg => (
-                <div key={msg.id} className={`flex ${msg.role === 'customer' ? 'justify-start' : 'justify-end'}`}>
-                  <div className="max-w-[80%]">
-                    <div className={`flex items-center gap-2 mb-1 ${msg.role === 'customer' ? '' : 'justify-end'}`}>
-                      {msg.role === 'customer' && <><User className="h-3 w-3 text-gray-400" /><span className="text-xs text-gray-400">לקוח</span></>}
-                      {msg.role === 'bot' && <><span className="text-xs text-gray-400">בוט</span><Bot className="h-3 w-3 text-gray-400" /></>}
-                      {msg.role === 'agent' && <><span className="text-xs text-green-600 font-medium">נציג (אתה)</span><UserCheck className="h-3 w-3 text-green-500" /></>}
-                    </div>
-                    <div className={`rounded-xl px-4 py-2.5 text-sm ${
-                      msg.role === 'customer' ? 'bg-[#2e90fa] text-white' :
-                      msg.role === 'agent' ? 'bg-green-50 text-green-900 border border-green-200' :
-                      'bg-gray-100 text-gray-900'
-                    }`}>
-                      {msg.content}
-                    </div>
-                    {msg.response_layer && (
-                      <div className="flex justify-end mt-1">
-                        <Badge className={`text-[10px] h-5 ${LAYER_COLORS[msg.response_layer] || ''}`}>
-                          {msg.response_layer === 'faq' ? 'שאלות נפוצות' : msg.response_layer === 'ai' ? 'AI' : 'העברה לנציג'}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+      {/* Chat area */}
+      <div className="bg-white rounded-xl border border-gray-200/60 overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 280px)', minHeight: '400px', maxHeight: '560px' }}>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+          {messages.map(msg => {
+            const isCustomer = msg.role === 'customer'
+            const isAgent = msg.role === 'agent'
+            const isBot = msg.role === 'bot'
 
-          {/* Agent reply */}
-          <div className="border-t border-gray-100 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <UserCheck className="h-3.5 w-3.5 text-green-500" />
-              <span className="text-xs text-gray-500">
-                {conversation?.channel === 'email' ? `ענה כנציג — ישלח אימייל ל-${conversation.customer_identifier}` :
-                 conversation?.channel === 'whatsapp' ? `ענה כנציג — ישלח וואטסאפ ל-${conversation?.customer_identifier}` :
-                 'ענה כנציג'}
-              </span>
-            </div>
-            <form onSubmit={(e) => { e.preventDefault(); sendAgentMessage() }} className="flex gap-2">
-              <Input
-                placeholder="כתוב תשובה..."
-                value={agentInput}
-                onChange={(e) => setAgentInput(e.target.value)}
-                disabled={sending}
-                className="flex-1"
-              />
-              <Button type="submit" disabled={sending || !agentInput.trim()} className="bg-[#2e90fa] border-0 rounded-xl">
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              </Button>
-            </form>
+            return (
+              <div key={msg.id} className={`flex flex-col ${isCustomer ? 'items-end' : 'items-start'}`}>
+                {/* Role label */}
+                <div className={`flex items-center gap-1.5 mb-1.5 ${isCustomer ? 'flex-row-reverse' : ''}`}>
+                  {isCustomer && (
+                    <>
+                      <User className="h-3 w-3 text-gray-400" />
+                      <span className="text-[11px] text-gray-400 font-medium">{t.chat.role_customer}</span>
+                    </>
+                  )}
+                  {isBot && (
+                    <>
+                      <Bot className="h-3 w-3 text-gray-400" />
+                      <span className="text-[11px] text-gray-400 font-medium">{t.chat.role_bot}</span>
+                    </>
+                  )}
+                  {isAgent && (
+                    <>
+                      <UserCheck className="h-3 w-3 text-emerald-500" />
+                      <span className="text-[11px] text-emerald-600 font-medium">{t.chat.role_agent}</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Bubble */}
+                <div
+                  className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    isCustomer
+                      ? 'bg-blue-500 text-white rounded-tr-md'
+                      : isAgent
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-tl-md'
+                      : 'bg-gray-100 text-gray-900 rounded-tl-md'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+
+                {/* Response layer badge */}
+                {msg.response_layer && LAYER_LABELS[msg.response_layer] && (
+                  <div className={`mt-1.5 ${isCustomer ? 'self-end' : 'self-start'}`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${LAYER_LABELS[msg.response_layer].color}`}
+                    >
+                      {LAYER_LABELS[msg.response_layer].label}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Agent reply form */}
+        <div className="border-t border-gray-100 p-4 bg-gray-50/50">
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="text-[11px] text-gray-400">{channelSendLabel}</span>
           </div>
-        </CardContent>
-      </Card>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              sendAgentMessage()
+            }}
+            className="flex gap-2"
+          >
+            <Input
+              placeholder={t.chat.input_placeholder}
+              value={agentInput}
+              onChange={(e) => setAgentInput(e.target.value)}
+              disabled={sending}
+              className="flex-1 bg-white border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            />
+            <Button
+              type="submit"
+              disabled={sending || !agentInput.trim()}
+              className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg px-4 shadow-sm"
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </form>
+        </div>
+      </div>
     </div>
   )
 }

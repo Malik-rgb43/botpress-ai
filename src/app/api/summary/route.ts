@@ -5,8 +5,8 @@ import { buildEmailHtml } from '@/services/email-template'
 export async function POST(request: NextRequest) {
   // Verify auth
   const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET || 'botpress-poll-secret-2026'
-  if (authHeader !== `Bearer ${cronSecret}`) {
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

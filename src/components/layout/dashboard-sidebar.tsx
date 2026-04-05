@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import {
-  LayoutDashboard,
   HelpCircle,
   FileText,
   MessageSquare,
@@ -14,60 +13,115 @@ import {
   BarChart3,
   Code,
   CreditCard,
-  Bot,
   LogOut,
   Users,
   Sparkles,
+  AlertTriangle,
+  Bell,
+  BellOff,
+  X,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBusiness } from '@/hooks/use-business'
+import { useEscalationContext } from '@/components/providers/escalation-provider'
+import { useTranslation } from '@/i18n/provider'
 import { Button } from '@/components/ui/button'
-
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'אנליטיקס', icon: BarChart3 },
-  { href: '/dashboard/faq', label: 'שאלות נפוצות', icon: HelpCircle },
-  { href: '/dashboard/policies', label: 'מדיניות', icon: FileText },
-  { href: '/dashboard/templates', label: 'טון ותבניות', icon: MessageSquare },
-  { href: '/dashboard/playground', label: 'נסה את הבוט', icon: TestTube },
-  { href: '/dashboard/conversations', label: 'שיחות', icon: Users },
-  { href: '/dashboard/widget', label: 'וידג׳ט צ׳אט', icon: Code },
-  { href: '/dashboard/plan', label: 'תוכנית', icon: CreditCard },
-  { href: '/dashboard/settings', label: 'הגדרות', icon: Settings },
-]
+import { toast } from 'sonner'
 
 export default function DashboardSidebar() {
   const pathname = usePathname()
   const { signOut } = useAuth()
   const { business, loading: bizLoading } = useBusiness()
+  const { pendingCount, notificationsEnabled, enableNotifications } = useEscalationContext()
+  const { t } = useTranslation()
+
+  const NAV_ITEMS = [
+    { href: '/dashboard', label: t.nav.analytics, icon: BarChart3 },
+    { href: '/dashboard/faq', label: t.nav.faq, icon: HelpCircle },
+    { href: '/dashboard/policies', label: t.nav.policies, icon: FileText },
+    { href: '/dashboard/templates', label: t.nav.templates, icon: MessageSquare },
+    { href: '/dashboard/playground', label: t.nav.playground, icon: TestTube },
+    { href: '/dashboard/conversations', label: t.nav.conversations, icon: Users },
+    { href: '/dashboard/widget', label: t.nav.widget, icon: Code },
+    { href: '/dashboard/plan', label: t.nav.plan, icon: CreditCard },
+    { href: '/dashboard/settings', label: t.nav.settings, icon: Settings },
+  ]
+
+  const userInitial = business?.name?.charAt(0)?.toUpperCase() || 'B'
 
   return (
-    <aside className="w-72 bg-white/95 backdrop-blur-sm border-l border-blue-100/60 flex flex-col h-screen sticky top-0">
+    <aside className="w-[260px] bg-white border-l border-gray-200/80 flex flex-col h-screen sticky top-0 max-md:w-full max-md:h-full max-md:border-l-0">
       {/* Logo */}
-      <div className="p-4 border-b border-blue-100/60">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
-          <span className="text-xl font-bold">BotPress AI</span>
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Image src="/images/logo.png" alt="BotPress AI" width={30} height={30} className="rounded-lg" />
+          <span className="text-[17px] font-bold text-gray-900 tracking-tight">BotPress AI</span>
         </Link>
+        <button
+          onClick={() => {
+            // Close the Sheet by clicking the overlay or dispatching Escape
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+          }}
+          className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          aria-label={t.nav.close_menu}
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
+      {/* Pending escalations alert */}
+      {pendingCount > 0 && (
+        <div className="px-3 pt-3">
+          <Link href="/dashboard/conversations?status=needs_agent">
+            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-200/60 hover:border-red-300 transition-all cursor-pointer">
+              <div className="relative shrink-0">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <span className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-red-700">
+                  {pendingCount} {pendingCount === 1 ? t.nav.pending_one : t.nav.pending_many}
+                </p>
+                <p className="text-[11px] text-red-500/80">{t.nav.click_to_view}</p>
+              </div>
+              <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse shrink-0" />
+            </div>
+          </Link>
+        </div>
+      )}
+
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map(item => {
-          const isActive = pathname === item.href ||
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            pathname === item.href ||
             (item.href !== '/dashboard' && pathname.startsWith(item.href))
+
+          const showBadge = item.href === '/dashboard/conversations' && pendingCount > 0
+
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg text-[15px] transition-colors',
+                'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] transition-all duration-150 relative',
                 isActive
                   ? 'bg-blue-50 text-blue-600 font-medium'
-                  : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
+                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
               )}
             >
-              <item.icon className="h-5 w-5 shrink-0" />
-              <span>{item.label}</span>
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-blue-500 rounded-r-full" />
+              )}
+              <item.icon className="h-[18px] w-[18px] shrink-0" />
+              <span className="flex-1">{item.label}</span>
+              {showBadge && (
+                <span className="w-5 h-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
             </Link>
           )
         })}
@@ -75,27 +129,54 @@ export default function DashboardSidebar() {
 
       {/* Setup CTA */}
       {!bizLoading && !business && (
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-2">
           <Link href="/onboarding">
-            <Button className="w-full bg-[#2e90fa] border-0 text-white shadow-md shadow-[#2e90fa]/25 rounded-xl text-sm">
-              <Sparkles className="h-4 w-4 ml-1" />
-              הגדר את העסק שלך
+            <Button className="w-full bg-blue-500 hover:bg-blue-600 border-0 text-white shadow-sm rounded-xl text-sm h-10">
+              <Sparkles className="h-4 w-4 ml-1.5" />
+              {t.nav.setup_business}
             </Button>
           </Link>
         </div>
       )}
 
-      {/* Footer */}
-      <div className="p-3 border-t border-blue-100/60">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={signOut}
-          className="w-full justify-start text-gray-500 hover:text-blue-600"
-        >
-          <LogOut className="h-4 w-4 ml-2" />
-          התנתק
-        </Button>
+      {/* User section */}
+      <div className="px-3 py-3 border-t border-gray-100 space-y-2">
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+            {userInitial}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-medium text-gray-800 truncate">
+              {business?.name || t.nav.my_business}
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              if (notificationsEnabled) {
+                toast.info(t.nav.notifications_on)
+              } else {
+                const ok = await enableNotifications()
+                if (ok) toast.success(t.nav.notifications_enabled)
+                else toast.error(t.nav.notifications_blocked)
+              }
+            }}
+            className={`p-1.5 rounded-lg transition-colors ${
+              notificationsEnabled
+                ? 'text-blue-500 bg-blue-50'
+                : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+            }`}
+            title={notificationsEnabled ? t.nav.notifications_on_title : t.nav.enable_notifications}
+          >
+            {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={signOut}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            title={t.nav.sign_out}
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </aside>
   )

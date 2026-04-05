@@ -3,40 +3,41 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useBusiness } from '@/hooks/use-business'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { useTranslation } from '@/i18n/provider'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Loader2, Check, CreditCard, Zap } from 'lucide-react'
-
-const PLANS = [
-  {
-    tier: 'free',
-    name: 'ניסיון',
-    price: 1,
-    limit: 100,
-    trial: true,
-    features: ['7 ימי ניסיון מלא', '100 הודעות', 'כל הערוצים', 'FAQ + AI מלא'],
-  },
-  {
-    tier: 'basic',
-    name: 'בסיסי',
-    price: 99,
-    limit: 1000,
-    features: ['1,000 הודעות/חודש', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים'],
-    popular: true,
-  },
-  {
-    tier: 'premium',
-    name: 'פרימיום',
-    price: 299,
-    limit: -1,
-    features: ['הודעות ללא הגבלה', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים', 'White Label', 'תמיכה מועדפת'],
-  },
-]
+import { Loader2, Check, Zap } from 'lucide-react'
 
 export default function PlanPage() {
   const { business, loading: bizLoading } = useBusiness()
+  const { t } = useTranslation()
+
+  const PLANS = [
+    {
+      tier: 'free',
+      name: t.plan.tier_trial,
+      price: 1,
+      limit: 100,
+      trial: true,
+      features: ['7 ימי ניסיון מלא', '100 הודעות', 'כל הערוצים', 'FAQ + AI מלא'],
+    },
+    {
+      tier: 'basic',
+      name: t.plan.tier_basic,
+      price: 99,
+      limit: 1000,
+      features: ['1,000 הודעות/חודש', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים'],
+      popular: true,
+    },
+    {
+      tier: 'premium',
+      name: t.plan.tier_premium,
+      price: 299,
+      limit: -1,
+      features: ['הודעות ללא הגבלה', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים', 'White Label', 'תמיכה מועדפת'],
+    },
+  ]
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [statsLoading, setStatsLoading] = useState(true)
 
@@ -69,58 +70,57 @@ export default function PlanPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
-          <CreditCard className="h-6 w-6" />
-          תוכנית ושימוש
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+          {t.plan.title}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">התוכנית שלך ומעקב שימוש</p>
+        <p className="text-gray-400 text-sm mt-1">{t.plan.subtitle}</p>
       </div>
 
       {/* Usage Card */}
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg">שימוש נוכחי</CardTitle>
-          <CardDescription>תוכנית {PLANS.find(p => p.tier === currentPlan)?.name}</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm mb-8">
+        <div className="p-6 pb-4 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-gray-900">{t.plan.current_usage}</h2>
+          <p className="text-sm text-gray-400 mt-0.5">{t.plan.plan_label} {PLANS.find(p => p.tier === currentPlan)?.name}</p>
+        </div>
+        <div className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-500">{messagesUsed} / {messageLimit} הודעות</span>
+            <span className="text-sm text-gray-500">{messagesUsed} / {messageLimit} {t.common.messages}</span>
             <span className="text-sm font-medium">{Math.round(usagePercent)}%</span>
           </div>
           <Progress value={usagePercent} className="h-2" />
           {usagePercent >= 80 && (
             <p className="text-sm text-orange-500 mt-2 flex items-center gap-1">
               <Zap className="h-4 w-4" />
-              אתה מתקרב למגבלה! שדרג כדי להמשיך ללא הפסקה
+              {t.plan.approaching_limit}
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {PLANS.map((plan) => (
-          <Card
+          <div
             key={plan.tier}
-            className={`shadow-none relative overflow-visible ${
-              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border border-[rgba(0,0,0,0.04)]'
+            className={`bg-white rounded-xl relative overflow-visible ${
+              plan.popular ? 'border-blue-500 border-2 shadow-lg shadow-blue-500/10' : 'border border-gray-200/60 shadow-none'
             }`}
           >
             {plan.popular && (
               <div className="absolute -top-4 right-4 z-10">
-                <Badge className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">🔥 הכי פופולרי</Badge>
+                <Badge className="bg-gradient-to-br from-[#2e90fa] to-[#7c3aed] text-white border-0 shadow-lg shadow-blue-500/30 px-4 py-1">{t.plan.most_popular}</Badge>
               </div>
             )}
-            <CardHeader>
-              <CardTitle className="text-lg">{plan.name}</CardTitle>
+            <div className="p-6 pb-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">{plan.name}</h2>
               <div className="mt-2">
-                <span className="text-4xl font-bold">
+                <span className="text-3xl md:text-4xl font-bold">
                   {plan.trial ? '₪1' : `₪${plan.price}`}
                 </span>
-                {plan.trial ? <span className="text-blue-500 text-sm font-medium">/7 ימי ניסיון</span> : <span className="text-gray-400 text-sm">/חודש</span>}
+                {plan.trial ? <span className="text-blue-500 text-sm font-medium">{t.plan.trial_period}</span> : <span className="text-gray-400 text-sm">{t.plan.per_month}</span>}
               </div>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="p-6">
               <ul className="space-y-2 mb-6">
                 {plan.features.map((f, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm">
@@ -134,10 +134,10 @@ export default function PlanPage() {
                 variant={currentPlan === plan.tier ? 'outline' : plan.popular ? 'default' : 'outline'}
                 disabled={currentPlan === plan.tier}
               >
-                {currentPlan === plan.tier ? 'התוכנית הנוכחית' : plan.trial ? 'התחל ניסיון' : 'שדרג'}
+                {currentPlan === plan.tier ? t.plan.current_plan : plan.trial ? t.plan.start_trial : t.plan.upgrade}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </div>

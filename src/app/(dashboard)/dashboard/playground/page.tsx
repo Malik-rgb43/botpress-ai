@@ -4,11 +4,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useBusiness } from '@/hooks/use-business'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Send, Loader2, TestTube, RotateCcw, Bot, User } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from '@/i18n/provider'
 
 interface ChatMessage {
   role: 'user' | 'bot'
@@ -18,20 +18,21 @@ interface ChatMessage {
   sentiment?: string
 }
 
-const LAYER_LABELS: Record<string, string> = {
-  faq: 'שאלות נפוצות',
-  ai: 'AI',
-  transfer: 'העברה לנציג',
-}
-
-const SENTIMENT_LABELS: Record<string, string> = {
-  positive: 'חיובי',
-  neutral: 'ניטרלי',
-  negative: 'שלילי',
-  angry: 'כועס',
-}
-
 export default function PlaygroundPage() {
+  const { t } = useTranslation()
+
+  const LAYER_LABELS: Record<string, string> = {
+    faq: t.chat.layer_faq,
+    ai: t.chat.layer_ai,
+    transfer: t.chat.layer_transfer,
+  }
+
+  const SENTIMENT_LABELS: Record<string, string> = {
+    positive: t.analytics.sentiment_positive,
+    neutral: t.analytics.sentiment_neutral,
+    negative: t.analytics.sentiment_negative,
+    angry: t.analytics.sentiment_angry,
+  }
   const { business, loading: bizLoading } = useBusiness()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
@@ -71,13 +72,13 @@ export default function PlaygroundPage() {
       const data = await res.json()
       setMessages(prev => [...prev, {
         role: 'bot',
-        content: data.content || 'שגיאה בקבלת תשובה',
+        content: data.content || t.playground.error_response,
         layer: data.layer,
         intent: data.intent,
         sentiment: data.sentiment,
       }])
     } catch {
-      setMessages(prev => [...prev, { role: 'bot', content: 'שגיאה בחיבור לשרת' }])
+      setMessages(prev => [...prev, { role: 'bot', content: t.playground.error_connection }])
     } finally {
       setLoading(false)
     }
@@ -96,11 +97,11 @@ export default function PlaygroundPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <TestTube className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium text-lg">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1 mb-4">כדי לבדוק את הבוט, צריך קודם להגדיר את פרטי העסק, FAQ ומדיניות</p>
+        <p className="text-gray-500 font-medium text-lg">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1 mb-4">{t.playground.setup_desc}</p>
         <Link href="/onboarding">
           <Button className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
-            הגדר את העסק שלך
+            {t.common.go_to_setup}
           </Button>
         </Link>
       </div>
@@ -109,29 +110,28 @@ export default function PlaygroundPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
-            <TestTube className="h-6 w-6" />
-            נסה את הבוט
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            {t.playground.title}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">שלח הודעות וראה איך הבוט עונה — כולל מאיזו שכבה הגיעה התשובה</p>
+          <p className="text-gray-400 text-sm mt-1">{t.playground.subtitle}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={reset} className="border-blue-200 text-blue-600 hover:bg-blue-50">
+        <Button variant="outline" size="sm" onClick={reset} className="border-blue-200 text-blue-600 hover:bg-blue-50 w-fit">
           <RotateCcw className="h-4 w-4 ml-1" />
-          התחל מחדש
+          {t.playground.reset}
         </Button>
       </div>
 
-      <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-        <CardContent className="p-0">
+      <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <div className="p-0">
           {/* Chat Area */}
-          <ScrollArea className="h-[500px] p-6" ref={scrollRef}>
+          <ScrollArea className="h-[350px] md:h-[500px] p-4 md:p-6" ref={scrollRef}>
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center text-blue-400">
                 <Bot className="h-12 w-12 mb-3" />
-                <p className="text-lg">שלח הודעה כדי להתחיל</p>
-                <p className="text-sm">הבוט ישתמש ב-FAQ, מדיניות ו-AI לענות</p>
+                <p className="text-lg">{t.playground.empty_message}</p>
+                <p className="text-sm">{t.playground.empty_desc}</p>
               </div>
             )}
 
@@ -141,9 +141,9 @@ export default function PlaygroundPage() {
                   <div className={`max-w-[80%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
                     <div className={`flex items-center gap-2 mb-1 ${msg.role === 'user' ? '' : 'justify-end'}`}>
                       {msg.role === 'user' ? (
-                        <><User className="h-3 w-3 text-gray-400" /><span className="text-xs text-gray-400">לקוח</span></>
+                        <><User className="h-3 w-3 text-gray-400" /><span className="text-xs text-gray-400">{t.chat.role_customer}</span></>
                       ) : (
-                        <><span className="text-xs text-gray-400">בוט</span><Bot className="h-3 w-3 text-gray-400" /></>
+                        <><span className="text-xs text-gray-400">{t.chat.role_bot}</span><Bot className="h-3 w-3 text-gray-400" /></>
                       )}
                     </div>
                     <div className={`rounded-xl px-4 py-2.5 text-sm ${
@@ -157,17 +157,17 @@ export default function PlaygroundPage() {
                       <div className="flex gap-1 mt-1 justify-end flex-wrap">
                         {msg.layer && (
                           <Badge variant="outline" className="text-[10px] h-5">
-                            שכבה: {LAYER_LABELS[msg.layer] || msg.layer}
+                            {t.playground.layer_label} {LAYER_LABELS[msg.layer] || msg.layer}
                           </Badge>
                         )}
                         {msg.intent && (
                           <Badge variant="outline" className="text-[10px] h-5">
-                            כוונה: {msg.intent}
+                            {t.playground.intent_label} {msg.intent}
                           </Badge>
                         )}
                         {msg.sentiment && (
                           <Badge variant="outline" className="text-[10px] h-5">
-                            רגש: {SENTIMENT_LABELS[msg.sentiment] || msg.sentiment}
+                            {t.playground.sentiment_label} {SENTIMENT_LABELS[msg.sentiment] || msg.sentiment}
                           </Badge>
                         )}
                       </div>
@@ -196,7 +196,7 @@ export default function PlaygroundPage() {
               className="flex gap-2"
             >
               <Input
-                placeholder="כתוב הודעה..."
+                placeholder={t.playground.input_placeholder}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={loading}
@@ -207,8 +207,8 @@ export default function PlaygroundPage() {
               </Button>
             </form>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Plus, Trash2, Pencil, Loader2, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/i18n/provider'
 import type { FAQ } from '@/types/database'
 
 export default function FAQPage() {
+  const { t } = useTranslation()
   const { business, loading: bizLoading } = useBusiness()
   const [faqs, setFaqs] = useState<FAQ[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,8 +65,8 @@ export default function FAQPage() {
         .from('faqs')
         .update({ question, answer, category: category || null })
         .eq('id', editingFaq.id)
-      if (error) { toast.error('שגיאה בעדכון'); return }
-      toast.success('השאלה עודכנה')
+      if (error) { toast.error(t.common.error_loading); return }
+      toast.success(t.faq.updated)
     } else {
       const { error } = await supabase.from('faqs').insert({
         business_id: business!.id,
@@ -74,8 +75,8 @@ export default function FAQPage() {
         category: category || null,
         order: faqs.length,
       })
-      if (error) { toast.error('שגיאה בהוספה'); return }
-      toast.success('השאלה נוספה')
+      if (error) { toast.error(t.common.error_loading); return }
+      toast.success(t.faq.added)
     }
 
     setDialogOpen(false)
@@ -85,7 +86,7 @@ export default function FAQPage() {
   async function deleteFaq(id: string) {
     const supabase = createClient()
     await supabase.from('faqs').delete().eq('id', id)
-    toast.success('השאלה נמחקה')
+    toast.success(t.faq.deleted)
     loadFaqs()
   }
 
@@ -97,60 +98,60 @@ export default function FAQPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <HelpCircle className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">שאלות נפוצות</h1>
-          <p className="text-gray-500 text-sm mt-1">שאלות ותשובות שהבוט משתמש בהן</p>
+          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.faq.title}</h1>
+          <p className="text-gray-400 text-sm mt-1">{t.faq.subtitle}</p>
         </div>
-        <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
+        <Button onClick={openCreate} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit">
           <Plus className="h-4 w-4 ml-1" />
-          הוסף שאלה
+          {t.faq.add_button}
         </Button>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingFaq ? 'ערוך שאלה' : 'שאלה חדשה'}</DialogTitle>
+              <DialogTitle>{editingFaq ? t.faq.dialog_edit : t.faq.dialog_new}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 px-6 pb-6">
               <div className="space-y-2">
-                <Label>קטגוריה</Label>
-                <Input placeholder="למשל: משלוחים" value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl h-11" />
+                <Label>{t.faq.label_category}</Label>
+                <Input placeholder={t.faq.placeholder_category} value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl h-11" />
               </div>
               <div className="space-y-2">
-                <Label>שאלה *</Label>
-                <Input placeholder="מה השאלה?" value={question} onChange={(e) => setQuestion(e.target.value)} className="rounded-xl h-11" />
+                <Label>{t.faq.label_question}</Label>
+                <Input placeholder={t.faq.placeholder_question} value={question} onChange={(e) => setQuestion(e.target.value)} className="rounded-xl h-11" />
               </div>
               <div className="space-y-2">
-                <Label>תשובה *</Label>
-                <Textarea placeholder="התשובה..." value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} className="rounded-xl" />
+                <Label>{t.faq.label_answer}</Label>
+                <Textarea placeholder={t.faq.placeholder_answer} value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} className="rounded-xl" />
               </div>
-              <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl h-11 shadow-md shadow-[#2e90fa]/25 hover:shadow-lg transition-all">{editingFaq ? 'עדכן' : 'הוסף'}</Button>
+              <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl h-11 shadow-md shadow-[#2e90fa]/25 hover:shadow-lg transition-all">{t.common.save}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
       {faqs.length === 0 ? (
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 flex flex-col items-center justify-center py-12 text-center">
             <HelpCircle className="h-10 w-10 text-blue-300 mb-3" />
-            <p className="text-gray-500">עדיין אין שאלות נפוצות</p>
-            <p className="text-gray-400 text-sm">הוסף שאלות כדי שהבוט ידע לענות עליהן</p>
-          </CardContent>
-        </Card>
+            <p className="text-gray-500">{t.faq.empty_title}</p>
+            <p className="text-gray-400 text-sm">{t.faq.empty_subtitle}</p>
+          </div>
+        </div>
       ) : (
         <div className="space-y-3">
           {faqs.map((faq, index) => (
-            <Card key={faq.id} className={`bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all ${index % 2 === 0 ? '' : 'bg-blue-50/30'}`}>
-              <CardContent className="p-6 flex items-start justify-between gap-3">
+            <div key={faq.id} className={`bg-white border border-gray-200/60 rounded-xl shadow-sm ${index % 2 === 0 ? '' : 'bg-blue-50/30'}`}>
+              <div className="p-4 md:p-6 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   {faq.category && (
                     <span className="text-xs bg-blue-100/80 text-blue-700 px-2.5 py-0.5 rounded-full mb-1.5 inline-block font-medium">{faq.category}</span>
@@ -166,8 +167,8 @@ export default function FAQPage() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

@@ -9,9 +9,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/i18n/provider'
+import type { Language } from '@/i18n'
 
 function adjustColorSimple(hex: string, amount: number): string {
   const h = hex.replace('#', '')
@@ -24,6 +25,7 @@ function adjustColorSimple(hex: string, amount: number): string {
 
 export default function SettingsPage() {
   const { business, loading: bizLoading } = useBusiness()
+  const { t, lang, setLanguage } = useTranslation()
   const [saving, setSaving] = useState(false)
   const [name, setName] = useState('')
   const [story, setStory] = useState('')
@@ -48,6 +50,16 @@ export default function SettingsPage() {
     saturday: { active: false, start: '00:00', end: '00:00' },
   })
   const [offlineMessage, setOfflineMessage] = useState('אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות.')
+  const [appLanguage, setAppLanguage] = useState('he')
+  const [botLanguage, setBotLanguage] = useState('he')
+
+  // 24-hour time options for Israeli format
+  const timeOptions = Array.from({ length: 48 }, (_, i) => {
+    const h = Math.floor(i / 2)
+    const m = i % 2 === 0 ? '00' : '30'
+    const value = `${String(h).padStart(2, '0')}:${m}`
+    return { value, label: value }
+  })
 
   useEffect(() => {
     if (!business) return
@@ -67,6 +79,10 @@ export default function SettingsPage() {
       if (avail.schedule) setAgentSchedule(avail.schedule as typeof agentSchedule)
       if (avail.offline_message) setOfflineMessage(avail.offline_message as string)
     }
+    // Load language settings
+    const ci = business.contact_info as Record<string, unknown> | null
+    if (ci?.app_language) setAppLanguage(ci.app_language as string)
+    if (ci?.bot_language) setBotLanguage(ci.bot_language as string)
     loadSummarySettings()
   }, [business])
 
@@ -86,7 +102,7 @@ export default function SettingsPage() {
     await supabase.from('businesses').update({
       name,
       story,
-      contact_info: { ...business?.contact_info, phone, email, address, website, brand_color: brandColor, email_footer: emailFooter },
+      contact_info: { ...business?.contact_info, phone, email, address, website, brand_color: brandColor, email_footer: emailFooter, app_language: appLanguage, bot_language: botLanguage },
       agent_availability: {
         enabled: agentEnabled,
         timezone: 'Asia/Jerusalem',
@@ -99,7 +115,7 @@ export default function SettingsPage() {
       frequency: summaryFreq,
       email: summaryEmail,
     }).eq('business_id', business!.id)
-    toast.success('ההגדרות נשמרו')
+    toast.success(t.settings.saved)
     setSaving(false)
   }
 
@@ -111,79 +127,137 @@ export default function SettingsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <Save className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance">הגדרות</h1>
-          <p className="text-gray-500 text-sm mt-1">נהל את פרטי העסק, ערוצים וסיכומים</p>
+          <h1 className="text-xl md:text-2xl font-bold text-balance">{t.settings.title}</h1>
+          <p className="text-gray-400 text-sm mt-1">{t.settings.subtitle}</p>
         </div>
-        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all">
+        <Button onClick={save} disabled={saving} className="bg-[#2e90fa] border-0 shadow-md shadow-[#2e90fa]/25 rounded-xl hover:shadow-lg transition-all w-fit">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
-          שמור
+          {t.common.save}
         </Button>
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">פרטי העסק</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.business_title}</h2>
+          </div>
+          <div className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label>שם העסק</Label>
+              <Label>{t.settings.business_name}</Label>
               <Input value={name} onChange={e => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>סיפור העסק</Label>
+              <Label>{t.settings.business_story}</Label>
               <Textarea value={story} onChange={e => setStory(e.target.value)} rows={4} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>טלפון</Label>
+                <Label>{t.settings.phone}</Label>
                 <Input value={phone} onChange={e => setPhone(e.target.value)} dir="ltr" />
               </div>
               <div className="space-y-2">
-                <Label>אימייל</Label>
+                <Label>{t.settings.email}</Label>
                 <Input value={email} onChange={e => setEmail(e.target.value)} dir="ltr" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>כתובת</Label>
+              <Label>{t.settings.address}</Label>
               <Input value={address} onChange={e => setAddress(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>אתר</Label>
+              <Label>{t.settings.website}</Label>
               <Input value={website} onChange={e => setWebsite(e.target.value)} dir="ltr" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">סיכומים אוטומטיים</CardTitle>
-            <CardDescription>קבל סיכומים תקופתיים על פעילות הבוט במייל</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Language Settings */}
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.language_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.settings.language_desc}</p>
+          </div>
+          <div className="p-6 space-y-5">
+            <div className="space-y-2">
+              <Label>{t.settings.app_language}</Label>
+              <p className="text-xs text-gray-400">{t.settings.app_language_desc}</p>
+              <div className="flex gap-2">
+                {[
+                  { value: 'he', label: 'עברית', flag: '🇮🇱' },
+                  { value: 'en', label: 'English', flag: '🇺🇸' },
+                  { value: 'ar', label: 'العربية', flag: '🇸🇦' },
+                ].map(appLang => (
+                  <button key={appLang.value} type="button" onClick={() => { setAppLanguage(appLang.value); setLanguage(appLang.value as Language) }}
+                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all flex items-center gap-2 ${
+                      appLanguage === appLang.value
+                        ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                        : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                    }`}
+                  >
+                    <span className="text-lg">{appLang.flag}</span>
+                    {appLang.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t.settings.bot_language}</Label>
+              <p className="text-xs text-gray-400">{t.settings.bot_language_desc}</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 'auto', label: 'אוטומטי', desc: 'לפי שפת הלקוח', flag: '🌐' },
+                  { value: 'he', label: 'עברית', flag: '🇮🇱' },
+                  { value: 'en', label: 'English', flag: '🇺🇸' },
+                  { value: 'ar', label: 'العربية', flag: '🇸🇦' },
+                  { value: 'ru', label: 'Русский', flag: '🇷🇺' },
+                  { value: 'fr', label: 'Français', flag: '🇫🇷' },
+                ].map(botLang => (
+                  <button key={botLang.value} type="button" onClick={() => setBotLanguage(botLang.value)}
+                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all flex items-center gap-2 ${
+                      botLanguage === botLang.value
+                        ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                        : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                    }`}
+                  >
+                    <span className="text-lg">{botLang.flag}</span>
+                    <span>{botLang.label}</span>
+                    {'desc' in botLang && <span className="text-[10px] text-gray-400">({botLang.desc})</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.summaries_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.settings.summaries_desc}</p>
+          </div>
+          <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <Label>הפעל סיכומים</Label>
+              <Label>{t.settings.summaries_enable}</Label>
               <Switch checked={summaryEnabled} onCheckedChange={setSummaryEnabled} />
             </div>
             {summaryEnabled && (
               <>
                 <div className="space-y-2">
-                  <Label>תדירות</Label>
+                  <Label>{t.settings.frequency}</Label>
                   <div className="flex gap-2">
                     {[
-                      { value: 'daily', label: 'יומי' },
-                      { value: 'weekly', label: 'שבועי' },
-                      { value: 'monthly', label: 'חודשי' },
+                      { value: 'daily', label: t.settings.daily },
+                      { value: 'weekly', label: t.settings.weekly },
+                      { value: 'monthly', label: t.settings.monthly },
                     ].map(f => (
                       <button key={f.value} type="button" onClick={() => setSummaryFreq(f.value)}
                         className={`px-4 py-2 rounded-xl text-sm border transition-all ${
@@ -196,72 +270,106 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>אימייל לסיכומים</Label>
+                  <Label>{t.settings.summary_email}</Label>
                   <Input value={summaryEmail} onChange={e => setSummaryEmail(e.target.value)} dir="ltr" />
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50"
+                  onClick={async () => {
+                    if (!summaryEmail) { toast.error('הכנס אימייל קודם'); return }
+                    toast.loading('שולח סיכום לדוגמה...')
+                    try {
+                      const res = await fetch('/api/summary/demo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessId: business!.id, email: summaryEmail }),
+                      })
+                      const data = await res.json()
+                      toast.dismiss()
+                      if (data.success) toast.success(t.settings.demo_sent)
+                      else toast.error(data.error || t.common.error)
+                    } catch { toast.dismiss(); toast.error(t.common.error) }
+                  }}
+                >
+                  📊 {t.settings.send_demo}
+                </Button>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Agent Availability */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">זמינות נציג</CardTitle>
-            <CardDescription>הגדר מתי הנציג זמין. כשלא זמין, הבוט יודיע ללקוח ויבקש לחזור בשעות הפעילות.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.agent_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.settings.agent_desc}</p>
+          </div>
+          <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <Label>הפעל לו״ז זמינות</Label>
+              <Label>{t.settings.agent_enable}</Label>
               <Switch checked={agentEnabled} onCheckedChange={setAgentEnabled} />
             </div>
             {agentEnabled && (
               <>
                 <div className="space-y-2">
                   {[
-                    { key: 'sunday', label: 'ראשון' },
-                    { key: 'monday', label: 'שני' },
-                    { key: 'tuesday', label: 'שלישי' },
-                    { key: 'wednesday', label: 'רביעי' },
-                    { key: 'thursday', label: 'חמישי' },
-                    { key: 'friday', label: 'שישי' },
-                    { key: 'saturday', label: 'שבת' },
+                    { key: 'sunday', label: t.settings.day_sunday },
+                    { key: 'monday', label: t.settings.day_monday },
+                    { key: 'tuesday', label: t.settings.day_tuesday },
+                    { key: 'wednesday', label: t.settings.day_wednesday },
+                    { key: 'thursday', label: t.settings.day_thursday },
+                    { key: 'friday', label: t.settings.day_friday },
+                    { key: 'saturday', label: t.settings.day_saturday },
                   ].map(day => {
                     const sched = agentSchedule[day.key as keyof typeof agentSchedule]
                     return (
-                      <div key={day.key} className="flex items-center gap-3">
+                      <div key={day.key} className="flex flex-wrap items-center gap-2 md:gap-3 py-1">
                         <Switch
                           checked={sched.active}
                           onCheckedChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], active: v } }))}
                         />
                         <span className="w-14 text-sm font-medium">{day.label}</span>
                         {sched.active ? (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="time"
+                          <div className="flex items-center gap-2" dir="ltr">
+                            <Select
                               value={sched.start}
-                              onChange={(e) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], start: e.target.value } }))}
-                              className="w-28 h-9 rounded-xl text-sm"
-                              dir="ltr"
-                            />
-                            <span className="text-gray-400 text-sm">עד</span>
-                            <Input
-                              type="time"
+                              onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], start: v } }))}
+                            >
+                              <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-56">
+                                {timeOptions.map(opt => (
+                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <span className="text-gray-400 text-sm">—</span>
+                            <Select
                               value={sched.end}
-                              onChange={(e) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], end: e.target.value } }))}
-                              className="w-28 h-9 rounded-xl text-sm"
-                              dir="ltr"
-                            />
+                              onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], end: v } }))}
+                            >
+                              <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-56">
+                                {timeOptions.map(opt => (
+                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">סגור</span>
+                          <span className="text-sm text-red-400/70">{t.settings.closed}</span>
                         )}
                       </div>
                     )
                   })}
                 </div>
                 <div className="space-y-2">
-                  <Label>הודעה כשלא זמין</Label>
+                  <Label>{t.settings.offline_message}</Label>
                   <Textarea
                     value={offlineMessage}
                     onChange={(e) => setOfflineMessage(e.target.value)}
@@ -273,36 +381,36 @@ export default function SettingsPage() {
                 </div>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">עיצוב אימייל</CardTitle>
-            <CardDescription>התאם את המראה של המיילים שהבוט שולח ללקוחות</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.email_design_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.settings.email_design_desc}</p>
+          </div>
+          <div className="p-6 space-y-5">
             {/* Template Picker */}
             <div className="space-y-2">
-              <Label>בחר תבנית אימייל</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Label>{t.settings.template_label}</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { id: 'modern' as const, label: 'מודרני', desc: 'כותרת gradient, צללים, לוגו', icon: '✨', preview: 'gradient' },
-                  { id: 'classic' as const, label: 'קלאסי', desc: 'פס צד צבעוני, נקי ומקצועי', icon: '📋', preview: 'accent' },
-                  { id: 'minimal' as const, label: 'מינימלי', desc: 'טקסט בלבד, בלי עיצוב', icon: '📝', preview: 'text' },
-                  { id: 'none' as const, label: 'ללא עיצוב', desc: 'טקסט פשוט כמו Gmail רגיל', icon: '📨', preview: 'plain' },
-                ].map(t => {
-                  const isSelected = selectedTemplate === t.id
+                  { id: 'modern' as const, label: t.settings.template_modern, desc: 'כותרת gradient, צללים, לוגו', icon: '✨', preview: 'gradient' },
+                  { id: 'classic' as const, label: t.settings.template_classic, desc: 'פס צד צבעוני, נקי ומקצועי', icon: '📋', preview: 'accent' },
+                  { id: 'minimal' as const, label: t.settings.template_minimal, desc: 'טקסט בלבד, בלי עיצוב', icon: '📝', preview: 'text' },
+                  { id: 'none' as const, label: t.settings.template_none, desc: 'טקסט פשוט כמו Gmail רגיל', icon: '📨', preview: 'plain' },
+                ].map(tpl => {
+                  const isSelected = selectedTemplate === tpl.id
                   return (
                     <button
-                      key={t.id}
+                      key={tpl.id}
                       onClick={() => {
-                        setSelectedTemplate(t.id)
+                        setSelectedTemplate(tpl.id)
                         const info = business?.contact_info || {}
                         const supabase = createClient()
                         supabase.from('businesses').update({
-                          contact_info: { ...info, email_template: t.id }
-                        }).eq('id', business!.id).then(() => toast.success(`תבנית "${t.label}" נבחרה`))
+                          contact_info: { ...info, email_template: tpl.id }
+                        }).eq('id', business!.id).then(() => toast.success(`תבנית "${tpl.label}" נבחרה`))
                       }}
                       className={`p-3 rounded-xl border text-center transition-all duration-200 ${
                         isSelected
@@ -312,7 +420,7 @@ export default function SettingsPage() {
                     >
                       {/* Mini preview */}
                       <div className="w-full h-16 rounded-lg mb-2 overflow-hidden border border-gray-100">
-                        {t.preview === 'gradient' && (
+                        {tpl.preview === 'gradient' && (
                           <div className="h-full flex flex-col">
                             <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColorSimple(brandColor, -30)})` }} className="h-6 flex items-center justify-center">
                               <div className="w-3 h-3 rounded bg-white/30" />
@@ -323,7 +431,7 @@ export default function SettingsPage() {
                             </div>
                           </div>
                         )}
-                        {t.preview === 'accent' && (
+                        {tpl.preview === 'accent' && (
                           <div className="h-full flex">
                             <div style={{ backgroundColor: brandColor }} className="w-1 shrink-0" />
                             <div className="flex-1 bg-white p-1.5 flex flex-col justify-center">
@@ -333,7 +441,7 @@ export default function SettingsPage() {
                             </div>
                           </div>
                         )}
-                        {t.preview === 'text' && (
+                        {tpl.preview === 'text' && (
                           <div className="h-full bg-white p-2 flex flex-col justify-center">
                             <div className="w-1/3 h-1.5 rounded mb-2" style={{ backgroundColor: brandColor }} />
                             <div className="w-full h-1 bg-gray-200 rounded mb-1" />
@@ -341,7 +449,7 @@ export default function SettingsPage() {
                             <div className="w-2/3 h-1 bg-gray-100 rounded" />
                           </div>
                         )}
-                        {t.preview === 'plain' && (
+                        {tpl.preview === 'plain' && (
                           <div className="h-full bg-white p-2 flex flex-col justify-center">
                             <div className="w-full h-1 bg-gray-200 rounded mb-1" />
                             <div className="w-4/5 h-1 bg-gray-200 rounded mb-1" />
@@ -349,8 +457,8 @@ export default function SettingsPage() {
                           </div>
                         )}
                       </div>
-                      <div className="text-xs font-medium">{t.label}</div>
-                      <div className="text-[10px] text-gray-400 leading-tight mt-0.5">{t.desc}</div>
+                      <div className="text-xs font-medium">{tpl.label}</div>
+                      <div className="text-[10px] text-gray-400 leading-tight mt-0.5">{tpl.desc}</div>
                     </button>
                   )
                 })}
@@ -359,7 +467,7 @@ export default function SettingsPage() {
 
             {/* Color */}
             <div className="space-y-2">
-              <Label>צבע ראשי</Label>
+              <Label>{t.settings.primary_color}</Label>
               <div className="flex gap-2">
                 <Input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-12 h-10 p-1 cursor-pointer" />
                 <Input value={brandColor} onChange={e => setBrandColor(e.target.value)} dir="ltr" className="flex-1" />
@@ -368,23 +476,23 @@ export default function SettingsPage() {
 
             {/* Footer */}
             <div className="space-y-2">
-              <Label>טקסט תחתון</Label>
+              <Label>{t.settings.footer_text}</Label>
               <Input value={emailFooter} onChange={e => setEmailFooter(e.target.value)} placeholder="למשל: טלפון: 050-1234567 | כתובת: רחוב הרצל 1" />
             </div>
 
             {/* White Label */}
             <div className="flex items-center justify-between">
               <div>
-                <Label>ללא מיתוג</Label>
-                <p className="text-xs text-gray-400">הסתר את הלוגו של BotPress AI מהאימיילים</p>
+                <Label>{t.settings.no_branding}</Label>
+                <p className="text-xs text-gray-400">{t.settings.no_branding_desc}</p>
               </div>
               <Switch checked={false} disabled />
             </div>
 
             {/* Email Preview — Full Example */}
             <div>
-              <Label className="mb-3 block text-base font-semibold">תצוגה מקדימה — כך הלקוח יראה את האימייל</Label>
-              <div className="bg-gray-100 rounded-2xl p-6 md:p-8">
+              <Label className="mb-3 block text-base font-semibold">{t.settings.email_preview}</Label>
+              <div className="bg-gray-100 rounded-xl p-4 md:p-8">
                 {/* Email client chrome */}
                 <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-lg mx-auto">
                   {/* Email header bar */}
@@ -451,25 +559,25 @@ export default function SettingsPage() {
                 <p className="text-center text-xs text-gray-400 mt-4">ככה הלקוח יראה את המייל ב-Gmail</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">ערוצים</CardTitle>
-            <CardDescription>חבר את הבוט לערוצי תקשורת</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.settings.channels_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.settings.channels_desc}</p>
+          </div>
+          <div className="p-6 space-y-4">
             {/* Email */}
             <div className={`border ${business?.contact_info?.gmail_connected ? 'border-green-200 bg-green-50/50' : 'border-blue-200 bg-blue-50/50'} rounded-lg p-4`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-lg">📧</span>
-                  <span className="font-medium text-sm">אימייל</span>
+                  <span className="font-medium text-sm">{t.common.channel_email}</span>
                   {business?.contact_info?.gmail_connected ? (
-                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">מחובר ✓ {business.contact_info.email}</span>
+                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">{t.settings.connected} {business.contact_info.email}</span>
                   ) : (
-                    <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">לא מחובר</span>
+                    <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">{t.settings.not_connected}</span>
                   )}
                 </div>
                 {business?.contact_info?.gmail_connected ? (
@@ -495,7 +603,7 @@ export default function SettingsPage() {
                         } catch { toast.dismiss(); toast.error('שגיאה בחיבור') }
                       }}
                     >
-                      שלח בדיקה
+                      {t.settings.send_test}
                     </Button>
                     <Button
                       variant="outline"
@@ -517,13 +625,13 @@ export default function SettingsPage() {
                         window.location.reload()
                       }}
                     >
-                      נתק
+                      {t.settings.disconnect}
                     </Button>
                   </div>
                 ) : (
                   <a href="/api/auth/gmail">
                     <Button size="sm" className="bg-[#2e90fa] border-0 text-xs shadow-sm rounded-xl">
-                      חבר Gmail
+                      {t.settings.connect_gmail}
                     </Button>
                   </a>
                 )}
@@ -537,14 +645,14 @@ export default function SettingsPage() {
 
             {/* WhatsApp */}
             <div className="border border-gray-200 bg-gray-50/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">💬</span>
-                  <span className="font-medium text-sm">וואטסאפ</span>
-                  <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">בקרוב</span>
+                  <span className="font-medium text-sm">{t.common.channel_whatsapp}</span>
+                  <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">{t.settings.coming_soon}</span>
                 </div>
                 <Button size="sm" variant="outline" className="text-xs" disabled>
-                  חבר WhatsApp Business
+                  {t.settings.connect_whatsapp}
                 </Button>
               </div>
               <p className="text-xs text-gray-400">חיבור WhatsApp Business API דרך Meta — הבוט יענה ללקוחות ישירות מהמספר של העסק</p>
@@ -552,22 +660,22 @@ export default function SettingsPage() {
 
             {/* Widget */}
             <div className="border border-blue-200 bg-blue-50/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🌐</span>
-                  <span className="font-medium text-sm">וידג׳ט באתר</span>
-                  <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">מוכן ✓</span>
+                  <span className="font-medium text-sm">{t.common.channel_widget}</span>
+                  <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">{t.settings.widget_ready}</span>
                 </div>
                 <a href="/dashboard/widget">
                   <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs">
-                    הגדרות
+                    {t.settings.title}
                   </Button>
                 </a>
               </div>
               <p className="text-xs text-blue-600">הטמע צ׳אט בוט באתר שלך עם שורת קוד אחת</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

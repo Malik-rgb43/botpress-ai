@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useBusiness } from '@/hooks/use-business'
+import { useTranslation } from '@/i18n/provider'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Loader2, Save, Copy, Code } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function WidgetPage() {
   const { business, loading: bizLoading } = useBusiness()
+  const { t } = useTranslation()
   const [saving, setSaving] = useState(false)
   const [position, setPosition] = useState('bottom-right')
   const [primaryColor, setPrimaryColor] = useState('#000000')
@@ -45,7 +46,7 @@ export default function WidgetPage() {
       welcome_message: welcomeMessage,
       white_label: whiteLabel,
     }).eq('business_id', business!.id)
-    toast.success('הגדרות הוידג׳ט נשמרו')
+    toast.success(t.widget.saved)
     setSaving(false)
   }
 
@@ -53,7 +54,7 @@ export default function WidgetPage() {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'
     const code = `<script src="${origin}/widget.js" data-business-id="${business?.id}" data-color="${primaryColor}" data-position="${position === 'bottom-left' ? 'left' : 'right'}"></script>`
     navigator.clipboard.writeText(code)
-    toast.success('הקוד הועתק!')
+    toast.success(t.widget.copied)
   }
 
   if (bizLoading) {
@@ -64,41 +65,40 @@ export default function WidgetPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <Code className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">צריך ליצור עסק קודם</p>
-        <p className="text-gray-400 text-sm mt-1">עבור ל<a href="/onboarding" className="text-blue-500 hover:underline">הגדרת העסק</a></p>
+        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
       </div>
     )
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-balance flex items-center gap-2">
-            <Code className="h-6 w-6" />
-            וידג׳ט צ׳אט
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            {t.widget.title}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">הוסף צ׳אט באתר שלך</p>
+          <p className="text-gray-400 text-sm mt-1">{t.widget.subtitle}</p>
         </div>
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving} className="w-fit">
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
-          שמור
+          {t.common.save}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-            <CardHeader>
-              <CardTitle className="text-lg">הגדרות</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+            <div className="p-6 pb-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">{t.widget.settings_title}</h2>
+            </div>
+            <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label>מיקום</Label>
+                <Label>{t.widget.position_label}</Label>
                 <div className="flex gap-2">
                   {[
-                    { value: 'bottom-right', label: 'ימין למטה' },
-                    { value: 'bottom-left', label: 'שמאל למטה' },
+                    { value: 'bottom-right', label: t.widget.position_right },
+                    { value: 'bottom-left', label: t.widget.position_left },
                   ].map(p => (
                     <button key={p.value} type="button" onClick={() => setPosition(p.value)}
                       className={`flex-1 px-4 py-2.5 rounded-xl text-sm border transition-all ${
@@ -111,7 +111,7 @@ export default function WidgetPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>צבע ראשי</Label>
+                <Label>{t.widget.color_label}</Label>
                 <div className="flex gap-2">
                   <Input
                     type="color"
@@ -128,48 +128,48 @@ export default function WidgetPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>הודעת פתיחה</Label>
+                <Label>{t.widget.welcome_label}</Label>
                 <Input value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>White Label</Label>
-                  <p className="text-xs text-gray-400">הסתר את הלוגו של BotPress AI</p>
+                  <Label>{t.widget.white_label}</Label>
+                  <p className="text-xs text-gray-400">{t.widget.white_label_desc}</p>
                 </div>
                 <Switch checked={whiteLabel} onCheckedChange={setWhiteLabel} />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-            <CardHeader>
-              <CardTitle className="text-lg">קוד להטמעה</CardTitle>
-              <CardDescription>העתק את הקוד והדבק אותו לפני תג {'</body>'} באתר שלך</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-950 text-green-400 rounded-xl p-5 text-sm font-mono text-left direction-ltr overflow-x-auto border border-gray-800">
+          <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+            <div className="p-6 pb-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">{t.widget.embed_title}</h2>
+              <p className="text-sm text-gray-400 mt-0.5">{t.widget.embed_desc}</p>
+            </div>
+            <div className="p-6">
+              <div className="bg-gray-950 text-green-400 rounded-xl p-3 md:p-5 text-xs md:text-sm font-mono text-left direction-ltr overflow-x-auto border border-gray-800">
                 <pre className="whitespace-pre-wrap break-all">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
               </div>
               <div className="flex gap-2 mt-3">
                 <Button variant="outline" size="sm" onClick={copyEmbed} className="rounded-xl">
                   <Copy className="h-4 w-4 ml-1" />
-                  העתק קוד
+                  {t.widget.copy_code}
                 </Button>
               </div>
-              <p className="text-xs text-gray-400 mt-2">הדבק את הקוד לפני תג {'</body>'} באתר שלך</p>
-            </CardContent>
-          </Card>
+              <p className="text-xs text-gray-400 mt-2">{t.widget.embed_desc}</p>
+            </div>
+          </div>
         </div>
 
         {/* Live Preview — shows exactly how the widget looks on a real website */}
-        <Card className="bg-white rounded-2xl border border-[rgba(0,0,0,0.04)] shadow-md hover:shadow-xl transition-all">
-          <CardHeader>
-            <CardTitle className="text-lg">תצוגה מקדימה — ככה הלקוחות יראו את הצ׳אט באתר</CardTitle>
-            <CardDescription>זה בדיוק מה שיופיע באתר שלך כשתדביק את הקוד</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+          <div className="p-6 pb-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{t.widget.preview_title}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{t.widget.preview_footer}</p>
+          </div>
+          <div className="p-6">
             {/* Fake website preview */}
-            <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white" style={{ height: '500px' }}>
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white" style={{ height: '460px' }}>
               {/* Browser chrome */}
               <div className="bg-gray-100 border-b border-gray-200 px-4 py-2.5 flex items-center gap-2">
                 <div className="flex gap-1.5">
@@ -204,7 +204,7 @@ export default function WidgetPage() {
                   [position === 'bottom-left' ? 'left' : 'right']: '24px',
                 }}>
                   {/* Chat window (always open in preview) */}
-                  <div className="mb-3 w-[320px] rounded-2xl bg-white shadow-2xl border border-[rgba(0,0,0,0.06)] overflow-hidden" style={{ direction: 'rtl' }}>
+                  <div className="mb-3 w-[280px] md:w-[320px] rounded-2xl bg-white shadow-2xl border border-[rgba(0,0,0,0.06)] overflow-hidden" style={{ direction: 'rtl' }}>
                     {/* Header */}
                     <div className="px-4 py-3 flex items-center gap-3 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${primaryColor}, #7c3aed)` }}>
                       <div className="absolute top-[-20px] right-[-20px] w-20 h-20 rounded-full bg-white/10" />
@@ -256,9 +256,9 @@ export default function WidgetPage() {
               </div>
             </div>
 
-            <p className="text-center text-xs text-gray-400 mt-3">ככה הלקוחות שלך יראו את הצ׳אט באתר — צבע ומיקום משתנים לפי ההגדרות שלך</p>
-          </CardContent>
-        </Card>
+            <p className="text-center text-xs text-gray-400 mt-3">{t.widget.preview_footer}</p>
+          </div>
+        </div>
       </div>
     </div>
   )
