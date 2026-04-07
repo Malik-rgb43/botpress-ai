@@ -277,15 +277,16 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50"
+                  disabled={!summaryEmail.trim()}
+                  className="gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={async () => {
-                    if (!summaryEmail) { toast.error('הכנס אימייל קודם'); return }
+                    if (!summaryEmail.trim()) return
                     toast.loading('שולח סיכום לדוגמה...')
                     try {
                       const res = await fetch('/api/summary/demo', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ businessId: business!.id, email: summaryEmail }),
+                        body: JSON.stringify({ businessId: business!.id, email: summaryEmail.trim() }),
                       })
                       const data = await res.json()
                       toast.dismiss()
