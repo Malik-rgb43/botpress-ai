@@ -11,6 +11,21 @@ const nextConfig: NextConfig = {
         { key: 'X-XSS-Protection', value: '1; mode=block' },
         { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercelinsights.com",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob: https: http:",
+            "font-src 'self' https://fonts.gstatic.com",
+            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://gmail.googleapis.com https://oauth2.googleapis.com https://graph.facebook.com https://*.vercel-insights.com https://*.vercel.app",
+            "frame-src 'none'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+          ].join('; ')
+        },
       ],
     },
     {

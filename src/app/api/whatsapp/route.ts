@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import { getOrBuildPrompt } from '@/services/prompt-builder'
 import { sanitizeMessage } from '@/lib/sanitize'
+import { sanitizeLLMInput, validateLLMOutput } from '@/lib/llm-guard'
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN
 if (!VERIFY_TOKEN) {
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt + '\n\nזו הודעת וואטסאפ. ענה בקצרה. אם אין מידע, התחל עם ESCALATE.' }] },
-          contents: [{ role: 'user', parts: [{ text: msgBody }] }],
+          contents: [{ role: 'user', parts: [{ text: sanitizeLLMInput(msgBody) }] }],
           generationConfig: { temperature: 0.3, maxOutputTokens: 250, topP: 0.8, topK: 30 },
         }),
       }
@@ -169,13 +170,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'no content' })
     }
 
+    // Validate AI output before sending
+    const safeResponse = validateLLMOutput(aiContent)
+
     // Check escalation in AI response
-    const needsEscalation = aiContent.trim().startsWith('ESCALATE')
+    const needsEscalation = safeResponse.trim().startsWith('ESCALATE')
 
     if (needsEscalation) {
       await sendWhatsAppMessage(phoneNumberId, from, templates.transfer || 'מעביר אותך לנציג שירות. אנא המתן.')
     } else {
-      await sendWhatsAppMessage(phoneNumberId, from, aiContent)
+      await sendWhatsAppMessage(phoneNumberId, from, safeResponse)
     }
 
     // Save conversation to DB (reuse existing conversation or create new one)

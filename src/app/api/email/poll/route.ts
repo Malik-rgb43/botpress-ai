@@ -4,6 +4,7 @@ import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-eng
 import { getOrBuildPrompt } from '@/services/prompt-builder'
 import { buildEmailHtml } from '@/services/email-template'
 import { stripHtml } from '@/lib/sanitize'
+import { sanitizeLLMInput, validateLLMOutput } from '@/lib/llm-guard'
 
 // Refresh Gmail access token using refresh token
 async function refreshGmailToken(refreshToken: string): Promise<string | null> {
@@ -306,7 +307,7 @@ export async function POST(request: NextRequest) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   system_instruction: { parts: [{ text: systemPrompt + emailSuffix }] },
-                  contents: [{ role: 'user', parts: [{ text: `נושא: ${email.subject}\n\n${email.body}` }] }],
+                  contents: [{ role: 'user', parts: [{ text: sanitizeLLMInput(`נושא: ${email.subject}\n\n${email.body}`) }] }],
                   generationConfig: { temperature: 0.3, maxOutputTokens: 500, topP: 0.8, topK: 30 },
                 }),
               }
@@ -332,12 +333,13 @@ export async function POST(request: NextRequest) {
 
             if (!aiContent) continue
 
-            const needsEscalation = aiContent.trim().startsWith('ESCALATE')
+            const safeAiContent = validateLLMOutput(aiContent)
+            const needsEscalation = safeAiContent.trim().startsWith('ESCALATE')
             const businessEmail = business.contact_info?.email || ''
 
             if (needsEscalation) {
               // ── ESCALATION: Notify business owner via Gmail (not Resend) ──
-              const escalationReason = aiContent.replace(/^ESCALATE\s*[-–—]?\s*/i, '').trim()
+              const escalationReason = safeAiContent.replace(/^ESCALATE\s*[-–—]?\s*/i, '').trim()
 
               // Send notification to business owner via Gmail API (works for any email)
               const notificationBody = [
@@ -419,10 +421,10 @@ export async function POST(request: NextRequest) {
                 businessName: business.name,
                 logoUrl: business.logo_url,
                 primaryColor: (business.contact_info as Record<string, unknown>)?.brand_color as string || '#2563eb',
-                replyContent: aiContent,
+                replyContent: safeAiContent,
                 footerText: (business.contact_info as Record<string, unknown>)?.email_footer as string || undefined,
               }) : undefined
-              const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, aiContent, htmlEmail)
+              const sent = await replyViaGmail(accessToken, email.id, senderEmail, email.subject, safeAiContent, htmlEmail)
 
               if (sent) {
                 await markAsRead(accessToken, email.id)
@@ -445,7 +447,7 @@ export async function POST(request: NextRequest) {
                 if (convId) {
                   await supabase.rpc('insert_messages', {
                     p_conv_id: convId, p_customer_content: email.body.slice(0, 2000),
-                    p_bot_content: aiContent,
+                    p_bot_content: safeAiContent,
                     p_intent: intent, p_sentiment: sentiment, p_layer: 'ai',
                   })
                 }

@@ -12,6 +12,7 @@ import { tryQuickResponse } from '@/services/quick-responses'
 import { getCached, setCached } from '@/services/prompt-cache'
 import { checkRateLimit, getRateLimitKey, RATE_LIMITS } from '@/lib/rate-limit'
 import { sanitizeMessage, sanitizeUUID, sanitizeHistory } from '@/lib/sanitize'
+import { sanitizeLLMInput, validateLLMOutput } from '@/lib/llm-guard'
 import type { AIContext } from '@/services/ai-engine'
 import type { FAQ, Policy } from '@/types/database'
 
@@ -277,12 +278,13 @@ export async function POST(request: NextRequest) {
     // ── OPTIMIZATION 4: Trimmed history ─────────────────
     const optimizedHistory = optimizeHistory(safeHistory, intent)
 
-    // Build Gemini contents
+    // Build Gemini contents (sanitize user messages for prompt injection)
+    const safeMessage = sanitizeLLMInput(message)
     const geminiContents = []
-    for (const m of [...optimizedHistory, { role: 'user', content: message }]) {
+    for (const m of [...optimizedHistory, { role: 'user', content: safeMessage }]) {
       geminiContents.push({
         role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
+        parts: [{ text: m.role === 'user' ? sanitizeLLMInput(m.content) : m.content }],
       })
     }
 
@@ -374,7 +376,7 @@ export async function POST(request: NextRequest) {
       }
 
       // ── Post-process Response ──────────────────────────
-      let finalContent = aiContent.trim()
+      let finalContent = validateLLMOutput(aiContent)
         .replace(/^(תשובה|answer|response)\s*[:：]\s*/i, '')
         .trim()
 
