@@ -1,4 +1,4 @@
-name: CI
+name: CI & Security
 
 on:
   push:
@@ -6,50 +6,89 @@ on:
   pull_request:
     branches: [master]
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  security-events: write
 
+jobs:
+  build:
+    name: Build & Type Check
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build
-        run: npx next build
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx next build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder' }}
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
 
-      - name: Security audit
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: npm audit
         run: npm audit --audit-level=high || true
-        continue-on-error: true
+      - name: Check for outdated packages
+        run: npm outdated --long || true
+      - name: Check for known EOL packages
+        run: |
+          echo "Checking for EOL/deprecated packages..."
+          npx depcheck --ignores="@types/*" || true
 
-  security:
+  codeql:
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
     permissions:
       security-events: write
-
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
-      - name: Run npm audit
-        run: npm audit --json > audit-results.json || true
-
-      - name: Check for critical vulnerabilities
+  dast:
+    name: DAST (ZAP Baseline Scan)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - name: ZAP Baseline Scan (placeholder)
         run: |
-          if npm audit --audit-level=critical 2>/dev/null; then
-            echo "No critical vulnerabilities found"
-          else
-            echo "::warning::Critical vulnerabilities found in dependencies"
-          fi
+          echo "=== DAST Placeholder ==="
+          echo "To enable full DAST scanning:"
+          echo "1. Deploy a preview environment in a prior step"
+          echo "2. Replace this with:"
+          echo "   uses: zaproxy/action-baseline@v0.12.0"
+          echo "   with:"
+          echo "     target: 'https://your-preview-url.vercel.app'"
+          echo ""
+          echo "Skipping — no preview URL configured yet."
