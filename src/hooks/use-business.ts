@@ -25,6 +25,15 @@ export function useBusiness() {
         .limit(1)
         .maybeSingle()
 
+      // Strip sensitive OAuth tokens from contact_info before exposing to client
+      if (data?.contact_info) {
+        const info = { ...data.contact_info } as Record<string, unknown>
+        delete info.gmail_refresh_token
+        delete info.gmail_access_token
+        delete info.gmail_token_expiry
+        data.contact_info = info
+      }
+
       setBusiness(data)
       setLoading(false)
     }

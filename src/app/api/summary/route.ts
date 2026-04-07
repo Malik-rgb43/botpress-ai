@@ -36,14 +36,16 @@ export async function POST(request: NextRequest) {
       else if (setting.frequency === 'weekly') startDate.setDate(now.getDate() - 7)
       else startDate.setMonth(now.getMonth() - 1)
 
-      // Get stats
+      // Get stats — filter all queries by business_id
       const [convRes, msgRes, escRes] = await Promise.all([
         supabase.from('conversations').select('id, channel, satisfaction_rating', { count: 'exact' })
           .eq('business_id', business.id)
           .gte('started_at', startDate.toISOString()),
-        supabase.from('messages').select('id, role, sentiment', { count: 'exact' })
+        supabase.from('messages').select('id, role, sentiment, conversations!inner(business_id)', { count: 'exact' })
+          .eq('conversations.business_id', business.id)
           .gte('created_at', startDate.toISOString()),
-        supabase.from('escalations').select('id', { count: 'exact' })
+        supabase.from('escalations').select('id, conversations!inner(business_id)', { count: 'exact' })
+          .eq('conversations.business_id', business.id)
           .gte('created_at', startDate.toISOString()),
       ])
 

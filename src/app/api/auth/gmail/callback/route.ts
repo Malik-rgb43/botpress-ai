@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
+  // Verify CSRF state parameter
+  const state = request.nextUrl.searchParams.get('state')
+  const storedState = request.cookies.get('oauth_state')?.value
+  if (!state || !storedState || state !== storedState) {
+    return NextResponse.redirect(new URL('/dashboard/settings?error=csrf', request.url))
+  }
+
   const code = request.nextUrl.searchParams.get('code')
   if (!code) {
     return NextResponse.redirect(new URL('/dashboard/settings?error=no_code', request.url))
@@ -90,7 +97,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.redirect(new URL('/dashboard/settings?success=gmail_connected', request.url))
+    const successResponse = NextResponse.redirect(new URL('/dashboard/settings?success=gmail_connected', request.url))
+    successResponse.cookies.delete('oauth_state')
+    return successResponse
   } catch (error) {
     console.error('Gmail OAuth error:', error)
     return NextResponse.redirect(new URL('/dashboard/settings?error=oauth_failed', request.url))

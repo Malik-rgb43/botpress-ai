@@ -32,7 +32,18 @@ export async function GET(request: NextRequest) {
 // WhatsApp Incoming Message (POST)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // Verify Meta webhook signature
+    const signature = request.headers.get('x-hub-signature-256')
+    const rawBody = await request.text()
+    const appSecret = process.env.WHATSAPP_APP_SECRET
+    if (appSecret && signature) {
+      const crypto = await import('crypto')
+      const expectedSig = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
+      if (signature !== expectedSig) {
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+      }
+    }
+    const body = JSON.parse(rawBody)
 
     // Extract message from WhatsApp webhook payload
     const entry = body.entry?.[0]
@@ -46,15 +57,15 @@ export async function POST(request: NextRequest) {
 
     const message = value.messages[0]
     const from = message.from // Customer phone number
-    const rawBody = message.text?.body // Message text
+    const rawMessageText = message.text?.body // Message text
     const phoneNumberId = value.metadata?.phone_number_id
 
-    if (!rawBody || !from) {
+    if (!rawMessageText || !from) {
       return NextResponse.json({ status: 'no text' })
     }
 
     // Sanitize message input
-    const msgBody = sanitizeMessage(rawBody, 3000)
+    const msgBody = sanitizeMessage(rawMessageText, 3000)
     if (!msgBody) {
       return NextResponse.json({ status: 'empty message' })
     }
@@ -64,8 +75,6 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient()
 
     // Find business by WhatsApp phone number ID
-    const { data: rpcData } = await supabase.rpc('get_gmail_businesses')
-    // For now, get all businesses and find one with WhatsApp configured
     const { data: allBiz } = await supabase.from('businesses').select('*')
     const business = (allBiz || []).find((b: Record<string, unknown>) => {
       const info = b.contact_info as Record<string, unknown> | null
@@ -169,11 +178,27 @@ export async function POST(request: NextRequest) {
       await sendWhatsAppMessage(phoneNumberId, from, aiContent)
     }
 
-    // Save conversation to DB
+    // Save conversation to DB (reuse existing conversation or create new one)
     try {
-      const { data: convId } = await supabase.rpc('insert_conversation', {
-        p_business_id: biz.id, p_channel: 'whatsapp', p_customer: from, p_language: language,
-      })
+      // Check for existing open conversation from this customer
+      const { data: existingConv } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('business_id', biz.id)
+        .eq('customer', from)
+        .eq('channel', 'whatsapp')
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      let convId: string | null = existingConv?.id || null
+
+      if (!convId) {
+        const { data: newConvId } = await supabase.rpc('insert_conversation', {
+          p_business_id: biz.id, p_channel: 'whatsapp', p_customer: from, p_language: language,
+        })
+        convId = newConvId
+      }
       if (convId) {
         await supabase.rpc('insert_messages', {
           p_conv_id: convId, p_customer_content: msgBody.slice(0, 2000),

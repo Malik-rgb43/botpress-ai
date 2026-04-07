@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSummaryHtml } from '@/services/summary-template'
 import { checkRateLimit, getRateLimitKey, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify authentication
+    const supabaseAuth = await createClient()
+    const { data: { user } } = await supabaseAuth.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { businessId, email } = body
 
@@ -29,6 +37,10 @@ export async function POST(request: NextRequest) {
     const business = bizData?.[0]
     if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+    }
+    // Verify ownership
+    if (business.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Build date range string

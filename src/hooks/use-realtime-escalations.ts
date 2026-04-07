@@ -136,8 +136,15 @@ export function useRealtimeEscalations({ businessId, onNewEscalation }: UseRealt
           schema: 'public',
           table: 'messages',
         },
-        () => {
-          // Any new message triggers a refresh signal
+        async (payload) => {
+          const newMsg = payload.new as any
+          // Verify this message belongs to our business before processing
+          const { data: conv } = await supabase
+            .from('conversations')
+            .select('business_id')
+            .eq('id', newMsg.conversation_id)
+            .single()
+          if (conv?.business_id !== businessId) return
           setNewMessageSignal(prev => prev + 1)
         }
       )
