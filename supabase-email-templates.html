@@ -1,0 +1,260 @@
+<!--
+  SUPABASE AUTH EMAIL TEMPLATES
+
+  Go to: Supabase Dashboard → Authentication → Email Templates
+  Paste each template in the appropriate section.
+
+  Available variables:
+  {{ .ConfirmationURL }} — Confirmation/magic link URL
+  {{ .Token }}           — OTP code (6 digits)
+  {{ .Email }}           — User's email
+  {{ .SiteURL }}         — Your site URL
+-->
+
+
+<!-- ============================================= -->
+<!-- 1. CONFIRM SIGNUP (אישור הרשמה)               -->
+<!-- Subject: אישור הרשמה — BotPress AI            -->
+<!-- ============================================= -->
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+    <!-- Header -->
+    <tr><td style="background:linear-gradient(135deg,#2563eb,#1e40af);padding:28px 32px;text-align:center;">
+      <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.15);margin:0 auto 14px;line-height:52px;font-size:24px;text-align:center;color:white;">🤖</div>
+      <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0;letter-spacing:-0.3px;">BotPress AI</h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:6px 0 0;">בוטים חכמים לעסקים</p>
+    </td></tr>
+
+    <!-- Body -->
+    <tr><td style="padding:32px;">
+      <h2 style="color:#1e293b;font-size:18px;font-weight:700;margin:0 0 8px;">ברוכים הבאים! 🎉</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        תודה שנרשמת ל-BotPress AI.<br>
+        לחץ על הכפתור כדי לאשר את החשבון שלך ולהתחיל לבנות את הבוט.
+      </p>
+
+      <!-- CTA Button -->
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#1e40af);color:#ffffff;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;text-decoration:none;letter-spacing:-0.2px;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+            אשר את החשבון שלי
+          </a>
+        </td></tr>
+      </table>
+
+      <p style="color:#94a3b8;font-size:13px;line-height:1.6;margin:24px 0 0;text-align:center;">
+        אם לא נרשמת, אפשר להתעלם מהאימייל הזה.
+      </p>
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td style="padding:0 32px 24px;">
+      <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">
+        BotPress AI — בוטים חכמים לעסקים
+      </p>
+    </td></tr>
+
+  </table>
+
+  <p style="color:#c0c8d4;font-size:10px;margin:16px 0 0;text-align:center;">
+    © 2026 BotPress AI. כל הזכויות שמורות.
+  </p>
+
+</td></tr></table></body></html>
+
+
+<!-- ============================================= -->
+<!-- 2. MAGIC LINK (קישור התחברות)                  -->
+<!-- Subject: קישור התחברות — BotPress AI           -->
+<!-- ============================================= -->
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+    <tr><td style="background:linear-gradient(135deg,#2563eb,#1e40af);padding:24px 32px;text-align:center;">
+      <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0;">BotPress AI</h1>
+    </td></tr>
+
+    <tr><td style="padding:32px;">
+      <h2 style="color:#1e293b;font-size:18px;font-weight:700;margin:0 0 8px;">התחברות מהירה 🔐</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        לחץ על הכפתור כדי להתחבר לחשבון שלך.<br>
+        הקישור תקף ל-60 דקות.
+      </p>
+
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#1e40af);color:#ffffff;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+            התחבר לחשבון
+          </a>
+        </td></tr>
+      </table>
+
+      <p style="color:#94a3b8;font-size:13px;margin:24px 0 0;text-align:center;">
+        אם לא ביקשת להתחבר, התעלם מהאימייל הזה.
+      </p>
+    </td></tr>
+
+    <tr><td style="padding:0 32px 24px;">
+      <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">BotPress AI — בוטים חכמים לעסקים</p>
+    </td></tr>
+
+  </table>
+
+</td></tr></table></body></html>
+
+
+<!-- ============================================= -->
+<!-- 3. RESET PASSWORD (איפוס סיסמה)               -->
+<!-- Subject: איפוס סיסמה — BotPress AI            -->
+<!-- ============================================= -->
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+    <tr><td style="background:linear-gradient(135deg,#2563eb,#1e40af);padding:24px 32px;text-align:center;">
+      <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0;">BotPress AI</h1>
+    </td></tr>
+
+    <tr><td style="padding:32px;">
+      <h2 style="color:#1e293b;font-size:18px;font-weight:700;margin:0 0 8px;">איפוס סיסמה 🔑</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        קיבלנו בקשה לאיפוס הסיסמה שלך.<br>
+        לחץ על הכפתור כדי לבחור סיסמה חדשה.
+      </p>
+
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#1e40af);color:#ffffff;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+            איפוס סיסמה
+          </a>
+        </td></tr>
+      </table>
+
+      <p style="color:#94a3b8;font-size:13px;margin:24px 0 0;text-align:center;">
+        אם לא ביקשת איפוס, התעלם מהאימייל הזה. הסיסמה שלך לא תשתנה.
+      </p>
+    </td></tr>
+
+    <tr><td style="padding:0 32px 24px;">
+      <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">BotPress AI — בוטים חכמים לעסקים</p>
+    </td></tr>
+
+  </table>
+
+</td></tr></table></body></html>
+
+
+<!-- ============================================= -->
+<!-- 4. INVITE USER (הזמנת משתמש)                  -->
+<!-- Subject: הוזמנת להצטרף — BotPress AI          -->
+<!-- ============================================= -->
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+    <tr><td style="background:linear-gradient(135deg,#2563eb,#1e40af);padding:24px 32px;text-align:center;">
+      <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0;">BotPress AI</h1>
+    </td></tr>
+
+    <tr><td style="padding:32px;">
+      <h2 style="color:#1e293b;font-size:18px;font-weight:700;margin:0 0 8px;">הוזמנת להצטרף! 🤝</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        מישהו הזמין אותך להצטרף ל-BotPress AI.<br>
+        לחץ על הכפתור כדי לקבל את ההזמנה וליצור חשבון.
+      </p>
+
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#1e40af);color:#ffffff;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+            קבל הזמנה
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <tr><td style="padding:0 32px 24px;">
+      <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">BotPress AI — בוטים חכמים לעסקים</p>
+    </td></tr>
+
+  </table>
+
+</td></tr></table></body></html>
+
+
+<!-- ============================================= -->
+<!-- 5. EMAIL CHANGE (שינוי אימייל)                -->
+<!-- Subject: אישור שינוי אימייל — BotPress AI     -->
+<!-- ============================================= -->
+
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f4f8;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+
+    <tr><td style="background:linear-gradient(135deg,#2563eb,#1e40af);padding:24px 32px;text-align:center;">
+      <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0;">BotPress AI</h1>
+    </td></tr>
+
+    <tr><td style="padding:32px;">
+      <h2 style="color:#1e293b;font-size:18px;font-weight:700;margin:0 0 8px;">שינוי כתובת אימייל 📧</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.7;margin:0 0 24px;">
+        קיבלנו בקשה לשנות את כתובת האימייל שלך.<br>
+        לחץ על הכפתור כדי לאשר את השינוי.
+      </p>
+
+      <table width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#1e40af);color:#ffffff;font-size:16px;font-weight:600;padding:14px 40px;border-radius:12px;text-decoration:none;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
+            אשר שינוי אימייל
+          </a>
+        </td></tr>
+      </table>
+
+      <p style="color:#94a3b8;font-size:13px;margin:24px 0 0;text-align:center;">
+        אם לא ביקשת לשנות את האימייל, התעלם מההודעה הזו.
+      </p>
+    </td></tr>
+
+    <tr><td style="padding:0 32px 24px;">
+      <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">BotPress AI — בוטים חכמים לעסקים</p>
+    </td></tr>
+
+  </table>
+
+</td></tr></table></body></html>

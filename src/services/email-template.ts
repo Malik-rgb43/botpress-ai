@@ -25,29 +25,29 @@ function modernTemplate(opts: EmailTemplateOptions): string {
   <table width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
 
     <!-- Header -->
-    <tr><td style="background:linear-gradient(135deg,${primaryColor},${gradientEnd});padding:32px 32px 28px;text-align:center;">
+    <tr><td style="background:linear-gradient(135deg,${primaryColor},${gradientEnd});padding:24px 24px 20px;text-align:center;border-radius:0 0 12px 12px;">
       ${logoUrl
-        ? `<img src="${logoUrl}" alt="${businessName}" width="48" height="48" style="border-radius:12px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;border:2px solid rgba(255,255,255,0.25);">`
-        : `<div style="width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.15);margin:0 auto 16px;line-height:48px;font-size:22px;text-align:center;color:white;">✦</div>`
+        ? `<img src="${logoUrl}" alt="${businessName}" width="44" height="44" style="border-radius:11px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;border:2px solid rgba(255,255,255,0.25);">`
+        : `<div style="width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,0.15);margin:0 auto 14px;line-height:44px;font-size:20px;text-align:center;color:white;">✦</div>`
       }
-      <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0;letter-spacing:-0.3px;">${businessName}</h1>
+      <h1 style="color:#ffffff;font-size:19px;font-weight:700;margin:0;letter-spacing:-0.3px;">${businessName}</h1>
     </td></tr>
 
     <!-- Body -->
     <tr><td style="padding:32px;">
-      <p style="color:#1e293b;font-size:15px;line-height:1.75;margin:0;white-space:pre-line;">${content}</p>
+      <p style="color:#374151;font-size:15px;line-height:1.75;margin:0;white-space:pre-line;">${content}</p>
     </td></tr>
 
     <!-- Footer -->
     <tr><td style="padding:0 32px 28px;">
       <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 20px;">
       ${footerText ? `<p style="color:#64748b;font-size:13px;line-height:1.5;margin:0 0 6px;text-align:center;">${footerText}</p>` : ''}
-      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">הודעה אוטומטית מ-${businessName}</p>
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">${businessName}</p>
     </td></tr>
 
   </table>
 
-  ${showPoweredBy ? `<p style="color:#c0c8d4;font-size:10px;margin:20px 0 0;text-align:center;letter-spacing:0.3px;">Powered by BotPress AI</p>` : ''}
+  ${showPoweredBy ? `<p style="color:#9ca3af;font-size:11px;margin:20px 0 0;text-align:center;letter-spacing:0.3px;">&#9670; Powered by <strong style="font-weight:600;">BotPress AI</strong></p>` : ''}
 
 </td></tr></table></body></html>`
 }
@@ -75,7 +75,7 @@ function classicTemplate(opts: EmailTemplateOptions): string {
     <!-- Body with side accent -->
     <tr><td style="padding:0;">
       <table width="100%" cellspacing="0" cellpadding="0"><tr>
-        <td style="width:3px;background-color:${primaryColor};"></td>
+        <td style="width:4px;background-color:${primaryColor};border-radius:2px;"></td>
         <td style="padding:28px;">
           <p style="color:#334155;font-size:15px;line-height:1.75;margin:0;white-space:pre-line;">${content}</p>
         </td>
@@ -83,14 +83,14 @@ function classicTemplate(opts: EmailTemplateOptions): string {
     </td></tr>
 
     <!-- Footer -->
-    <tr><td style="padding:18px 28px;background-color:#f8fafc;border-top:1px solid #f1f5f9;">
-      ${footerText ? `<p style="color:#64748b;font-size:12px;margin:0 0 4px;text-align:center;">${footerText}</p>` : ''}
-      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">הודעה אוטומטית מ-${businessName}</p>
+    <tr><td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #f1f5f9;">
+      ${footerText ? `<p style="color:#64748b;font-size:12px;margin:0 0 6px;text-align:center;">${footerText}</p>` : ''}
+      <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">${businessName}</p>
     </td></tr>
 
   </table>
 
-  ${showPoweredBy ? `<p style="color:#c0c8d4;font-size:10px;margin:20px 0 0;text-align:center;">Powered by BotPress AI</p>` : ''}
+  ${showPoweredBy ? `<p style="color:#9ca3af;font-size:11px;margin:20px 0 0;text-align:center;">&#9670; Powered by <strong style="font-weight:600;">BotPress AI</strong></p>` : ''}
 
 </td></tr></table></body></html>`
 }
@@ -121,7 +121,7 @@ function minimalTemplate(opts: EmailTemplateOptions): string {
     <tr><td style="padding-top:28px;">
       <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
       ${footerText ? `<p style="color:#94a3b8;font-size:12px;margin:0 0 4px;">${footerText}</p>` : ''}
-      <p style="color:#cbd5e1;font-size:11px;margin:0;">${showPoweredBy ? 'Powered by BotPress AI · ' : ''}הודעה אוטומטית</p>
+      <p style="color:#9ca3af;font-size:11px;margin:0;">${showPoweredBy ? '&#9670; Powered by <strong style="font-weight:600;">BotPress AI</strong> · ' : ''}${businessName}</p>
     </td></tr>
 
   </table>
@@ -150,6 +150,8 @@ function escapeHtml(text: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
     .replace(/\n/g, '<br>')
 }
 
