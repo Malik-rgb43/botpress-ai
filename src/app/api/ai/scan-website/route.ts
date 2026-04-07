@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth check
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { url, businessName, language, businessId } = await request.json()
 
     if (!url) {
@@ -42,6 +50,7 @@ export async function POST(request: NextRequest) {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
         signal: AbortSignal.timeout(10000),
+        redirect: 'manual',
       })
       const html = await res.text()
 
@@ -70,6 +79,7 @@ export async function POST(request: NextRequest) {
           const pRes = await fetch(policyUrl, {
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
             signal: AbortSignal.timeout(5000),
+            redirect: 'manual',
           })
           const pHtml = await pRes.text()
           const pText = pHtml
@@ -215,8 +225,7 @@ ${fullContent}`
 
     let result
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
-      result = jsonMatch ? JSON.parse(jsonMatch[0]) : {}
+      result = JSON.parse(content)
     } catch {
       result = {}
     }

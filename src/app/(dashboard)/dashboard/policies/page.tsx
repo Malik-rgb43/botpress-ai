@@ -59,10 +59,12 @@ export default function PoliciesPage() {
     if (!title.trim() || !content.trim()) return
     const supabase = createClient()
     if (editing) {
-      await supabase.from('policies').update({ type, title, content }).eq('id', editing.id)
+      const { error } = await supabase.from('policies').update({ type, title, content }).eq('id', editing.id)
+      if (error) { toast.error(t.common.error); return }
       toast.success(t.policies.updated)
     } else {
-      await supabase.from('policies').insert({ business_id: business!.id, type, title, content })
+      const { error } = await supabase.from('policies').insert({ business_id: business!.id, type, title, content })
+      if (error) { toast.error(t.common.error); return }
       toast.success(t.policies.added)
     }
     setDialogOpen(false)
@@ -70,8 +72,10 @@ export default function PoliciesPage() {
   }
 
   async function remove(id: string) {
+    if (!confirm('למחוק את המדיניות?')) return
     const supabase = createClient()
-    await supabase.from('policies').delete().eq('id', id)
+    const { error } = await supabase.from('policies').delete().eq('id', id)
+    if (error) { toast.error(t.common.error); return }
     toast.success(t.policies.deleted)
     loadPolicies()
   }

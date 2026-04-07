@@ -22,17 +22,20 @@ export async function GET(request: NextRequest) {
 
   const supabase = createAdminClient()
 
-  // Verify conversation ownership: if visitorId is provided, check it matches
-  if (visitorId) {
-    const { data: conv } = await supabase
-      .from('conversations')
-      .select('customer_identifier')
-      .eq('id', conversationId)
-      .single()
+  // Require visitorId to prevent IDOR
+  if (!visitorId) {
+    return NextResponse.json({ error: 'visitorId required' }, { status: 400 })
+  }
 
-    if (!conv || conv.customer_identifier !== visitorId) {
-      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
-    }
+  // Verify conversation ownership
+  const { data: conv } = await supabase
+    .from('conversations')
+    .select('customer_identifier')
+    .eq('id', conversationId)
+    .single()
+
+  if (!conv || conv.customer_identifier !== visitorId) {
+    return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
   }
 
   const { data } = await supabase.rpc('get_conversation_messages', {

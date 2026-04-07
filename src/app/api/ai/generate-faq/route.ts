@@ -9,10 +9,21 @@ const PLAN_LIMITS: Record<string, number> = {
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth check
+    const supabaseAuth = await createClient()
+    const { data: { user } } = await supabaseAuth.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { url, businessName, language, businessId } = await request.json()
 
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 })
+    }
+
+    if (!businessId) {
+      return NextResponse.json({ error: 'businessId is required' }, { status: 400 })
     }
 
     // Validate URL to prevent SSRF
@@ -49,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check usage limit
-    if (businessId) {
+    {
       const supabase = await createClient()
 
       // Get current plan
@@ -100,6 +111,7 @@ export async function POST(request: NextRequest) {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BotPressAI/1.0)' },
         signal: AbortSignal.timeout(10000),
+        redirect: 'manual',
       })
       const html = await res.text()
       websiteContent = html

@@ -187,8 +187,10 @@ export default function ConversationsPage() {
     const { error } = await supabase.rpc('delete_conversation', { p_conversation_id: id })
     if (error) {
       console.error('Delete conversation RPC error:', error)
+      toast.error(t.common.error)
+    } else {
+      setConversations(prev => prev.filter(c => c.id !== id))
     }
-    setConversations(prev => prev.filter(c => c.id !== id))
     setDeletingId(null)
   }
 

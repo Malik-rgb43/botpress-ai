@@ -84,8 +84,10 @@ export default function FAQPage() {
   }
 
   async function deleteFaq(id: string) {
+    if (!confirm('למחוק את השאלה?')) return
     const supabase = createClient()
-    await supabase.from('faqs').delete().eq('id', id)
+    const { error } = await supabase.from('faqs').delete().eq('id', id)
+    if (error) { toast.error(t.common.error); return }
     toast.success(t.faq.deleted)
     loadFaqs()
   }

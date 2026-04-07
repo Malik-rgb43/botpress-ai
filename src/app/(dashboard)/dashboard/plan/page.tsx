@@ -45,14 +45,24 @@ export default function PlanPage() {
     if (!business) { setStatsLoading(false); return }
     async function loadUsage() {
       const supabase = createClient()
-      // Count messages from this month
+      // Count messages for this business only (messages linked via conversations)
       const startOfMonth = new Date()
       startOfMonth.setDate(1)
       startOfMonth.setHours(0, 0, 0, 0)
-      const { count } = await supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .gte('created_at', startOfMonth.toISOString())
+
+      const { data: convIds } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('business_id', business!.id)
+
+      const conversationIds = (convIds || []).map(c => c.id)
+      const { count } = conversationIds.length > 0
+        ? await supabase
+            .from('messages')
+            .select('id', { count: 'exact', head: true })
+            .in('conversation_id', conversationIds)
+            .gte('created_at', startOfMonth.toISOString())
+        : { count: 0 }
       setMessagesUsed(count || 0)
       setStatsLoading(false)
     }

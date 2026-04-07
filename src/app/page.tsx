@@ -2,12 +2,12 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import Script from "next/script"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import {
-  MessageSquare, Mail, BarChart3, Shield, Zap, Users, Bot, ArrowLeft,
-  Check, Sparkles, ChevronDown, Star, Clock, Globe, Play, Quote,
-  X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck, Menu
+  MessageSquare, Mail, BarChart3, Zap, Users, Bot, ArrowLeft,
+  Check, Sparkles, ChevronDown, Star, Clock, Globe, Play,
+  X, Bell, Smartphone, Code, UserCheck, Menu
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useRef, useEffect, useState } from "react"
@@ -16,7 +16,6 @@ import RotatingText from "@/components/landing/rotating-text"
 import InteractiveDemo from "@/components/landing/interactive-demo"
 import HeroChat from "@/components/landing/hero-chat"
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 /* ── Scroll Animation Wrapper ─────────────────── */
 
@@ -1071,12 +1070,12 @@ export default function LandingPage() {
       </footer>
 
       {/* Live Widget Demo — visitors can try the bot */}
-      <script
+      <Script
         src="/widget.js"
         data-business-id="ee032509-4f7e-4cc3-b2ad-acaeb616d9a2"
         data-color="#2e90fa"
         data-position="right"
-        defer
+        strategy="lazyOnload"
       />
     </div>
   )

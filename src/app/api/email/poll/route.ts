@@ -181,11 +181,10 @@ async function replyViaGmail(accessToken: string, originalMessageId: string, to:
 // Main polling endpoint — called periodically
 export async function POST(request: NextRequest) {
   try {
-    // Verify — accept Vercel Cron header OR Bearer token
+    // Verify — require CRON_SECRET Bearer token (don't trust x-vercel-cron alone)
     const cronHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
-    const vercelCron = request.headers.get('x-vercel-cron')
-    if (!vercelCron && (!cronSecret || cronHeader !== `Bearer ${cronSecret}`)) {
+    if (!cronSecret || cronHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
