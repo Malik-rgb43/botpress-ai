@@ -3,6 +3,10 @@
  * Avoids rebuilding the same prompt and querying DB on every request
  *
  * TTL: 2 minutes (business data rarely changes mid-conversation)
+ *
+ * NOTE: In-memory store does NOT persist across serverless invocations.
+ * Each Vercel function instance has its own cache. This is acceptable
+ * for prompt caching since it's a performance optimization, not correctness.
  */
 
 interface CacheEntry<T> {
@@ -43,5 +47,7 @@ if (typeof globalThis !== 'undefined') {
         if (now > entry.expiresAt) cache.delete(key)
       }
     }, 5 * 60 * 1000)
+    // Prevent the interval from blocking Node.js/serverless shutdown
+    if (g.__promptCacheInterval?.unref) g.__promptCacheInterval.unref()
   }
 }

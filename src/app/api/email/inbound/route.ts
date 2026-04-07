@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import { sendMessage } from '@/services/channel-service'
 import type { AIContext } from '@/services/ai-engine'
@@ -7,6 +7,12 @@ import type { AIContext } from '@/services/ai-engine'
 // This webhook receives incoming emails and auto-responds with AI
 export async function POST(request: NextRequest) {
   try {
+    // Verify webhook secret
+    const pushSecret = request.nextUrl.searchParams.get('secret')
+    if (!pushSecret || pushSecret !== process.env.CRON_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // Resend inbound email webhook format
@@ -33,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Empty email' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Find business by email — match the recipient email to a business contact email
     // First try exact match on contact_info->email

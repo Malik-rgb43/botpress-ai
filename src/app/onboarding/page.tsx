@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { useTranslation } from '@/i18n/provider'
 import { Bot, ChevronRight, ChevronLeft, Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -45,18 +46,21 @@ export interface OnboardingData {
   templateGoodbye: string
 }
 
-const STEPS = [
-  { label: 'פרטי עסק', icon: '🏢' },
-  { label: 'סיפור', icon: '📝' },
-  { label: 'FAQ', icon: '❓' },
-  { label: 'מדיניות', icon: '📋' },
-  { label: 'טון', icon: '🎯' },
-  { label: 'תבניות', icon: '💬' },
-  { label: 'סיכום', icon: '✅' },
-]
+const STEP_ICONS = ['🏢', '📝', '❓', '📋', '🎯', '💬', '✅']
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { t } = useTranslation()
+
+  const STEPS = [
+    { label: t.onboarding.step_business, icon: STEP_ICONS[0] },
+    { label: t.onboarding.step_story, icon: STEP_ICONS[1] },
+    { label: t.onboarding.step_faq, icon: STEP_ICONS[2] },
+    { label: t.onboarding.step_policies, icon: STEP_ICONS[3] },
+    { label: t.onboarding.step_tone, icon: STEP_ICONS[4] },
+    { label: t.onboarding.step_templates, icon: STEP_ICONS[5] },
+    { label: t.onboarding.step_summary, icon: STEP_ICONS[6] },
+  ]
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [data, setData] = useState<OnboardingData>({
@@ -84,7 +88,7 @@ export default function OnboardingPage() {
   async function handleFinish() {
     // Validate required fields
     if (!data.businessName.trim()) {
-      toast.error('חסר שם העסק — חזור לשלב 1')
+      toast.error(t.onboarding.missing_name)
       setStep(1)
       return
     }
@@ -93,7 +97,7 @@ export default function OnboardingPage() {
     try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('לא מחובר — התחבר מחדש')
+      if (!user) throw new Error(t.onboarding.not_logged_in)
 
       // Check if business already exists for this user
       const { data: existing } = await supabase
@@ -124,7 +128,7 @@ export default function OnboardingPage() {
 
         if (updateErr) {
           console.error('Update business error:', updateErr)
-          throw new Error('שגיאה בעדכון פרטי העסק')
+          throw new Error(t.onboarding.create_error)
         }
 
         // Delete old FAQs/policies and re-insert
@@ -166,7 +170,7 @@ export default function OnboardingPage() {
           ].map(t => ({ business_id: businessId, ...t }))
         )
 
-        toast.success('העסק עודכן בהצלחה!')
+        toast.success(t.onboarding.updated_success)
         router.push('/dashboard')
         return
       }
@@ -193,7 +197,7 @@ export default function OnboardingPage() {
 
       if (bizErr) {
         console.error('Create business error:', bizErr)
-        throw new Error('שגיאה ביצירת העסק — ' + (bizErr.message || ''))
+        throw new Error(t.onboarding.create_error + ' — ' + (bizErr.message || ''))
       }
 
       if (data.faqs.length > 0) {
@@ -245,11 +249,11 @@ export default function OnboardingPage() {
         white_label: false,
       })
 
-      toast.success('העסק נוצר בהצלחה!')
+      toast.success(t.onboarding.created_success)
       router.push('/dashboard')
     } catch (err: unknown) {
       console.error('Onboarding error:', err)
-      const message = err instanceof Error ? err.message : 'שגיאה בשמירה — נסה שוב'
+      const message = err instanceof Error ? err.message : t.onboarding.save_error
       toast.error(message)
     } finally {
       setSaving(false)
@@ -267,7 +271,7 @@ export default function OnboardingPage() {
             <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
             <span className="text-[17px] font-bold text-gray-900 tracking-tight">BotPress AI</span>
           </div>
-          <span className="text-sm text-gray-400">שלב {step} מתוך 7</span>
+          <span className="text-sm text-gray-400">{t.onboarding.step_of.replace('{step}', String(step)).replace('{total}', '7')}</span>
         </div>
       </div>
 
@@ -352,14 +356,14 @@ export default function OnboardingPage() {
             className="rounded-lg border-gray-200 h-10 px-5"
           >
             <ChevronRight className="h-4 w-4 ml-1" />
-            הקודם
+            {t.onboarding.prev}
           </Button>
           {step < 7 ? (
             <Button
               onClick={() => setStep(s => s + 1)}
               className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg h-10 px-6 shadow-sm"
             >
-              הבא
+              {t.onboarding.next}
               <ChevronLeft className="h-4 w-4 mr-1" />
             </Button>
           ) : (
@@ -369,9 +373,9 @@ export default function OnboardingPage() {
               className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-lg h-10 px-6 shadow-sm"
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />שומר...</>
+                <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />{t.onboarding.saving}</>
               ) : (
-                <><Check className="h-4 w-4 ml-1.5" />סיים והתחל</>
+                <><Check className="h-4 w-4 ml-1.5" />{t.onboarding.finish}</>
               )}
             </Button>
           )}

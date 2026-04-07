@@ -13,7 +13,10 @@ export interface EmailTemplateOptions {
 // ── Template 1: Modern — gradient header, rounded corners, premium feel ──
 function modernTemplate(opts: EmailTemplateOptions): string {
   const { businessName, logoUrl, primaryColor = '#2563eb', replyContent, footerText, showPoweredBy = true } = opts
-  const gradientEnd = adjustColor(primaryColor, -30)
+  const safeColor = /^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#2563eb'
+  const safeLogo = logoUrl && /^https?:\/\//.test(logoUrl) ? escapeHtml(logoUrl) : null
+  const safeFooter = footerText ? escapeHtml(footerText) : null
+  const gradientEnd = adjustColor(safeColor, -30)
   const content = escapeHtml(replyContent)
 
   return `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -25,9 +28,9 @@ function modernTemplate(opts: EmailTemplateOptions): string {
   <table width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
 
     <!-- Header -->
-    <tr><td style="background:linear-gradient(135deg,${primaryColor},${gradientEnd});padding:24px 24px 20px;text-align:center;border-radius:0 0 12px 12px;">
-      ${logoUrl
-        ? `<img src="${logoUrl}" alt="${businessName}" width="44" height="44" style="border-radius:11px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;border:2px solid rgba(255,255,255,0.25);">`
+    <tr><td style="background:linear-gradient(135deg,${safeColor},${gradientEnd});padding:24px 24px 20px;text-align:center;border-radius:0 0 12px 12px;">
+      ${safeLogo
+        ? `<img src="${safeLogo}" alt="${businessName}" width="44" height="44" style="border-radius:11px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;border:2px solid rgba(255,255,255,0.25);">`
         : `<div style="width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,0.15);margin:0 auto 14px;line-height:44px;font-size:20px;text-align:center;color:white;">✦</div>`
       }
       <h1 style="color:#ffffff;font-size:19px;font-weight:700;margin:0;letter-spacing:-0.3px;">${businessName}</h1>
@@ -41,7 +44,7 @@ function modernTemplate(opts: EmailTemplateOptions): string {
     <!-- Footer -->
     <tr><td style="padding:0 32px 28px;">
       <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 20px;">
-      ${footerText ? `<p style="color:#64748b;font-size:13px;line-height:1.5;margin:0 0 6px;text-align:center;">${footerText}</p>` : ''}
+      ${safeFooter ? `<p style="color:#64748b;font-size:13px;line-height:1.5;margin:0 0 6px;text-align:center;">${safeFooter}</p>` : ''}
       <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">${businessName}</p>
     </td></tr>
 
@@ -55,6 +58,9 @@ function modernTemplate(opts: EmailTemplateOptions): string {
 // ── Template 2: Classic — clean side accent, professional look ──
 function classicTemplate(opts: EmailTemplateOptions): string {
   const { businessName, logoUrl, primaryColor = '#2563eb', replyContent, footerText, showPoweredBy = true } = opts
+  const safeColor = /^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#2563eb'
+  const safeLogo = logoUrl && /^https?:\/\//.test(logoUrl) ? escapeHtml(logoUrl) : null
+  const safeFooter = footerText ? escapeHtml(footerText) : null
   const content = escapeHtml(replyContent)
 
   return `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -67,7 +73,7 @@ function classicTemplate(opts: EmailTemplateOptions): string {
     <!-- Header -->
     <tr><td style="padding:24px 28px;border-bottom:1px solid #f1f5f9;">
       <table width="100%" cellspacing="0" cellpadding="0"><tr>
-        ${logoUrl ? `<td style="width:44px;padding-left:12px;"><img src="${logoUrl}" alt="" width="40" height="40" style="border-radius:10px;display:block;"></td>` : ''}
+        ${safeLogo ? `<td style="width:44px;padding-left:12px;"><img src="${safeLogo}" alt="" width="40" height="40" style="border-radius:10px;display:block;"></td>` : ''}
         <td><h2 style="color:#1e293b;font-size:17px;font-weight:700;margin:0;">${businessName}</h2></td>
       </tr></table>
     </td></tr>
@@ -75,7 +81,7 @@ function classicTemplate(opts: EmailTemplateOptions): string {
     <!-- Body with side accent -->
     <tr><td style="padding:0;">
       <table width="100%" cellspacing="0" cellpadding="0"><tr>
-        <td style="width:4px;background-color:${primaryColor};border-radius:2px;"></td>
+        <td style="width:4px;background-color:${safeColor};border-radius:2px;"></td>
         <td style="padding:28px;">
           <p style="color:#334155;font-size:15px;line-height:1.75;margin:0;white-space:pre-line;">${content}</p>
         </td>
@@ -84,7 +90,7 @@ function classicTemplate(opts: EmailTemplateOptions): string {
 
     <!-- Footer -->
     <tr><td style="padding:20px 28px;background-color:#f8fafc;border-top:1px solid #f1f5f9;">
-      ${footerText ? `<p style="color:#64748b;font-size:12px;margin:0 0 6px;text-align:center;">${footerText}</p>` : ''}
+      ${safeFooter ? `<p style="color:#64748b;font-size:12px;margin:0 0 6px;text-align:center;">${safeFooter}</p>` : ''}
       <p style="color:#94a3b8;font-size:11px;margin:0;text-align:center;">${businessName}</p>
     </td></tr>
 
@@ -98,6 +104,8 @@ function classicTemplate(opts: EmailTemplateOptions): string {
 // ── Template 3: Minimal — text only, clean and simple ──
 function minimalTemplate(opts: EmailTemplateOptions): string {
   const { businessName, primaryColor = '#2563eb', replyContent, footerText, showPoweredBy = true } = opts
+  const safeColor = /^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#2563eb'
+  const safeFooter = footerText ? escapeHtml(footerText) : null
   const content = escapeHtml(replyContent)
 
   return `<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -109,7 +117,7 @@ function minimalTemplate(opts: EmailTemplateOptions): string {
 
     <!-- Name -->
     <tr><td style="padding-bottom:24px;">
-      <p style="color:${primaryColor};font-size:14px;font-weight:700;margin:0;letter-spacing:-0.2px;">${businessName}</p>
+      <p style="color:${safeColor};font-size:14px;font-weight:700;margin:0;letter-spacing:-0.2px;">${businessName}</p>
     </td></tr>
 
     <!-- Body -->
@@ -120,7 +128,7 @@ function minimalTemplate(opts: EmailTemplateOptions): string {
     <!-- Footer -->
     <tr><td style="padding-top:28px;">
       <hr style="border:none;border-top:1px solid #e8ecf1;margin:0 0 16px;">
-      ${footerText ? `<p style="color:#94a3b8;font-size:12px;margin:0 0 4px;">${footerText}</p>` : ''}
+      ${safeFooter ? `<p style="color:#94a3b8;font-size:12px;margin:0 0 4px;">${safeFooter}</p>` : ''}
       <p style="color:#9ca3af;font-size:11px;margin:0;">${showPoweredBy ? '&#9670; Powered by <strong style="font-weight:600;">BotPress AI</strong> · ' : ''}${businessName}</p>
     </td></tr>
 

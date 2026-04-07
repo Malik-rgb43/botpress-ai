@@ -1,8 +1,10 @@
 /**
- * Simple in-memory rate limiter for API endpoints
+ * Rate limiter for serverless environments (Vercel)
  *
- * Uses a sliding window approach. For production at scale,
- * replace with Redis-based solution (Upstash, etc.)
+ * NOTE: In-memory store does NOT persist across serverless invocations.
+ * This provides per-instance rate limiting which helps with burst traffic
+ * but won't enforce limits across distributed instances.
+ * For production: migrate to Vercel KV, Upstash Redis, or Supabase-based limiter.
  */
 
 interface RateLimitEntry {
@@ -22,6 +24,8 @@ if (typeof globalThis !== 'undefined') {
         if (now > entry.resetAt) store.delete(key)
       }
     }, 5 * 60 * 1000)
+    // Prevent the interval from blocking Node.js/serverless shutdown
+    if (g.__rateLimitInterval?.unref) g.__rateLimitInterval.unref()
   }
 }
 

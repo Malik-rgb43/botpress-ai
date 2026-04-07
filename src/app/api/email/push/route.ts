@@ -6,6 +6,12 @@ import { getOrBuildPrompt } from '@/services/prompt-builder'
 // Gmail Push Notification handler — called by Google Pub/Sub when new email arrives
 export async function POST(request: NextRequest) {
   try {
+    // Verify push secret
+    const pushSecret = request.nextUrl.searchParams.get('secret')
+    if (!pushSecret || pushSecret !== process.env.CRON_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     // Pub/Sub sends base64-encoded message
@@ -122,7 +128,7 @@ export async function POST(request: NextRequest) {
         .from('conversations')
         .select('id')
         .eq('business_id', business.id)
-        .eq('customer_identifier', senderEmail)
+        .eq('customer', senderEmail)
         .gte('started_at', new Date(Date.now() - 120000).toISOString())
         .limit(1)
       if (existing && existing.length > 0) continue

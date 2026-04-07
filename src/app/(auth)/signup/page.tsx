@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
+import { useTranslation } from '@/i18n/provider'
 import { Bot, Loader2, Star, MessageSquare, TrendingUp, Users } from 'lucide-react'
 
 export default function SignupPage() {
   const { signUp, loading, error } = useAuth()
+  const { t } = useTranslation()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,11 +19,11 @@ export default function SignupPage() {
     e.preventDefault()
     setLocalError(null)
     if (password !== confirmPassword) {
-      setLocalError('הסיסמאות לא תואמות')
+      setLocalError(t.auth.passwords_mismatch)
       return
     }
     if (password.length < 6) {
-      setLocalError('הסיסמה חייבת להכיל לפחות 6 תווים')
+      setLocalError(t.auth.password_min)
       return
     }
     await signUp(email, password, fullName)
@@ -99,14 +101,14 @@ export default function SignupPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/20">
               <Bot className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">הרשמה</h1>
-            <p className="text-gray-400 text-sm mt-1.5">צור חשבון ותתחיל לבנות את הבוט שלך</p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t.auth.signup_title}</h1>
+            <p className="text-gray-400 text-sm mt-1.5">{t.auth.signup_subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                שם מלא
+                {t.auth.full_name}
               </label>
               <input
                 id="fullName"
@@ -121,7 +123,7 @@ export default function SignupPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                אימייל
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -137,7 +139,7 @@ export default function SignupPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                סיסמה
+                {t.auth.password}
               </label>
               <input
                 id="password"
@@ -153,7 +155,7 @@ export default function SignupPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                אימות סיסמה
+                {t.auth.confirm_password}
               </label>
               <input
                 id="confirmPassword"
@@ -178,17 +180,17 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full h-12 rounded-xl bg-gradient-to-l from-blue-500 to-indigo-600 text-white font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : 'צור חשבון'}
+              {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t.auth.signup_button}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-400 mt-8">
-            כבר יש לך חשבון?{' '}
+            {t.auth.has_account}{' '}
             <Link
               href="/login"
               className="text-blue-500 font-medium hover:text-blue-600 transition-colors"
             >
-              התחבר
+              {t.auth.login_link}
             </Link>
           </p>
         </div>

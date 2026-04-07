@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
+import { useTranslation } from '@/i18n/provider'
 import { Bot, Loader2, Star, MessageSquare, TrendingUp, Users } from 'lucide-react'
 
 export default function LoginPage() {
   const { signIn, loading, error } = useAuth()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -87,14 +89,14 @@ export default function LoginPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/20">
               <Bot className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">התחברות</h1>
-            <p className="text-gray-400 text-sm mt-1.5">הזן אימייל וסיסמה כדי להיכנס</p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">{t.auth.login_title}</h1>
+            <p className="text-gray-400 text-sm mt-1.5">{t.auth.login_subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                אימייל
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -110,7 +112,7 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                סיסמה
+                {t.auth.password}
               </label>
               <input
                 id="password"
@@ -135,17 +137,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full h-12 rounded-xl bg-gradient-to-l from-blue-500 to-indigo-600 text-white font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : 'התחבר'}
+              {loading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : t.auth.login_button}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-400 mt-8">
-            אין לך חשבון?{' '}
+            {t.auth.no_account}{' '}
             <Link
               href="/signup"
               className="text-blue-500 font-medium hover:text-blue-600 transition-colors"
             >
-              הירשם
+              {t.auth.register_link}
             </Link>
           </p>
         </div>
