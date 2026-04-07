@@ -437,3 +437,8 @@ main {
 .glow-emerald {
   box-shadow: 0 0 16px rgba(16, 185, 129, 0.15), 0 0 4px rgba(16, 185, 129, 0.1);
 }
+
+@keyframes draw-line {
+  from { stroke-dashoffset: 600; }
+  to { stroke-dashoffset: 0; }
+}

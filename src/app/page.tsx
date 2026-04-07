@@ -10,8 +10,7 @@ import {
   X, TestTube, Send, TrendingUp, Bell, Smartphone, Code, UserCheck, Menu
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
-import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useEffect, useState } from "react"
 import LiveChatDemo from "@/components/landing/live-chat-demo"
 import RotatingText from "@/components/landing/rotating-text"
 import InteractiveDemo from "@/components/landing/interactive-demo"
@@ -21,29 +20,38 @@ import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 /* ── Scroll Animation Wrapper ─────────────────── */
 
-function FadeIn({ children, className = '', delay = 0, direction = 'up' }: {
+function FadeIn({ children, className = '', delay = 0 }: {
   children: React.ReactNode
   className?: string
   delay?: number
-  direction?: 'up' | 'down' | 'left' | 'right'
+  direction?: string
 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.1 })
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
 
-  const dirs: Record<string, { y?: number; x?: number }> = { up: { y: 15 }, down: { y: -15 }, left: { x: 15 }, right: { x: -15 } }
-  const dir = dirs[direction] || { y: 15 }
-  const initial = { opacity: 0, y: dir.y || 0, x: dir.x || 0 }
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={initial}
-      animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
-      transition={{ duration: 0.5, delay: Math.min(delay, 0.2), ease: "easeOut" }}
       className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transition: `opacity 0.4s ease ${delay * 0.15}s, transform 0.4s ease ${delay * 0.15}s`,
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -103,12 +111,8 @@ function AnalyticsMockup() {
       </div>
       <div className="flex items-end gap-1.5 h-16">
         {[35, 52, 41, 68, 55, 73, 89].map((h, i) => (
-          <motion.div
+          <div
             key={i}
-            initial={{ height: 0 }}
-            whileInView={{ height: `${h}%` }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: i * 0.08, ease: "easeOut" }}
             className="flex-1 rounded-md bg-gradient-to-t from-[#2e90fa] to-[#7c3aed] opacity-80"
           />
         ))}
@@ -128,18 +132,14 @@ function NotificationMockup() {
         { icon: Check, text: 'הבוט ענה ל-12 שאלות היום', time: "לפני שעה", color: "bg-emerald-50/80 border-emerald-100" },
         { icon: UserCheck, text: "בקשה לנציג — מועברת אליך", time: "לפני 2 שעות", color: "bg-amber-50/80 border-amber-100" },
       ].map((n, i) => (
-        <motion.div
+        <div
           key={i}
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: i * 0.15 }}
           className={`${n.color} border rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 text-[11px]`}
         >
           <n.icon className="h-3.5 w-3.5 text-gray-500 shrink-0" />
           <span className="flex-1 font-medium text-gray-700">{n.text}</span>
           <span className="text-gray-400 text-[9px] shrink-0">{n.time}</span>
-        </motion.div>
+        </div>
       ))}
     </div>
   )
@@ -285,10 +285,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             {/* Text side */}
             <div className="lg:col-span-7 text-center lg:text-right">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+              <div
               >
                 <div
                   className="inline-flex items-center gap-2.5 rounded-full px-5 py-2 text-sm mb-8 font-medium"
@@ -301,12 +298,9 @@ export default function LandingPage() {
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   הפלטפורמה #1 לבוטים חכמים לעסקים
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
+              <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-[1.15]"
                 style={{ letterSpacing: '-0.02em' }}
               >
@@ -314,22 +308,16 @@ export default function LandingPage() {
                 <br />
                 <span className="text-[#2e90fa]">הבוט שלך עונה</span>{' '}
                 <RotatingText />
-              </motion.h1>
+              </h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
+              <p
                 className="text-lg md:text-xl text-gray-500 max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0"
               >
                 בוט AI שעונה ללקוחות שלך בוואטסאפ, אימייל ובאתר —
                 מהאימייל והמספר של העסק שלך. מוכן תוך 5 דקות.
-              </motion.p>
+              </p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
+              <div
                 className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8"
               >
                 <Link href="/signup">
@@ -354,29 +342,23 @@ export default function LandingPage() {
                     <Play className="h-4 w-4" /> ראה איך עובד
                   </Button>
                 </Link>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
+              <div
                 className="flex flex-wrap items-center justify-center lg:justify-start gap-5 md:gap-7 text-sm text-gray-400"
               >
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />7 ימי ניסיון ב-₪1</span>
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />התקנה ב-5 דקות</span>
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />תמיכה בעברית</span>
-              </motion.div>
+              </div>
             </div>
 
             {/* Interactive Chat Demo */}
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            <div
               className="lg:col-span-5 hidden lg:block"
             >
               <HeroChat />
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -600,11 +582,7 @@ export default function LandingPage() {
                     <div key={i}>
                       <div className="flex justify-between text-[10px] text-gray-500 mb-0.5 font-medium"><span>{l.layer}</span><span>{l.pct}</span></div>
                       <div className="w-full bg-gray-100 rounded-full h-2">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: l.pct }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.8, delay: i * 0.15, ease: "easeOut" }}
+                        <div
                           className="h-2 rounded-full"
                           style={{ background: `linear-gradient(90deg, ${l.from}, ${l.to})` }}
                         />
@@ -897,9 +875,7 @@ export default function LandingPage() {
             { name: "פרימיום", price: "299", trial: false, popular: false, features: ["הודעות ללא הגבלה", "כל הערוצים", "White Label", "תמיכה מועדפת", "AI מתקדם + זיכרון"] },
           ].map((plan, i) => (
             <div key={i}>
-              <motion.div
-                whileHover={{ y: -6, scale: 1.01 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              <div
                 className={`relative rounded-2xl p-7 md:p-8 h-full ${plan.popular ? 'ring-2 ring-[#2e90fa]' : ''}`}
                 style={{
                   background: plan.popular ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)',
@@ -960,7 +936,7 @@ export default function LandingPage() {
                     {plan.trial ? "התחל ניסיון ב-₪1" : "בחר תוכנית"}
                   </Button>
                 </Link>
-              </motion.div>
+              </div>
             </div>
           ))}
         </div>
