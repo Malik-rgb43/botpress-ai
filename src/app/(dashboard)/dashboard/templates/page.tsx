@@ -96,16 +96,16 @@ export default function TemplatesPage() {
           </div>
           <div className="p-4">
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              {TONES.map(t => (
+              {TONES.map(item => (
                 <button
-                  key={t.value}
-                  onClick={() => setTone(t.value)}
+                  key={item.value}
+                  onClick={() => setTone(item.value)}
                   className={`p-3 rounded-lg border text-center transition-colors ${
-                    tone === t.value ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-gray-200'
+                    tone === item.value ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-gray-200'
                   }`}
                 >
-                  <div className="text-lg mb-1">{t.emoji}</div>
-                  <div className="text-xs font-medium">{t.label}</div>
+                  <div className="text-lg mb-1">{item.emoji}</div>
+                  <div className="text-xs font-medium">{item.label}</div>
                 </button>
               ))}
             </div>

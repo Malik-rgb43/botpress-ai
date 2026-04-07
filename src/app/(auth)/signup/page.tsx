@@ -24,7 +24,7 @@ export default function SignupPage() {
       setLocalError('הסיסמה חייבת להכיל לפחות 6 תווים')
       return
     }
-    await signUp(email, password)
+    await signUp(email, password, fullName)
   }
 
   return (

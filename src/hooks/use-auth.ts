@@ -10,10 +10,14 @@ export function useAuth() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function signUp(email: string, password: string) {
+  async function signUp(email: string, password: string, fullName?: string) {
     setLoading(true)
     setError(null)
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: fullName ? { data: { full_name: fullName } } : undefined,
+    })
     if (error) {
       setError(error.message)
       setLoading(false)
