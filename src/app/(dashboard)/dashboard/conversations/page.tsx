@@ -371,6 +371,7 @@ export default function ConversationsPage() {
 
                     {/* Delete button */}
                     <button
+                      aria-label="מחק שיחה"
                       className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                       onClick={async (e) => {
                         e.stopPropagation()
@@ -390,6 +391,7 @@ export default function ConversationsPage() {
                     {/* Arrow link */}
                     <Link
                       href={`/dashboard/conversations/${conv.id}`}
+                      aria-label="צפה בשיחה"
                       className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />

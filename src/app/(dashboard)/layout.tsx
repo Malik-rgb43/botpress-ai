@@ -25,6 +25,7 @@ function TopBar() {
       <Link
         href="/dashboard/conversations?status=needs_agent"
         className="relative p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        aria-label="התראות"
       >
         <Bell className="h-[18px] w-[18px]" />
         {pendingCount > 0 && (
@@ -63,6 +64,7 @@ function MobileHeader() {
       <Link
         href="/dashboard/conversations?status=needs_agent"
         className="relative p-2 text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="התראות"
       >
         <Bell className="h-[18px] w-[18px]" />
         {pendingCount > 0 && (
@@ -96,7 +98,7 @@ export default function DashboardLayout({
           <div className="hidden md:block">
             <TopBar />
           </div>
-          <main className="flex-1 p-5 md:p-8 overflow-auto">
+          <main id="main-content" className="flex-1 p-5 md:p-8 overflow-auto">
             {children}
           </main>
         </div>

@@ -116,7 +116,7 @@ function AnalyticsMockup() {
           />
         ))}
       </div>
-      <div className="flex justify-between text-[9px] text-gray-400 font-medium">
+      <div className="flex justify-between text-[9px] text-gray-500 font-medium">
         <span>א׳</span><span>ב׳</span><span>ג׳</span><span>ד׳</span><span>ה׳</span><span>ו׳</span><span>ש׳</span>
       </div>
     </div>
@@ -137,7 +137,7 @@ function NotificationMockup() {
         >
           <n.icon className="h-3.5 w-3.5 text-gray-500 shrink-0" />
           <span className="flex-1 font-medium text-gray-700">{n.text}</span>
-          <span className="text-gray-400 text-[9px] shrink-0">{n.time}</span>
+          <span className="text-gray-500 text-[9px] shrink-0">{n.time}</span>
         </div>
       ))}
     </div>
@@ -149,7 +149,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     <details className="group border border-gray-100 rounded-2xl overflow-hidden bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:border-[#2e90fa]/20 transition-all duration-300">
       <summary className="flex items-center justify-between p-5 md:p-6 cursor-pointer hover:bg-blue-50/30 transition-colors">
         <span className="font-semibold text-gray-900 text-[15px]">{q}</span>
-        <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform duration-300 shrink-0 mr-3" />
+        <ChevronDown className="h-4 w-4 text-gray-500 group-open:rotate-180 transition-transform duration-300 shrink-0 mr-3" />
       </summary>
       <div className="px-5 md:px-6 pb-5 md:pb-6 text-sm text-gray-500 leading-relaxed">{a}</div>
     </details>
@@ -238,7 +238,7 @@ export default function LandingPage() {
                         <Image src="/images/logo.png" alt="BotPress AI" width={28} height={28} className="rounded-lg" />
                         <span className="font-bold text-gray-900 text-[15px]">BotPress AI</span>
                       </div>
-                      <SheetClose className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                      <SheetClose className="p-1.5 rounded-lg text-gray-500 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                         <X className="h-5 w-5" />
                       </SheetClose>
                     </div>
@@ -272,6 +272,7 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <main id="main-content">
       {/* ═══════════════════════════════════════════════ */}
       {/* 2. HERO                                         */}
       {/* ═══════════════════════════════════════════════ */}
@@ -344,7 +345,7 @@ export default function LandingPage() {
               </div>
 
               <div
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-5 md:gap-7 text-sm text-gray-400"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-5 md:gap-7 text-sm text-gray-500"
               >
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />7 ימי ניסיון ב-₪1</span>
                 <span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#2e90fa]" />התקנה ב-5 דקות</span>
@@ -607,7 +608,7 @@ export default function LandingPage() {
                     <div key={i} className="bg-gray-50/80 rounded-xl px-3.5 py-2 text-[11px] flex items-center gap-2">
                       <span className="text-base">{l.flag}</span>
                       <span className="font-semibold text-gray-600">{l.lang}:</span>
-                      <span className="text-gray-400">{l.ex}</span>
+                      <span className="text-gray-500">{l.ex}</span>
                     </div>
                   ))}
                 </div>
@@ -787,7 +788,7 @@ export default function LandingPage() {
               >
                 BotPress AI
               </div>
-              <div className="p-4 md:p-5 text-gray-400">אחרים</div>
+              <div className="p-4 md:p-5 text-gray-500">אחרים</div>
             </div>
             {[
               { feature: "הקמה ב-5 דקות", us: true, them: false },
@@ -903,7 +904,7 @@ export default function LandingPage() {
                   </span>
                   {plan.trial
                     ? <span className="text-[#2e90fa] text-sm font-semibold mr-1">/7 ימי ניסיון</span>
-                    : <span className="text-gray-400 text-sm mr-1">/חודש</span>
+                    : <span className="text-gray-500 text-sm mr-1">/חודש</span>
                   }
                 </div>
                 <ul className="space-y-3 mb-7">
@@ -1061,13 +1062,14 @@ export default function LandingPage() {
             </div>
           </div>
           <div
-            className="border-t pt-7 text-center text-sm text-gray-400"
+            className="border-t pt-7 text-center text-sm text-gray-500"
             style={{ borderColor: 'rgba(0,0,0,0.04)' }}
           >
             &copy; 2026 BotPress AI. כל הזכויות שמורות.
           </div>
         </div>
       </footer>
+      </main>
 
       {/* Live Widget Demo — visitors can try the bot */}
       <Script

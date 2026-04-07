@@ -166,6 +166,7 @@ export default function DashboardSidebar() {
                 : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
             }`}
             title={notificationsEnabled ? t.nav.notifications_on_title : t.nav.enable_notifications}
+            aria-label={notificationsEnabled ? t.nav.notifications_on_title : t.nav.enable_notifications}
           >
             {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
           </button>
@@ -173,6 +174,7 @@ export default function DashboardSidebar() {
             onClick={signOut}
             className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title={t.nav.sign_out}
+            aria-label={t.nav.sign_out}
           >
             <LogOut className="h-4 w-4" />
           </button>

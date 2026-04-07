@@ -334,7 +334,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <main id="main-content" className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {step === 1 && <StepBusinessInfo data={data} updateData={updateData} />}
         {step === 2 && <StepBusinessStory data={data} updateData={updateData} />}
         {step === 3 && <StepFAQ data={data} updateData={updateData} />}
@@ -376,7 +376,7 @@ export default function OnboardingPage() {
             </Button>
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }

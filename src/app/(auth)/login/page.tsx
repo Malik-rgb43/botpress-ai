@@ -80,7 +80,7 @@ export default function LoginPage() {
       </div>
 
       {/* Left side (RTL) — White form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
         <div className="w-full max-w-sm">
           {/* Logo icon */}
           <div className="text-center mb-8">
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 dir="ltr"
-                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white transition-all"
               />
             </div>
 
@@ -120,12 +120,12 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 dir="ltr"
-                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all"
+                className="w-full h-12 px-4 rounded-xl bg-gray-100 border-0 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white transition-all"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <div role="alert" className="bg-red-50 border border-red-100 rounded-xl px-4 py-3">
                 <p className="text-sm text-red-600 text-center">{error}</p>
               </div>
             )}
@@ -149,7 +149,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
