@@ -211,38 +211,34 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* HERO                                            */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-24 pb-10 md:pt-28 md:pb-16" style={{ background: '#0a0a1a' }}>
-        {/* Grid pattern */}
-        <div className="hero-grid absolute inset-0 opacity-30" />
+      <section className="relative overflow-hidden pt-24 pb-10 md:pt-28 md:pb-16 bg-white">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/40 via-white to-white" />
 
-        {/* Gradient orbs */}
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full blur-[140px] animate-pulse-glow"
-          style={{ background: 'radial-gradient(circle, rgba(46,144,250,0.25) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] animate-pulse-glow"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)' }} />
-        <div className="absolute top-[30%] left-[40%] w-[300px] h-[300px] rounded-full blur-[100px]"
-          style={{ background: 'radial-gradient(circle, rgba(46,144,250,0.1) 0%, transparent 70%)' }} />
+        {/* Soft gradient orbs */}
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px] animate-pulse-glow"
+          style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[100px] animate-pulse-glow"
+          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)' }} />
 
         {/* Floating decorative elements */}
-        <div className="absolute top-[15%] right-[8%] w-3 h-3 rounded-full bg-blue-400/30 animate-float hidden md:block" />
-        <div className="absolute top-[25%] left-[12%] w-2 h-2 rounded-full bg-purple-400/40 animate-float-delay hidden md:block" />
-        <div className="absolute bottom-[30%] right-[15%] w-4 h-4 rounded-full bg-emerald-400/20 animate-float-slow hidden md:block" />
-        <div className="absolute top-[60%] left-[8%] w-2.5 h-2.5 rounded-full bg-blue-300/30 animate-float hidden md:block" />
-        <div className="absolute bottom-[20%] left-[25%] w-1.5 h-1.5 rounded-full bg-purple-300/50 animate-float-delay hidden md:block" />
+        <div className="absolute top-[20%] right-[8%] w-3 h-3 rounded-full bg-blue-400/20 animate-float hidden md:block" />
+        <div className="absolute top-[30%] left-[12%] w-2 h-2 rounded-full bg-purple-400/15 animate-float-delay hidden md:block" />
+        <div className="absolute bottom-[25%] right-[15%] w-4 h-4 rounded-full bg-blue-300/15 animate-float-slow hidden md:block" />
 
         <div className="relative z-10 max-w-[1200px] mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left: Text content */}
             <div className="text-center md:text-right order-1">
               {/* Badge */}
-              <div className="animate-slide-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8 animate-border-pulse">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-glow" />
-                <span className="text-sm text-gray-300 font-medium">הפלטפורמה #1 לבוטים חכמים</span>
+              <div className="animate-slide-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-200 bg-blue-50 mb-8 badge-shine">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-sm text-blue-700 font-medium">הפלטפורמה #1 לבוטים חכמים</span>
               </div>
 
               {/* Headline */}
               <h1 className="animate-slide-up-delay text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-                <span className="text-white">הבוט שמחליף</span>
+                <span className="text-gray-900">הבוט שמחליף</span>
                 <br />
                 <span className="gradient-text">
                   <RotatingText />
@@ -250,7 +246,7 @@ export default function LandingPage() {
               </h1>
 
               {/* Subtitle */}
-              <p className="animate-slide-up-delay-2 text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl md:max-w-none mb-10">
+              <p className="animate-slide-up-delay-2 text-lg md:text-xl text-gray-500 leading-relaxed max-w-xl md:max-w-none mb-10">
                 בוט AI שסורק את האתר שלך, לומד את העסק, ועונה ללקוחות בוואטסאפ, אימייל ובאתר — 24/7, בלי נציגים
               </p>
 
@@ -274,7 +270,7 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="rounded-xl px-8 py-6 text-base border-white/30 text-white/90 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm font-medium"
+                    className="rounded-xl px-8 py-6 text-base border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 font-medium"
                   >
                     <Play className="h-4 w-4 ml-2" />
                     צפה בהדגמה
@@ -290,7 +286,7 @@ export default function LandingPage() {
                   { value: 98, suffix: '%', label: 'שביעות רצון' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center md:text-right">
-                    <div className="text-2xl md:text-3xl font-extrabold text-white">
+                    <div className="text-2xl md:text-3xl font-extrabold gradient-text">
                       <AnimatedCounter target={stat.value} suffix={stat.suffix} />
                     </div>
                     <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
@@ -303,19 +299,19 @@ export default function LandingPage() {
             <div className="order-2">
               {/* Desktop: HeroChat */}
               <div className="hidden md:block animate-slide-up-delay">
-                <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-1 shadow-2xl shadow-blue-500/10">
-                  <div className="rounded-xl bg-[#111127] overflow-hidden">
+                <div className="relative rounded-2xl border border-gray-200 bg-white p-1 shadow-2xl shadow-blue-500/10">
+                  <div className="rounded-xl bg-white overflow-hidden border border-gray-100">
                     {/* Chat header */}
-                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b border-white/5 px-5 py-3.5 flex items-center justify-between">
+                    <div style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }} className="px-5 py-3.5 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                           <Bot className="h-4 w-4 text-white" />
                         </div>
                         <div>
                           <div className="text-white text-sm font-semibold">BotPress AI</div>
-                          <div className="text-emerald-400 text-[11px] flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            אונליין — עונה תוך שניות
+                          <div className="text-white/70 text-[11px] flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                            אונליין
                           </div>
                         </div>
                       </div>
