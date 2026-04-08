@@ -2,17 +2,17 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import Script from "next/script"
 import { Button } from "@/components/ui/button"
 import {
   MessageSquare, Mail, BarChart3, Zap, Users, Bot, ArrowLeft,
   Check, Sparkles, ChevronDown, Star, Clock, Globe, Play,
-  X, Bell, Smartphone, Code, UserCheck, Menu
+  X, Bell, Smartphone, Code, UserCheck, Menu, Shield, Languages, FileText
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useRef, useEffect, useState } from "react"
 import HeroChat from "@/components/landing/hero-chat"
 import RotatingText from "@/components/landing/rotating-text"
+import InteractiveDemo from "@/components/landing/interactive-demo"
 
 /* ── Scroll Animation Wrapper ─────────────────── */
 
@@ -96,7 +96,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     <details className="group border border-gray-200/60 rounded-2xl overflow-hidden bg-white hover:border-blue-200 transition-all duration-300">
       <summary className="flex items-center justify-between p-5 md:p-6 cursor-pointer hover:bg-blue-50/30 transition-colors">
         <span className="font-semibold text-gray-900 text-[15px]">{q}</span>
-        <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform duration-300 shrink-0 mr-3" />
+        <ChevronDown className="h-4 w-4 text-gray-500 group-open:rotate-180 transition-transform duration-300 shrink-0 mr-3" />
       </summary>
       <div className="px-5 md:px-6 pb-5 md:pb-6 text-sm text-gray-500 leading-relaxed">{a}</div>
     </details>
@@ -110,7 +110,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white relative" dir="rtl">
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 1. HEADER                                       */}
+      {/* HEADER                                          */}
       {/* ═══════════════════════════════════════════════ */}
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="mx-auto max-w-[1200px] mt-4 px-4">
@@ -209,9 +209,9 @@ export default function LandingPage() {
       <main id="main-content">
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 2. HERO — Dark Section                          */}
+      {/* HERO                                            */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32" style={{ background: '#0a0a1a' }}>
+      <section className="relative overflow-hidden pt-24 pb-10 md:pt-28 md:pb-16" style={{ background: '#0a0a1a' }}>
         {/* Grid pattern */}
         <div className="hero-grid absolute inset-0 opacity-30" />
 
@@ -223,184 +223,170 @@ export default function LandingPage() {
         <div className="absolute top-[30%] left-[40%] w-[300px] h-[300px] rounded-full blur-[100px]"
           style={{ background: 'radial-gradient(circle, rgba(46,144,250,0.1) 0%, transparent 70%)' }} />
 
+        {/* Floating decorative elements */}
+        <div className="absolute top-[15%] right-[8%] w-3 h-3 rounded-full bg-blue-400/30 animate-float hidden md:block" />
+        <div className="absolute top-[25%] left-[12%] w-2 h-2 rounded-full bg-purple-400/40 animate-float-delay hidden md:block" />
+        <div className="absolute bottom-[30%] right-[15%] w-4 h-4 rounded-full bg-emerald-400/20 animate-float-slow hidden md:block" />
+        <div className="absolute top-[60%] left-[8%] w-2.5 h-2.5 rounded-full bg-blue-300/30 animate-float hidden md:block" />
+        <div className="absolute bottom-[20%] left-[25%] w-1.5 h-1.5 rounded-full bg-purple-300/50 animate-float-delay hidden md:block" />
+
         <div className="relative z-10 max-w-[1200px] mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* Badge */}
-            <div className="animate-slide-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-glow" />
-              <span className="text-sm text-gray-300 font-medium">הפלטפורמה #1 לבוטים חכמים</span>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left: Text content */}
+            <div className="text-center md:text-right order-1">
+              {/* Badge */}
+              <div className="animate-slide-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8 animate-border-pulse">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-glow" />
+                <span className="text-sm text-gray-300 font-medium">הפלטפורמה #1 לבוטים חכמים</span>
+              </div>
+
+              {/* Headline */}
+              <h1 className="animate-slide-up-delay text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
+                <span className="text-white">הבוט שמחליף</span>
+                <br />
+                <span className="gradient-text">
+                  <RotatingText />
+                </span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="animate-slide-up-delay-2 text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl md:max-w-none mb-10">
+                בוט AI שסורק את האתר שלך, לומד את העסק, ועונה ללקוחות בוואטסאפ, אימייל ובאתר — 24/7, בלי נציגים
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row items-center md:items-start justify-center md:justify-start gap-4 mb-12">
+                <Link href="/signup">
+                  <Button
+                    size="lg"
+                    className="rounded-xl px-8 py-6 text-base border-0 text-white font-semibold animate-shimmer"
+                    style={{
+                      background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 50%, #2e90fa 100%)',
+                      backgroundSize: '200% auto',
+                      boxShadow: '0 4px 20px rgba(46,144,250,0.4)',
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 ml-2" />
+                    התחל בחינם
+                  </Button>
+                </Link>
+                <a href="#demo">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-xl px-8 py-6 text-base border-white/30 text-white/90 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm font-medium"
+                  >
+                    <Play className="h-4 w-4 ml-2" />
+                    צפה בהדגמה
+                  </Button>
+                </a>
+              </div>
+
+              {/* Stats row */}
+              <div className="animate-slide-up-delay-3 grid grid-cols-3 gap-6 max-w-md mx-auto md:mx-0">
+                {[
+                  { value: 500, suffix: '+', label: 'עסקים פעילים' },
+                  { value: 50, suffix: 'K+', label: 'הודעות נשלחו' },
+                  { value: 98, suffix: '%', label: 'שביעות רצון' },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center md:text-right">
+                    <div className="text-2xl md:text-3xl font-extrabold text-white">
+                      <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Headline */}
-            <h1 className="animate-slide-up-delay text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6">
-              <span className="gradient-text">הבוט שמחליף</span>
-              <br />
-              <span className="text-white">צוות שלם</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="animate-slide-up-delay-2 text-lg md:text-xl text-gray-400 leading-relaxed max-w-xl mx-auto mb-10">
-              בוט AI שסורק את האתר שלך, לומד את העסק, ועונה ללקוחות בוואטסאפ, אימייל ובאתר — 24/7, בלי נציגים
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="animate-slide-up-delay-3 flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Link href="/signup">
-                <Button
-                  size="lg"
-                  className="rounded-xl px-8 py-6 text-base border-0 text-white font-semibold animate-shimmer"
-                  style={{
-                    background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 50%, #2e90fa 100%)',
-                    backgroundSize: '200% auto',
-                    boxShadow: '0 4px 20px rgba(46,144,250,0.4)',
-                  }}
-                >
-                  <Sparkles className="h-4 w-4 ml-2" />
-                  התחל בחינם
-                </Button>
-              </Link>
-              <a href="#demo">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-xl px-8 py-6 text-base border-white/20 text-white hover:bg-white/5 hover:border-white/30 font-medium"
-                >
-                  <Play className="h-4 w-4 ml-2" />
-                  צפה בהדגמה
-                </Button>
-              </a>
-            </div>
-          </div>
-
-          {/* Hero Visual — Dashboard Mock + Floating Bubbles */}
-          <div className="relative max-w-3xl mx-auto">
-            {/* Dashboard mock */}
-            <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-1 shadow-2xl shadow-blue-500/10">
-              <div className="rounded-xl bg-[#111127] p-4 md:p-6">
-                {/* Top bar */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-white" />
+            {/* Right: HeroChat (desktop) / InteractiveDemo (mobile) */}
+            <div className="order-2">
+              {/* Desktop: HeroChat */}
+              <div className="hidden md:block animate-slide-up-delay">
+                <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-1 shadow-2xl shadow-blue-500/10">
+                  <div className="rounded-xl bg-[#111127] overflow-hidden">
+                    {/* Chat header */}
+                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-b border-white/5 px-5 py-3.5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                          <Bot className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <div className="text-white text-sm font-semibold">BotPress AI</div>
+                          <div className="text-emerald-400 text-[11px] flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            אונליין — עונה תוך שניות
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-white text-sm font-semibold">לוח בקרה</div>
-                      <div className="text-gray-500 text-xs">הבוט פעיל</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span className="text-emerald-400 text-xs font-medium">אונליין</span>
-                  </div>
-                </div>
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  {[
-                    { label: 'שיחות היום', value: '47', change: '+12%' },
-                    { label: 'זמן תגובה', value: '2.3s', change: '-18%' },
-                    { label: 'שביעות רצון', value: '96%', change: '+5%' },
-                  ].map((s, i) => (
-                    <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/5">
-                      <div className="text-gray-500 text-[10px] mb-1">{s.label}</div>
-                      <div className="text-white text-lg font-bold">{s.value}</div>
-                      <div className="text-emerald-400 text-[10px] font-medium">{s.change}</div>
-                    </div>
-                  ))}
-                </div>
-                {/* Chat preview */}
-                <div className="bg-white/5 rounded-xl p-3 border border-white/5 space-y-2">
-                  <div className="flex justify-start">
-                    <div className="bg-blue-500/20 text-blue-200 px-3 py-1.5 rounded-xl rounded-tr-sm text-xs max-w-[70%]">
-                      מה שעות הפעילות שלכם?
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <div className="bg-white/10 text-gray-200 px-3 py-1.5 rounded-xl rounded-tl-sm text-xs max-w-[70%]">
-                      אנחנו פתוחים א׳-ה׳ 9:00-18:00 ✨
+                    <div className="p-0">
+                      <HeroChat />
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Floating chat bubbles */}
-            <div className="absolute -top-4 -right-4 md:-right-12 animate-float">
-              <div className="bg-[#25D366] text-white px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-lg shadow-emerald-500/20 text-sm font-medium flex items-center gap-2">
-                <Smartphone className="h-4 w-4" />
-                WhatsApp
-              </div>
-            </div>
-            <div className="absolute top-1/3 -left-4 md:-left-14 animate-float-delay">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-lg shadow-blue-500/20 text-sm font-medium flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email
-              </div>
-            </div>
-            <div className="absolute -bottom-3 left-1/4 animate-float-slow">
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2.5 rounded-2xl shadow-lg shadow-purple-500/20 text-sm font-medium flex items-center gap-2">
-                <Code className="h-4 w-4" />
-                Widget
-              </div>
-            </div>
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mt-16">
-            {[
-              { value: '500+', label: 'עסקים', icon: Users },
-              { value: '4.9/5', label: 'שביעות רצון', icon: Star },
-              { value: '+50K', label: 'הודעות', icon: MessageSquare },
-            ].map((t, i) => (
-              <div key={i} className="flex items-center gap-3 text-center">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                  <t.icon className="h-4 w-4 text-blue-400" />
+                {/* Floating channel badges */}
+                <div className="absolute -top-3 -right-6 animate-float">
+                  <div className="bg-[#25D366] text-white px-4 py-2 rounded-2xl rounded-tr-sm shadow-lg shadow-emerald-500/20 text-sm font-medium flex items-center gap-2">
+                    <Smartphone className="h-4 w-4" />
+                    WhatsApp
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-bold text-lg">{t.value}</div>
-                  <div className="text-gray-500 text-xs">{t.label}</div>
+                <div className="absolute top-1/3 -left-8 animate-float-delay">
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-2xl rounded-tl-sm shadow-lg shadow-blue-500/20 text-sm font-medium flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email
+                  </div>
+                </div>
+                <div className="absolute -bottom-3 left-1/4 animate-float-slow">
+                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-2xl shadow-lg shadow-purple-500/20 text-sm font-medium flex items-center gap-2">
+                    <Code className="h-4 w-4" />
+                    Widget
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Mobile: InteractiveDemo */}
+              <div className="md:hidden animate-slide-up-delay">
+                <InteractiveDemo />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 3. SOCIAL PROOF STATS                           */}
+      {/* STATS BAR                                        */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="py-20 bg-gray-50/50 border-y border-gray-100">
-        <div className="max-w-[1200px] mx-auto px-4">
-          <FadeIn>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <section className="relative -mt-8 z-20 pb-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-xl shadow-black/5 border border-gray-100 p-6 md:p-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-gray-100" style={{ direction: 'rtl' }}>
               {[
-                { icon: MessageSquare, value: 50000, suffix: '+', label: 'הודעות נשלחו', color: 'text-blue-500 bg-blue-50' },
-                { icon: Users, value: 500, suffix: '+', label: 'עסקים פעילים', color: 'text-purple-500 bg-purple-50' },
-                { icon: Clock, value: 2, suffix: 's', label: 'זמן תגובה ממוצע', color: 'text-emerald-500 bg-emerald-50' },
-                { icon: Star, value: 98, suffix: '%', label: 'שביעות רצון', color: 'text-amber-500 bg-amber-50' },
+                { value: '+50,000', label: 'הודעות נשלחו החודש' },
+                { value: '+500', label: 'עסקים פעילים' },
+                { value: '2.3s', label: 'זמן תגובה ממוצע' },
+                { value: '98%', label: 'דיוק תשובות' },
               ].map((s, i) => (
-                <div key={i} className="text-center">
-                  <div className={`w-12 h-12 rounded-2xl ${s.color} flex items-center justify-center mx-auto mb-4`}>
-                    <s.icon className="h-5 w-5" />
-                  </div>
-                  <div className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-1">
-                    <AnimatedCounter target={s.value} suffix={s.suffix} />
-                  </div>
-                  <div className="text-sm text-gray-500 font-medium">{s.label}</div>
-                </div>
+                <FadeIn key={i} delay={i} className="text-center px-4">
+                  <div className="text-3xl md:text-4xl font-black gradient-text mb-1">{s.value}</div>
+                  <div className="text-sm text-gray-500">{s.label}</div>
+                </FadeIn>
               ))}
             </div>
-          </FadeIn>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 4. THREE CHANNELS                               */}
+      {/* CHANNELS                                        */}
       {/* ═══════════════════════════════════════════════ */}
       <section className="py-24">
         <div className="max-w-[1200px] mx-auto px-4">
           <FadeIn className="text-center mb-16">
             <span className="inline-block px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full mb-4">ערוצי תקשורת</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">ערוץ אחד? שלושה ערוצים</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">ערוץ אחד? <span className="gradient-text">שלושה ערוצים</span></h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">הבוט עובד בכל מקום שהלקוחות שלך נמצאים</p>
           </FadeIn>
 
@@ -412,9 +398,13 @@ export default function LandingPage() {
                 desc: 'הלקוחות שולחים הודעה בוואטסאפ ומקבלים תשובה מיידית — 24 שעות ביממה',
                 color: 'from-emerald-500 to-emerald-600',
                 bgColor: 'bg-emerald-50',
+                borderHover: 'hover:border-emerald-200',
+                mockBg: '#075E54',
                 mockMessages: [
-                  { side: 'right', text: 'היי, רציתי לשאול על המוצר' },
-                  { side: 'left', text: 'היי! בשמחה, איזה מוצר מעניין אותך?' },
+                  { side: 'right', text: 'היי, רציתי לשאול על המוצר', time: '14:23' },
+                  { side: 'left', text: 'היי! בשמחה, איזה מוצר מעניין אותך? 😊', time: '14:23' },
+                  { side: 'right', text: 'המנוי החודשי', time: '14:24' },
+                  { side: 'left', text: 'המנוי שלנו מתחיל מ-₪250/חודש. רוצה שאשלח לינק להרשמה?', time: '14:24' },
                 ],
               },
               {
@@ -423,9 +413,11 @@ export default function LandingPage() {
                 desc: 'מענה אוטומטי לכל אימייל שנכנס — מקצועי, מהיר ומדויק',
                 color: 'from-blue-500 to-blue-600',
                 bgColor: 'bg-blue-50',
+                borderHover: 'hover:border-blue-200',
+                mockBg: '#1a73e8',
                 mockMessages: [
-                  { side: 'right', text: 'מה המחיר למנוי שנתי?' },
-                  { side: 'left', text: 'המנוי השנתי שלנו מתחיל ב-₪250/חודש...' },
+                  { side: 'header', text: 'RE: שאלה על המנוי השנתי' },
+                  { side: 'left', text: 'שלום רב,\nתודה על פנייתך! המנוי השנתי שלנו כולל 3 ערוצים, 2,000 הודעות/חודש, ואנליטיקס מתקדם.\nנשמח לעזור בכל שאלה נוספת.' },
                 ],
               },
               {
@@ -434,32 +426,52 @@ export default function LandingPage() {
                 desc: 'צ׳אט חכם שמוטמע ישירות באתר שלך — שורה אחת של קוד',
                 color: 'from-purple-500 to-purple-600',
                 bgColor: 'bg-purple-50',
+                borderHover: 'hover:border-purple-200',
+                mockBg: '#7c3aed',
                 mockMessages: [
-                  { side: 'right', text: 'איך אני מזמין?' },
-                  { side: 'left', text: 'אפשר להזמין ישירות דרך האתר! הנה הלינק...' },
+                  { side: 'left', text: 'היי! איך אפשר לעזור? 👋', time: '' },
+                  { side: 'right', text: 'איך אני מזמין?', time: '' },
+                  { side: 'left', text: 'אפשר להזמין ישירות דרך האתר! הנה הלינק 🔗', time: '' },
                 ],
               },
             ].map((channel, i) => (
               <FadeIn key={i} delay={i + 1}>
-                <div className="bg-white rounded-2xl border border-gray-200/60 p-6 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${channel.color} flex items-center justify-center mb-5`}>
-                    <channel.icon className="h-5 w-5 text-white" />
+                <div className={`rounded-2xl border border-gray-200/60 overflow-hidden card-hover group ${channel.borderHover} h-full flex flex-col`}>
+                  {/* Colored gradient header */}
+                  <div className={`bg-gradient-to-r ${channel.color} px-6 py-4 flex items-center gap-3`}>
+                    <channel.icon className="h-5 w-5 text-white/90" />
+                    <h3 className="text-lg font-bold text-white">{channel.title}</h3>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{channel.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-5">{channel.desc}</p>
-                  {/* Mini chat mock */}
-                  <div className={`${channel.bgColor} rounded-xl p-3 space-y-2 mt-auto`}>
-                    {channel.mockMessages.map((msg, j) => (
-                      <div key={j} className={`flex ${msg.side === 'right' ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`px-3 py-1.5 rounded-xl text-[11px] max-w-[80%] ${
-                          msg.side === 'right'
-                            ? `bg-gradient-to-r ${channel.color} text-white rounded-tr-sm`
-                            : 'bg-white text-gray-700 border border-gray-100 rounded-tl-sm'
-                        }`}>
-                          {msg.text}
+
+                  {/* Mock messages — main visual */}
+                  <div className={`${channel.bgColor} px-4 py-5 flex-1`}>
+                    {channel.title === 'אימייל' ? (
+                      <div className="space-y-3">
+                        <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
+                          <div className="text-[12px] font-semibold text-gray-700 mb-2">{channel.mockMessages[0].text}</div>
+                          <div className="text-[11px] text-gray-500 whitespace-pre-line leading-relaxed">{channel.mockMessages[1].text}</div>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      <div className="space-y-2">
+                        {channel.mockMessages.map((msg, j) => (
+                          <div key={j} className={`flex ${msg.side === 'right' ? 'justify-start' : 'justify-end'}`}>
+                            <div className={`px-3.5 py-2 rounded-xl text-[12px] max-w-[85%] ${
+                              msg.side === 'right'
+                                ? `bg-gradient-to-r ${channel.color} text-white rounded-tr-sm shadow-sm`
+                                : 'bg-white text-gray-700 border border-gray-100 rounded-tl-sm shadow-sm'
+                            }`}>
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <div className="bg-white px-6 py-4 border-t border-gray-100">
+                    <p className="text-gray-500 text-sm leading-relaxed">{channel.desc}</p>
                   </div>
                 </div>
               </FadeIn>
@@ -469,112 +481,110 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 5. HOW IT WORKS                                 */}
+      {/* HOW IT WORKS                                    */}
       {/* ═══════════════════════════════════════════════ */}
       <section id="how" className="py-24 bg-gray-50/50">
         <div className="max-w-[1200px] mx-auto px-4">
           <FadeIn className="text-center mb-16">
             <span className="inline-block px-3 py-1 text-xs font-semibold text-purple-600 bg-purple-50 rounded-full mb-4">איך זה עובד</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">שלושה צעדים. זהו.</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">ארבעה צעדים. <span className="gradient-text">זהו.</span></h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">מהרישום ועד בוט פעיל — תוך דקות</p>
           </FadeIn>
 
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* Connecting line (desktop) */}
-            <div className="hidden md:block absolute top-16 right-[16.67%] left-[16.67%] h-[2px] bg-gradient-to-l from-blue-200 via-purple-200 to-blue-200" />
+          <div className="max-w-2xl mx-auto relative">
+            {/* Vertical gradient line */}
+            <div className="absolute top-0 bottom-0 right-[19px] md:right-[19px] w-[2px] bg-gradient-to-b from-blue-200 via-purple-200 to-amber-200" />
 
-            {[
-              { step: '1', title: 'הירשם וסרוק את האתר', desc: 'הכנס את כתובת האתר שלך — הבוט סורק את כל התוכן אוטומטית', icon: Globe },
-              { step: '2', title: 'הבוט לומד את העסק', desc: 'AI מתקדם מנתח את המידע ובונה בסיס ידע מותאם לעסק שלך', icon: Sparkles },
-              { step: '3', title: 'עונה אוטומטית', desc: 'הבוט מתחיל לענות ללקוחות בכל הערוצים — מיידית, מדויק, 24/7', icon: Zap },
-            ].map((item, i) => (
-              <FadeIn key={i} delay={i + 1} className="relative">
-                <div className="text-center">
-                  {/* Step number */}
-                  <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
-                    <span className="text-white text-xl font-bold">{item.step}</span>
-                  </div>
-                  <div className="bg-white rounded-2xl border border-gray-200/60 p-6 hover:shadow-lg transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                      <item.icon className="h-5 w-5 text-gray-600" />
+            <div className="space-y-6">
+              {[
+                { step: '1', title: 'הירשם', desc: 'צור חשבון תוך שניות — בלי כרטיס אשראי', icon: UserCheck, color: 'from-blue-500 to-blue-600', borderColor: 'border-r-blue-400' },
+                { step: '2', title: 'הדבק את כתובת האתר', desc: 'ה-AI סורק את כל התוכן באתר שלך אוטומטית', icon: Globe, color: 'from-purple-500 to-purple-600', borderColor: 'border-r-purple-400' },
+                { step: '3', title: 'חבר ערוצים', desc: 'וואטסאפ, אימייל, וידג׳ט — חיבור בלחיצה', icon: Zap, color: 'from-emerald-500 to-emerald-600', borderColor: 'border-r-emerald-400' },
+                { step: '4', title: 'הבוט עובד', desc: 'הבוט מתחיל לענות ללקוחות מיידית, 24/7', icon: Bot, color: 'from-amber-500 to-amber-600', borderColor: 'border-r-amber-400' },
+              ].map((item, i) => (
+                <FadeIn key={i} delay={i + 1}>
+                  <div className="flex items-start gap-5">
+                    {/* Step number badge */}
+                    <div className={`relative z-10 w-10 h-10 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0 shadow-lg`}>
+                      <span className="text-white text-sm font-bold">{item.step}</span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                    {/* Content card */}
+                    <div className={`flex-1 bg-white rounded-2xl border border-gray-200/60 border-r-4 ${item.borderColor} p-5 card-hover group`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <item.icon className="h-4 w-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                        <h3 className="text-lg font-bold text-gray-900">{item.title}</h3>
+                      </div>
+                      <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
                   </div>
-                </div>
-              </FadeIn>
-            ))}
+                </FadeIn>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 6. KEY FEATURES                                 */}
+      {/* WHY US — COMPARISON                             */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="features" className="py-24">
-        <div className="max-w-[1200px] mx-auto px-4">
-          <FadeIn className="text-center mb-16">
-            <span className="inline-block px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full mb-4">פיצ׳רים</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">הכל כלול. בלי הפתעות.</h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">כל מה שצריך כדי לתת שירות מושלם — אוטומטית</p>
-          </FadeIn>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Globe, title: 'סריקת אתר AI', desc: 'הבוט לומד את העסק שלך אוטומטית מהאתר — בלי הגדרה ידנית', color: 'from-blue-500 to-blue-600' },
-              { icon: MessageSquare, title: 'שיחות בזמן אמת', desc: 'ניהול כל השיחות במקום אחד — וואטסאפ, אימייל ווידג׳ט', color: 'from-emerald-500 to-emerald-600' },
-              { icon: UserCheck, title: 'העברה לנציג', desc: 'כשהבוט לא יודע, מעביר לנציג אנושי — חלק ובלי חיכוך', color: 'from-amber-500 to-amber-600' },
-              { icon: BarChart3, title: 'אנליטיקס מתקדם', desc: 'נתונים ותובנות על פעילות הבוט — כמה שיחות, שביעות רצון, נושאים', color: 'from-purple-500 to-purple-600' },
-              { icon: Globe, title: 'תמיכה ב-3 שפות', desc: 'עברית, אנגלית, ערבית — הבוט מזהה את השפה ועונה בהתאם', color: 'from-pink-500 to-pink-600' },
-              { icon: Bell, title: 'סיכומים אוטומטיים', desc: 'מקבל סיכום יומי/שבועי על פעילות הבוט — ישירות למייל', color: 'from-cyan-500 to-cyan-600' },
-            ].map((f, i) => (
-              <FadeIn key={i} delay={i}>
-                <div className="bg-white rounded-2xl border border-gray-200/60 p-6 hover:shadow-lg hover:border-blue-100 transition-all duration-300 group h-full">
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <f.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════ */}
-      {/* 7. LIVE DEMO                                    */}
-      {/* ═══════════════════════════════════════════════ */}
-      <section id="demo" className="py-24 bg-gray-50/50">
+      <section className="py-24">
         <div className="max-w-[1200px] mx-auto px-4">
           <FadeIn className="text-center mb-12">
-            <span className="inline-block px-3 py-1 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full mb-4">הדגמה חיה</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">נסה את הבוט עכשיו</h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">שאל כל שאלה ותראה איך הבוט עונה בזמן אמת</p>
+            <span className="inline-block px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full mb-4">השוואה</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">למה <span className="gradient-text">BotPress AI</span>?</h2>
+            <p className="text-gray-500 text-lg max-w-xl mx-auto">ההבדל ברור</p>
           </FadeIn>
 
           <FadeIn delay={1}>
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white rounded-2xl border border-gray-200/60 shadow-xl shadow-gray-200/50 overflow-hidden">
-                {/* Demo header */}
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-semibold">BotPress AI Demo</div>
-                      <div className="text-white/70 text-xs flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
-                        אונליין
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Chat component */}
-                <div className="p-0">
-                  <HeroChat />
-                </div>
+            <div className="max-w-3xl mx-auto overflow-x-auto">
+              <div className="rounded-2xl border border-gray-200/60 overflow-hidden bg-white">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <th className="text-right py-4 px-5 font-semibold text-gray-900 bg-gray-50/80 border-b border-gray-200">תכונה</th>
+                      <th className="text-center py-4 px-5 font-semibold text-white border-b border-blue-400"
+                        style={{ background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 100%)' }}>
+                        <div className="flex items-center justify-center gap-2">
+                          <Bot className="h-4 w-4" />
+                          BotPress AI
+                        </div>
+                      </th>
+                      <th className="text-center py-4 px-5 font-semibold text-gray-500 bg-gray-50/80 border-b border-gray-200">מתחרים</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { feature: 'סריקת אתר אוטומטית', us: true, them: false },
+                      { feature: 'הגדרה ב-5 דקות', us: true, them: false },
+                      { feature: 'וואטסאפ + אימייל + וידג׳ט', us: true, them: false },
+                      { feature: 'עברית מלאה', us: true, them: false },
+                      { feature: 'העברה לנציג חכמה', us: true, them: true },
+                      { feature: 'אנליטיקס מתקדם', us: true, them: true },
+                      { feature: 'תמחור בשקלים', us: true, them: false },
+                      { feature: 'סיכום יומי אוטומטי', us: true, them: false },
+                    ].map((row, i) => (
+                      <tr key={i} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'} hover:bg-blue-50/20 transition-colors`}>
+                        <td className="py-3.5 px-5 text-gray-700 font-medium">{row.feature}</td>
+                        <td className="py-3.5 px-5 text-center bg-blue-50/20">
+                          <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
+                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-5 text-center">
+                          {row.them ? (
+                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
+                              <Check className="h-3.5 w-3.5 text-gray-400" />
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center mx-auto">
+                              <X className="h-3.5 w-3.5 text-red-400" />
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </FadeIn>
@@ -582,66 +592,96 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 8. COMPARISON TABLE                             */}
+      {/* FEATURES — Bento Grid                           */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="py-24">
+      {/* ═══════════════════════════════════════════════ */}
+      {/* FEATURES — Bento Grid                           */}
+      {/* ═══════════════════════════════════════════════ */}
+      <section id="features" className="py-20">
         <div className="max-w-[1200px] mx-auto px-4">
-          <FadeIn className="text-center mb-12">
-            <span className="inline-block px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full mb-4">השוואה</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">למה BotPress AI?</h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">ההבדל ברור</p>
+          <FadeIn className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">הכל כלול. <span className="gradient-text">בלי הפתעות.</span></h2>
+            <p className="text-gray-500 text-lg max-w-xl mx-auto">כל מה שצריך כדי לתת שירות מושלם — אוטומטית</p>
           </FadeIn>
 
-          <FadeIn delay={1}>
-            <div className="max-w-3xl mx-auto overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr>
-                    <th className="text-right py-4 px-5 font-semibold text-gray-900 border-b-2 border-gray-200">תכונה</th>
-                    <th className="text-center py-4 px-5 font-semibold text-white border-b-2 border-blue-400 rounded-t-xl bg-gradient-to-r from-blue-500 to-purple-500">BotPress AI</th>
-                    <th className="text-center py-4 px-5 font-semibold text-gray-500 border-b-2 border-gray-200">מתחרים</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { feature: 'סריקת אתר אוטומטית', us: true, them: false },
-                    { feature: 'הגדרה ב-5 דקות', us: true, them: false },
-                    { feature: 'וואטסאפ + אימייל + וידג׳ט', us: true, them: false },
-                    { feature: 'עברית מלאה', us: true, them: false },
-                    { feature: 'העברה לנציג חכמה', us: true, them: true },
-                    { feature: 'אנליטיקס מתקדם', us: true, them: true },
-                    { feature: 'תמחור בשקלים', us: true, them: false },
-                    { feature: 'סיכום יומי אוטומטי', us: true, them: false },
-                  ].map((row, i) => (
-                    <tr key={i} className={i % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}>
-                      <td className="py-3.5 px-5 text-gray-700 font-medium">{row.feature}</td>
-                      <td className="py-3.5 px-5 text-center">
-                        <Check className="h-5 w-5 text-emerald-500 mx-auto" />
-                      </td>
-                      <td className="py-3.5 px-5 text-center">
-                        {row.them ? (
-                          <Check className="h-5 w-5 text-gray-300 mx-auto" />
-                        ) : (
-                          <X className="h-5 w-5 text-gray-300 mx-auto" />
-                        )}
-                      </td>
-                    </tr>
+          {/* Bento Grid — 2 big + 3 small */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Big card 1 — AI Chat */}
+            <FadeIn delay={0} className="md:col-span-2">
+              <div className="relative h-full rounded-2xl border border-gray-200/60 bg-gradient-to-br from-blue-50/80 to-white p-8 overflow-hidden group card-hover">
+                <div className="relative z-10">
+                  <div className="text-sm font-bold text-blue-600 mb-2">AI שעובד בשבילך</div>
+                  <h3 className="text-2xl font-extrabold text-gray-900 mb-3">צ׳אט חכם שלומד את העסק</h3>
+                  <p className="text-gray-500 max-w-md leading-relaxed">3 שכבות תשובה: FAQ מהיר → מדיניות → AI מתקדם. עונה על כל שאלה בפחות מ-2 שניות.</p>
+                </div>
+                {/* Mini chat mockup */}
+                <div className="absolute bottom-4 left-4 w-64 opacity-20 group-hover:opacity-40 transition-opacity">
+                  <div className="space-y-2">
+                    <div className="bg-blue-500 rounded-xl rounded-bl-sm p-2.5 text-white text-xs w-fit ml-auto">מה שעות הפעילות?</div>
+                    <div className="bg-white border rounded-xl rounded-br-sm p-2.5 text-gray-600 text-xs w-fit">א׳-ה׳ 8:00-20:00, שישי 8:00-14:00</div>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Small card — Website Scanner */}
+            <FadeIn delay={1}>
+              <div className="h-full rounded-2xl border border-gray-200/60 bg-gradient-to-br from-emerald-50/80 to-white p-6 card-hover group">
+                <div className="text-sm font-bold text-emerald-600 mb-2">סריקה אוטומטית</div>
+                <h3 className="text-lg font-extrabold text-gray-900 mb-2">הדבק URL — הבוט לומד הכל</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">AI סורק את האתר שלך ומייצר FAQ, מדיניות וסיפור העסק אוטומטית</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <div className="h-1.5 bg-emerald-400 rounded-full w-full animate-shimmer" />
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Small card — Analytics */}
+            <FadeIn delay={2}>
+              <div className="h-full rounded-2xl border border-gray-200/60 bg-gradient-to-br from-purple-50/80 to-white p-6 card-hover group">
+                <div className="text-sm font-bold text-purple-600 mb-2">נתונים בזמן אמת</div>
+                <h3 className="text-lg font-extrabold text-gray-900 mb-2">אנליטיקס מתקדם</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">שיחות, שביעות רצון, נושאים חמים — הכל בדשבורד אחד</p>
+                {/* Mini chart */}
+                <div className="mt-4 flex items-end gap-1 h-8">
+                  {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
+                    <div key={i} className="flex-1 bg-purple-200 group-hover:bg-purple-400 rounded-t transition-all duration-500" style={{ height: `${h}%` }} />
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </FadeIn>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Big card 2 — Escalation + Languages */}
+            <FadeIn delay={3} className="md:col-span-2">
+              <div className="h-full rounded-2xl border border-gray-200/60 bg-gradient-to-br from-amber-50/60 to-white p-8 card-hover">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <div className="text-sm font-bold text-amber-600 mb-2">העברה חכמה</div>
+                    <h3 className="text-xl font-extrabold text-gray-900 mb-2">נציג אנושי כשצריך</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">כשהבוט לא בטוח — מעביר לנציג בלחיצה. עם כל ההיסטוריה של השיחה.</p>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-pink-600 mb-2">3 שפות</div>
+                    <h3 className="text-xl font-extrabold text-gray-900 mb-2">עברית · English · العربية</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">הבוט מזהה את שפת הלקוח אוטומטית ועונה בשפה שלו. כולל RTL מלא.</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
         </div>
       </section>
 
+      {/* Demo section removed — chat is already in hero */}
+
       {/* ═══════════════════════════════════════════════ */}
-      {/* 9. PRICING                                      */}
+      {/* PRICING                                         */}
       {/* ═══════════════════════════════════════════════ */}
       <section id="pricing" className="py-24 bg-gray-50/50">
         <div className="max-w-[1200px] mx-auto px-4">
           <FadeIn className="text-center mb-16">
             <span className="inline-block px-3 py-1 text-xs font-semibold text-purple-600 bg-purple-50 rounded-full mb-4">תוכניות ומחירים</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">תוכנית לכל עסק</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">תוכנית <span className="gradient-text">לכל עסק</span></h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">בלי התחייבות, בלי הפתעות. משלם רק על מה שצריך</p>
           </FadeIn>
 
@@ -675,11 +715,19 @@ export default function LandingPage() {
               <FadeIn key={i} delay={i + 1}>
                 <div className={`relative bg-white rounded-2xl border p-6 flex flex-col h-full transition-all duration-300 ${
                   plan.popular
-                    ? 'border-blue-300 shadow-xl shadow-blue-100/50 scale-[1.02]'
+                    ? 'border-transparent shadow-xl scale-[1.02]'
                     : 'border-gray-200/60 hover:shadow-lg'
-                }`}>
+                }`}
+                  style={plan.popular ? {
+                    backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #2e90fa, #7c3aed)',
+                    backgroundOrigin: 'border-box',
+                    backgroundClip: 'padding-box, border-box',
+                    border: '2px solid transparent',
+                  } : undefined}
+                >
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-semibold rounded-full">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 text-white text-xs font-semibold rounded-full"
+                      style={{ background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 100%)' }}>
                       הכי פופולרי
                     </div>
                   )}
@@ -695,7 +743,9 @@ export default function LandingPage() {
                   <ul className="space-y-3 mb-8 flex-1">
                     {plan.features.map((f, j) => (
                       <li key={j} className="flex items-center gap-2.5 text-sm text-gray-600">
-                        <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                          <Check className="h-3 w-3 text-emerald-500" />
+                        </div>
                         {f}
                       </li>
                     ))}
@@ -724,7 +774,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 10. FAQ                                         */}
+      {/* FAQ                                             */}
       {/* ═══════════════════════════════════════════════ */}
       <section id="faq" className="py-24">
         <div className="max-w-[1200px] mx-auto px-4">
@@ -745,30 +795,41 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 11. FINAL CTA                                   */}
+      {/* FINAL CTA                                       */}
       {/* ═══════════════════════════════════════════════ */}
       <section className="py-24 relative overflow-hidden" style={{ background: '#0a0a1a' }}>
         {/* Background effects */}
+        <div className="hero-grid absolute inset-0 opacity-20" />
         <div className="absolute top-[-30%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[120px]"
           style={{ background: 'radial-gradient(circle, rgba(46,144,250,0.2) 0%, transparent 70%)' }} />
         <div className="absolute bottom-[-30%] left-[-10%] w-[400px] h-[400px] rounded-full blur-[100px]"
           style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)' }} />
 
+        {/* Floating decorative dots */}
+        <div className="absolute top-[20%] right-[10%] w-2 h-2 rounded-full bg-blue-400/30 animate-float hidden md:block" />
+        <div className="absolute bottom-[25%] left-[15%] w-3 h-3 rounded-full bg-purple-400/20 animate-float-delay hidden md:block" />
+
         <div className="relative z-10 max-w-[1200px] mx-auto px-4 text-center">
           <FadeIn>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
+              <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+              <span className="text-sm text-gray-300 font-medium">הצטרף ל-500+ עסקים שכבר חוסכים שעות ביום</span>
+            </div>
+
             <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
-              מוכן להפוך את השירות?
+              מוכן <span className="gradient-text">להפוך את השירות</span>?
             </h2>
             <p className="text-gray-400 text-lg max-w-xl mx-auto mb-10">
-              הצטרף ל-500+ עסקים שכבר חוסכים שעות ביום עם BotPress AI
+              התחל עם תקופת ניסיון ב-₪1 בלבד. בלי התחייבות, בלי סיכון.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/signup">
                 <Button
                   size="lg"
-                  className="rounded-xl px-10 py-6 text-base border-0 text-white font-semibold"
+                  className="rounded-xl px-10 py-6 text-base border-0 text-white font-semibold animate-shimmer"
                   style={{
-                    background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 100%)',
+                    background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 50%, #2e90fa 100%)',
+                    backgroundSize: '200% auto',
                     boxShadow: '0 4px 20px rgba(46,144,250,0.4)',
                   }}
                 >
@@ -780,7 +841,7 @@ export default function LandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="rounded-xl px-8 py-6 text-base border-white/20 text-white hover:bg-white/5 hover:border-white/30 font-medium"
+                  className="rounded-xl px-8 py-6 text-base border-white/40 text-white bg-white/10 hover:bg-white/20 hover:border-white/60 font-medium backdrop-blur-sm"
                 >
                   דברו איתנו בוואטסאפ
                 </Button>
@@ -793,7 +854,7 @@ export default function LandingPage() {
       </main>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* 12. FOOTER                                      */}
+      {/* FOOTER                                          */}
       {/* ═══════════════════════════════════════════════ */}
       <footer className="bg-white border-t border-gray-100 py-12">
         <div className="max-w-[1200px] mx-auto px-4">
@@ -856,11 +917,11 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-gray-100 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               &copy; {new Date().getFullYear()} BotPress AI. כל הזכויות שמורות.
             </p>
-            <p className="text-xs text-gray-400">
-              נבנה באהבה בישראל 🇮🇱
+            <p className="text-xs text-gray-500">
+              נבנה באהבה בישראל
             </p>
           </div>
         </div>
