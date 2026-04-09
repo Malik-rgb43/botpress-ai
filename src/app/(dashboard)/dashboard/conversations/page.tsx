@@ -6,7 +6,7 @@ import { useBusiness } from '@/hooks/use-business'
 import { useTranslation } from '@/i18n/provider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Loader2, MessageSquare, ArrowLeft, Trash2, AlertTriangle, CheckCircle2, ChevronLeft, Send } from 'lucide-react'
+import { Loader2, MessageSquare, ArrowLeft, Trash2, AlertTriangle, CheckCircle2, ChevronLeft, Send, Check } from 'lucide-react'
 import Link from 'next/link'
 import { useEscalationContext } from '@/components/providers/escalation-provider'
 import { toast } from 'sonner'
@@ -272,61 +272,84 @@ export default function ConversationsPage() {
 
       {/* Send Message Dialog */}
       <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
-        <DialogContent className="sm:max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>שלח הודעה ללקוח</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-2">
-            {/* Channel toggle */}
-            <div className="flex gap-2">
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden" dir="rtl">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-5">
+            <DialogTitle className="text-white text-lg font-bold">הודעה חדשה</DialogTitle>
+            <p className="text-white/60 text-sm mt-1">שלח הודעה ישירה ללקוח דרך WhatsApp או Email</p>
+          </div>
+
+          <div className="p-6 space-y-5">
+            {/* Channel cards */}
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setSendChannel('whatsapp')}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`relative p-4 rounded-xl border-2 transition-all text-center ${
                   sendChannel === 'whatsapp'
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'border-emerald-500 bg-emerald-50 shadow-sm shadow-emerald-100'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
               >
-                WhatsApp
+                <div className={`w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center text-lg ${
+                  sendChannel === 'whatsapp' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>W</div>
+                <div className="text-sm font-semibold text-gray-900">WhatsApp</div>
+                <div className="text-[10px] text-gray-400 mt-0.5">שליחה מיידית</div>
+                {sendChannel === 'whatsapp' && (
+                  <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <Check className="h-3 w-3 text-white" />
+                  </div>
+                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSendChannel('email')}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`relative p-4 rounded-xl border-2 transition-all text-center ${
                   sendChannel === 'email'
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'border-blue-500 bg-blue-50 shadow-sm shadow-blue-100'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
               >
-                Email
+                <div className={`w-10 h-10 rounded-xl mx-auto mb-2 flex items-center justify-center text-lg ${
+                  sendChannel === 'email' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>@</div>
+                <div className="text-sm font-semibold text-gray-900">Email</div>
+                <div className="text-[10px] text-gray-400 mt-0.5">מהGmail שלך</div>
+                {sendChannel === 'email' && (
+                  <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                    <Check className="h-3 w-3 text-white" />
+                  </div>
+                )}
               </button>
             </div>
 
             {/* Recipient */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {sendChannel === 'whatsapp' ? 'מספר טלפון' : 'כתובת אימייל'}
               </label>
-              <input
-                type={sendChannel === 'whatsapp' ? 'tel' : 'email'}
-                value={sendRecipient}
-                onChange={(e) => setSendRecipient(e.target.value)}
-                placeholder={sendChannel === 'whatsapp' ? '+972...' : 'example@email.com'}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
-                dir="ltr"
-              />
+              <div className="relative">
+                <input
+                  type={sendChannel === 'whatsapp' ? 'tel' : 'email'}
+                  value={sendRecipient}
+                  onChange={(e) => setSendRecipient(e.target.value)}
+                  placeholder={sendChannel === 'whatsapp' ? '+972-50-123-4567' : 'customer@example.com'}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
+                  dir="ltr"
+                />
+              </div>
             </div>
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">תוכן ההודעה</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">תוכן ההודעה</label>
               <Textarea
                 value={sendMessage}
                 onChange={(e) => setSendMessage(e.target.value)}
-                placeholder="כתוב את ההודעה כאן..."
+                placeholder="היי, רציתי לעדכן אותך ש..."
                 rows={4}
-                className="resize-none"
+                className="resize-none rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
               />
             </div>
 
@@ -334,14 +357,22 @@ export default function ConversationsPage() {
             <Button
               onClick={handleSendMessage}
               disabled={sending || !sendRecipient.trim() || !sendMessage.trim()}
-              className="w-full gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+              className="w-full h-12 gap-2 rounded-xl text-white font-semibold text-base shadow-lg disabled:opacity-40 disabled:shadow-none transition-all"
+              style={{
+                background: sendChannel === 'whatsapp'
+                  ? 'linear-gradient(135deg, #25D366, #128C7E)'
+                  : 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                boxShadow: sendChannel === 'whatsapp'
+                  ? '0 4px 15px rgba(37,211,102,0.3)'
+                  : '0 4px 15px rgba(37,99,235,0.3)',
+              }}
             >
               {sending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send className="h-5 w-5" />
               )}
-              {sending ? 'שולח...' : 'שלח'}
+              {sending ? 'שולח...' : `שלח ב-${sendChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}`}
             </Button>
           </div>
         </DialogContent>
