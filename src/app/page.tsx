@@ -141,7 +141,7 @@ export default function LandingPage() {
                 <a
                   key={l.href}
                   href={l.href}
-                  className="px-4 py-2 text-sm text-gray-500 hover:text-[#2e90fa] transition-colors rounded-xl hover:bg-blue-50/50 font-medium"
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-[#2563eb] transition-colors rounded-xl hover:bg-blue-50/50 font-medium"
                 >
                   {l.label}
                 </a>
@@ -150,7 +150,7 @@ export default function LandingPage() {
 
             <div className="flex items-center gap-3">
               <Link href="/login">
-                <Button variant="ghost" size="sm" className="hidden md:inline-flex text-gray-500 hover:text-[#2e90fa] font-medium">
+                <Button variant="ghost" size="sm" className="hidden md:inline-flex text-gray-500 hover:text-[#2563eb] font-medium">
                   התחברות
                 </Button>
               </Link>
@@ -159,7 +159,7 @@ export default function LandingPage() {
                   size="sm"
                   className="hidden md:inline-flex rounded-xl px-6 border-0 text-white font-semibold"
                   style={{
-                    background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #5a7af7 100%)',
                     boxShadow: '0 4px 14px rgba(46,144,250,0.35)',
                   }}
                 >
@@ -167,7 +167,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Sheet>
-                <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-[#2e90fa]" aria-label="תפריט ניווט">
+                <SheetTrigger className="md:hidden p-2 text-gray-500 hover:text-[#2563eb]" aria-label="תפריט ניווט">
                   <Menu className="h-5 w-5" />
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 p-0" showCloseButton={false}>
@@ -188,7 +188,7 @@ export default function LandingPage() {
                         { href: "#pricing", label: "תוכניות" },
                         { href: "#faq", label: "שאלות" },
                       ].map((l) => (
-                        <a key={l.href} href={l.href} className="px-4 py-3 text-[15px] font-medium text-gray-700 hover:text-[#2e90fa] hover:bg-blue-50/50 rounded-xl transition-colors">
+                        <a key={l.href} href={l.href} className="px-4 py-3 text-[15px] font-medium text-gray-700 hover:text-[#2563eb] hover:bg-blue-50/50 rounded-xl transition-colors">
                           {l.label}
                         </a>
                       ))}
@@ -196,7 +196,7 @@ export default function LandingPage() {
                     <div className="mt-auto px-4 pb-6 space-y-3 border-t border-gray-100 pt-4">
                       <Link href="/login"><Button variant="outline" className="w-full rounded-xl">התחברות</Button></Link>
                       <Link href="/signup">
-                        <Button className="w-full border-0 text-white rounded-xl" style={{ background: 'linear-gradient(135deg, #2e90fa 0%, #5a7af7 100%)' }}>
+                        <Button className="w-full border-0 text-white rounded-xl" style={{ background: 'linear-gradient(135deg, #2563eb 0%, #5a7af7 100%)' }}>
                           נסה ב-₪1
                         </Button>
                       </Link>
@@ -661,7 +661,7 @@ export default function LandingPage() {
                   <Button
                     className="w-full rounded-xl py-5 font-semibold border-0 text-white"
                     style={{
-                      background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 100%)',
+                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
                       boxShadow: '0 4px 20px rgba(46,144,250,0.35)',
                     }}
                   >
@@ -697,6 +697,66 @@ export default function LandingPage() {
                 </Link>
               </div>
             </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/* TESTIMONIALS                                     */}
+      {/* ═══════════════════════════════════════════════ */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-[1200px] mx-auto px-4">
+          <FadeIn className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
+              מה אומרים <span className="gradient-text">הלקוחות שלנו</span>
+            </h2>
+            <p className="text-gray-500 text-base max-w-md mx-auto">עסקים אמיתיים שכבר חוסכים שעות ביום</p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: 'דנה כהן',
+                role: 'בעלת חנות פרחים',
+                text: 'מאז שהתחלנו להשתמש בבוט, 80% מהשאלות נענות אוטומטית. הלקוחות מרוצים ואני חוסכת שעות ביום.',
+                rating: 5,
+              },
+              {
+                name: 'יוסי לוי',
+                role: 'מנהל מסעדה',
+                text: 'ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה — שעות פעילות, תפריט, הזמנות.',
+                rating: 5,
+              },
+              {
+                name: 'מיכל אברהם',
+                role: 'חנות אונליין',
+                text: 'הסריקה האוטומטית של האתר חסכה לי ימים של עבודה. הבוט למד הכל לבד ועונה מדויק.',
+                rating: 5,
+              },
+            ].map((testimonial, i) => (
+              <FadeIn key={i} delay={i}>
+                <div className="card-hover bg-white rounded-2xl border border-gray-200/60 p-6 h-full flex flex-col">
+                  {/* Stars */}
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: testimonial.rating }).map((_, j) => (
+                      <span key={j} className="text-amber-400 text-sm">★</span>
+                    ))}
+                  </div>
+                  {/* Quote */}
+                  <p className="text-gray-600 text-sm leading-relaxed flex-1 mb-5">&ldquo;{testimonial.text}&rdquo;</p>
+                  {/* Author */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900">{testimonial.name}</div>
+                      <div className="text-xs text-gray-500">{testimonial.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
           </div>
         </div>
       </section>
@@ -765,7 +825,7 @@ export default function LandingPage() {
                   size="lg"
                   className="rounded-xl px-8 py-6 text-base border-0 text-white font-semibold"
                   style={{
-                    background: 'linear-gradient(135deg, #2e90fa 0%, #7c3aed 50%, #2e90fa 100%)',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #2563eb 100%)',
                     backgroundSize: '200% auto',
                     boxShadow: '0 4px 24px rgba(46,144,250,0.4)',
                   }}
