@@ -782,7 +782,7 @@ export default function LandingPage() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          +500 עסקים כבר משתמשים בפלטפורמה
+          עסקים מכל התחומים כבר משתמשים בפלטפורמה
         </motion.p>
         <div className="relative">
           <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-transparent to-white z-10 pointer-events-none" />
@@ -827,7 +827,52 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       <FeatureShowcase />
 
-      {/* Command Center removed — content covered by Features interactive showcase */}
+      {/* ═══════════════════════════════════════════════ */}
+      {/* MORE CAPABILITIES — Icon grid                    */}
+      {/* ═══════════════════════════════════════════════ */}
+      <section className="py-20 md:py-24 bg-gray-50/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            className="text-center mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={staggerContainer}
+          >
+            <motion.h2 variants={fadeInUp} className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-3">
+              וזה רק ההתחלה
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-gray-500 text-base max-w-md mx-auto">עוד יכולות שעושות את ההבדל בין בוט בסיסי למערכת שירות מלאה</motion.p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {[
+              { icon: '🧑‍💼', title: 'מעבר לנציג', desc: 'העברה חלקה לנציג אנושי כשצריך' },
+              { icon: '🧠', title: 'זיכרון שיחות', desc: 'הבוט זוכר לקוחות חוזרים' },
+              { icon: '🎮', title: 'סימולטור בוט', desc: 'בדוק את הבוט לפני שהוא יוצא לאוויר' },
+              { icon: '🌍', title: 'רב-שפתי', desc: 'עברית, אנגלית וערבית אוטומטית' },
+              { icon: '📊', title: 'דוחות אוטומטיים', desc: 'סיכום יומי/שבועי/חודשי במייל' },
+              { icon: '⚡', title: 'תשובות מהירות', desc: 'כפתורי בחירה שמקצרים שיחות' },
+            ].map((cap, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInUp}
+                className="group text-center p-5 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-300"
+              >
+                <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">{cap.icon}</div>
+                <h3 className="text-sm font-bold text-gray-900 mb-1">{cap.title}</h3>
+                <p className="text-[11px] text-gray-500 leading-relaxed">{cap.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* HOW IT WORKS                                     */}
@@ -1162,12 +1207,12 @@ export default function LandingPage() {
                     <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">{letter}</div>
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 font-medium">+500 עסקים</span>
+                <span className="text-sm text-gray-600 font-medium">מצטרפים כל יום</span>
               </div>
               <div className="w-px h-5 bg-gray-200" />
               <div className="flex items-center gap-1.5">
                 <span className="text-amber-400">★★★★★</span>
-                <span className="text-sm text-gray-600 font-medium">4.9/5</span>
+                <span className="text-sm text-gray-600 font-medium">דירוג 4.9/5</span>
               </div>
             </div>
           </motion.div>
@@ -1269,7 +1314,7 @@ export default function LandingPage() {
           {/* Floating badge */}
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-sm text-gray-300 font-medium">הצטרפו ל-500+ עסקים שכבר משתמשים</span>
+            <span className="text-sm text-gray-300 font-medium">עסקים חדשים מצטרפים כל יום</span>
           </motion.div>
 
           <motion.h2 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-5">
