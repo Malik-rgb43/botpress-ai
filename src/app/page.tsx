@@ -770,6 +770,12 @@ export default function LandingPage() {
       {/* SOCIAL PROOF STRIP                              */}
       {/* ═══════════════════════════════════════════════ */}
       <section className="py-10 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100 overflow-hidden">
+        <style>{`
+          @keyframes scroll-rtl {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
+          }
+        `}</style>
         <motion.p
           className="text-center text-sm text-gray-400 font-medium mb-6"
           initial={{ opacity: 0 }}
@@ -778,17 +784,15 @@ export default function LandingPage() {
         >
           +500 עסקים כבר משתמשים בפלטפורמה
         </motion.p>
-        {/* Infinite scroll carousel */}
         <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-l from-transparent to-white z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-r from-transparent to-white z-10 pointer-events-none" />
-          <motion.div
-            className="flex gap-4 w-max"
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+          <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-transparent to-white z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-transparent to-white z-10 pointer-events-none" />
+          <div
+            className="flex gap-5 w-max"
+            style={{ animation: 'scroll-rtl 30s linear infinite' }}
           >
-            {[...Array(2)].map((_, setIdx) => (
-              <div key={setIdx} className="flex gap-4">
+            {[...Array(3)].map((_, setIdx) => (
+              <div key={setIdx} className="flex gap-5">
                 {[
                   { name: 'מסעדות', icon: '🍽️', count: '84' },
                   { name: 'קליניקות', icon: '🏥', count: '62' },
@@ -803,18 +807,18 @@ export default function LandingPage() {
                 ].map((biz) => (
                   <div
                     key={`${setIdx}-${biz.name}`}
-                    className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300 shrink-0 cursor-default"
+                    className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm shrink-0 cursor-default min-w-[160px]"
                   >
-                    <span className="text-lg">{biz.icon}</span>
+                    <span className="text-xl">{biz.icon}</span>
                     <div>
-                      <span className="text-sm font-semibold text-gray-700">{biz.name}</span>
-                      <span className="text-[10px] text-gray-400 block">{biz.count} עסקים</span>
+                      <span className="text-sm font-semibold text-gray-800">{biz.name}</span>
+                      <span className="text-[11px] text-gray-400 block">{biz.count} עסקים</span>
                     </div>
                   </div>
                 ))}
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -823,140 +827,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       <FeatureShowcase />
 
-      {/* ═══════════════════════════════════════════════ */}
-      {/* COMMAND CENTER — All messages in one place        */}
-      {/* ═══════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-gray-50/50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            className="text-center mb-14"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-3">
-              כל ההודעות. <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">מכל הערוצים.</span> במקום אחד.
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-gray-500 text-base max-w-lg mx-auto">בלי לקפוץ בין אפליקציות. דשבורד אחד שמרכז את כל השיחות — וואטסאפ, אימייל וצ׳אט.</motion.p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={scaleIn}
-          >
-            {/* Dashboard mockup */}
-            <div className="max-w-4xl mx-auto rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-gray-200/50 overflow-hidden">
-              {/* Browser chrome */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="bg-white rounded-lg px-4 py-1 text-xs text-gray-400 border border-gray-200 w-64 text-center">botpress-ai.vercel.app/dashboard</div>
-                </div>
-              </div>
-
-              {/* Dashboard mockup */}
-              <div className="flex" dir="rtl">
-                {/* Mini sidebar */}
-                <div className="w-12 bg-gray-50 border-l border-gray-100 flex flex-col items-center py-3 gap-3 shrink-0">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-[9px] font-bold">B</span>
-                  </div>
-                  <div className="w-1 h-1 bg-gray-300 rounded-full" />
-                  {[
-                    { icon: '📊', active: false },
-                    { icon: '💬', active: true },
-                    { icon: '👥', active: false },
-                    { icon: '⚙️', active: false },
-                  ].map((nav, i) => (
-                    <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${nav.active ? 'bg-blue-50 shadow-sm' : 'hover:bg-gray-100'} transition-colors cursor-pointer`}>
-                      {nav.icon}
-                    </div>
-                  ))}
-                  <div className="flex-1" />
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                    <span className="text-white text-[8px] font-bold">א</span>
-                  </div>
-                </div>
-
-                {/* Main content */}
-                <div className="flex-1 p-4 md:p-5">
-                  {/* Header with filters */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2.5">
-                      <h3 className="text-sm font-bold text-gray-900">שיחות</h3>
-                      <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">12</span>
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                        זמן אמת
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {['הכל', 'היום', 'השבוע', 'ממתינות'].map((filter, i) => (
-                        <span key={i} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium cursor-pointer transition-colors ${i === 0 ? 'bg-blue-500 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>{filter}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Conversation rows */}
-                  <div className="space-y-2">
-                    {[
-                      { name: 'שרה כהן', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', channelIcon: 'W', msg: 'היי, רציתי לדעת מתי המשלוח מגיע', time: 'עכשיו', isNew: true, selected: true, delay: 0 },
-                      { name: 'david@gmail.com', channel: 'Email', channelColor: 'bg-blue-500', channelIcon: '@', msg: 'RE: שאלה על המנוי השנתי — תודה על המידע', time: '2 דק׳', isNew: true, selected: false, delay: 0.1 },
-                      { name: 'אורח #4821', channel: 'Widget', channelColor: 'bg-purple-500', channelIcon: '</>', msg: 'איך אני יכול להזמין אונליין?', time: '5 דק׳', isNew: false, selected: false, delay: 0.2 },
-                      { name: 'יוסי לוי', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', channelIcon: 'W', msg: 'מה מדיניות ההחזרות שלכם?', time: '12 דק׳', isNew: false, selected: false, delay: 0.3 },
-                      { name: 'info@company.co.il', channel: 'Email', channelColor: 'bg-blue-500', channelIcon: '@', msg: 'בקשת הצעת מחיר למנוי עסקי', time: '1 שעה', isNew: false, selected: false, delay: 0.4 },
-                    ].map((row, i) => (
-                      <motion.div
-                        key={i}
-                        className={`flex items-start gap-3 p-3 rounded-xl border transition-all duration-300 cursor-pointer ${row.selected ? 'border-blue-200 bg-blue-50/40 shadow-sm' : 'border-gray-100 hover:border-blue-200 hover:bg-blue-50/30'}`}
-                        initial={{ opacity: 0, y: 12 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: row.delay }}
-                      >
-                        {/* Channel icon */}
-                        <div className={`w-9 h-9 ${row.channelColor} rounded-xl flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-sm`}>
-                          {row.channelIcon}
-                        </div>
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[13px] font-semibold text-gray-900 truncate">{row.name}</span>
-                              <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-medium ${row.channelColor} text-white leading-none`}>{row.channel}</span>
-                              {row.isNew && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />}
-                            </div>
-                            <span className="text-[10px] text-gray-400 shrink-0 mr-2">{row.time}</span>
-                          </div>
-                          <p className="text-[11px] text-gray-500 truncate leading-relaxed">{row.msg}</p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Typing indicator */}
-                  <div className="flex items-center gap-2 px-3 py-2.5 mt-1">
-                    <div className="w-6 h-6 bg-[#25D366] rounded-lg flex items-center justify-center text-white text-[9px] font-bold">W</div>
-                    <div className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1.5">
-                      <span className="typing-dot" />
-                      <span className="typing-dot" />
-                      <span className="typing-dot" />
-                    </div>
-                    <span className="text-[10px] text-gray-400">הבוט עונה...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Command Center removed — content covered by Features interactive showcase */}
 
       {/* ═══════════════════════════════════════════════ */}
       {/* HOW IT WORKS                                     */}
