@@ -9,8 +9,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Save, Copy, Code } from 'lucide-react'
+import { Loader2, Save, Copy, Code, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { motion } from 'framer-motion'
+
+const fadeIn = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+}
+
+const staggerContainer = {
+  animate: { transition: { staggerChildren: 0.08 } },
+}
+
+const cardItem = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+}
 
 export default function WidgetPage() {
   const { business, loading: bizLoading } = useBusiness()
@@ -20,6 +36,7 @@ export default function WidgetPage() {
   const [primaryColor, setPrimaryColor] = useState('#000000')
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [whiteLabel, setWhiteLabel] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!business) return
@@ -55,44 +72,77 @@ export default function WidgetPage() {
     const code = `<script src="${origin}/widget.js" data-business-id="${business?.id}" data-color="${primaryColor}" data-position="${position === 'bottom-left' ? 'left' : 'right'}"></script>`
     navigator.clipboard.writeText(code)
     toast.success(t.widget.copied)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (bizLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
-  }
-
-  if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <Code className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
-        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
       </div>
     )
   }
 
+  if (!business) {
+    return (
+      <motion.div {...fadeIn} className="flex flex-col items-center justify-center h-64 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center mb-4">
+          <Code className="h-8 w-8 text-blue-400" />
+        </div>
+        <p className="text-gray-600 font-semibold">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1.5">
+          <a href="/onboarding" className="text-blue-500 hover:text-blue-600 hover:underline transition-colors">{t.common.go_to_setup}</a>
+        </p>
+      </motion.div>
+    )
+  }
+
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Header */}
+      <motion.div
+        {...fadeIn}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6"
+      >
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             {t.widget.title}
           </h1>
           <p className="text-gray-400 text-sm mt-1">{t.widget.subtitle}</p>
         </div>
-        <Button onClick={save} disabled={saving} className="w-fit">
+        <Button
+          onClick={save}
+          disabled={saving}
+          className="w-fit bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-md shadow-blue-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30"
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
           {t.common.save}
         </Button>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+      >
+        {/* Left column — Settings + Embed */}
         <div className="space-y-4">
-          <div className="bg-white border border-gray-200/60 rounded-xl">
+          {/* Settings Card */}
+          <motion.div
+            variants={cardItem}
+            className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
             <div className="p-4 pb-3 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">{t.widget.settings_title}</h2>
             </div>
             <div className="p-4 space-y-4">
+              {/* Position selector */}
               <div className="space-y-2">
                 <Label>{t.widget.position_label}</Label>
                 <div className="flex gap-2">
@@ -101,37 +151,49 @@ export default function WidgetPage() {
                     { value: 'bottom-left', label: t.widget.position_left },
                   ].map(p => (
                     <button key={p.value} type="button" onClick={() => setPosition(p.value)}
-                      className={`flex-1 px-4 py-2.5 rounded-xl text-sm border transition-all ${
+                      className={`flex-1 px-4 py-2.5 rounded-xl text-sm border transition-all duration-200 ${
                         position === p.value
-                          ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
-                          : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                          ? 'border-blue-500 bg-blue-50/80 text-blue-600 font-medium shadow-sm shadow-blue-500/10'
+                          : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:bg-gray-50'
                       }`}
                     >{p.label}</button>
                   ))}
                 </div>
               </div>
+
+              {/* Color picker */}
               <div className="space-y-2">
                 <Label>{t.widget.color_label}</Label>
                 <div className="flex gap-2">
-                  <Input
-                    type="color"
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-12 h-10 p-1 cursor-pointer"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => setPrimaryColor(e.target.value)}
+                      className="w-12 h-10 p-1 cursor-pointer rounded-xl border-gray-200"
+                    />
+                  </div>
                   <Input
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
                     dir="ltr"
-                    className="flex-1"
+                    className="flex-1 rounded-xl"
                   />
                 </div>
               </div>
+
+              {/* Welcome message */}
               <div className="space-y-2">
                 <Label>{t.widget.welcome_label}</Label>
-                <Input value={welcomeMessage} onChange={(e) => setWelcomeMessage(e.target.value)} />
+                <Input
+                  value={welcomeMessage}
+                  onChange={(e) => setWelcomeMessage(e.target.value)}
+                  className="rounded-xl"
+                />
               </div>
-              <div className="flex items-center justify-between">
+
+              {/* White label toggle */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50/80 border border-gray-100">
                 <div>
                   <Label>{t.widget.white_label}</Label>
                   <p className="text-xs text-gray-400">{t.widget.white_label_desc}</p>
@@ -139,37 +201,58 @@ export default function WidgetPage() {
                 <Switch checked={whiteLabel} onCheckedChange={setWhiteLabel} />
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-white border border-gray-200/60 rounded-xl">
+          {/* Embed Code Card */}
+          <motion.div
+            variants={cardItem}
+            className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
             <div className="p-4 pb-3 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">{t.widget.embed_title}</h2>
               <p className="text-sm text-gray-400 mt-0.5">{t.widget.embed_desc}</p>
             </div>
             <div className="p-4">
-              <div className="bg-gray-950 text-green-400 rounded-xl p-3 md:p-5 text-xs md:text-sm font-mono text-left direction-ltr overflow-x-auto border border-gray-800">
-                <pre className="whitespace-pre-wrap break-all">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
+              <div className="relative group">
+                <div className="rounded-xl bg-gray-900 text-green-400 p-4 font-mono text-sm text-left direction-ltr overflow-x-auto border border-gray-800/50">
+                  <pre className="whitespace-pre-wrap break-all leading-relaxed">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
+                </div>
+                {/* Floating copy button */}
+                <button
+                  onClick={copyEmbed}
+                  className="absolute top-3 left-3 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+                </button>
               </div>
               <div className="flex gap-2 mt-3">
-                <Button variant="outline" size="sm" onClick={copyEmbed} className="rounded-xl">
-                  <Copy className="h-4 w-4 ml-1" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyEmbed}
+                  className="rounded-xl border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200"
+                >
+                  {copied ? <Check className="h-4 w-4 ml-1 text-green-500" /> : <Copy className="h-4 w-4 ml-1" />}
                   {t.widget.copy_code}
                 </Button>
               </div>
               <p className="text-xs text-gray-400 mt-2">{t.widget.embed_desc}</p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Live Preview — shows exactly how the widget looks on a real website */}
-        <div className="bg-white border border-gray-200/60 rounded-xl">
+        {/* Live Preview */}
+        <motion.div
+          variants={cardItem}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+        >
           <div className="p-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.widget.preview_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.widget.preview_footer}</p>
           </div>
           <div className="p-4">
             {/* Fake website preview */}
-            <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white" style={{ height: '460px' }}>
+            <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-inner" style={{ height: '460px' }}>
               {/* Browser chrome */}
               <div className="bg-gray-100 border-b border-gray-200 px-4 py-2.5 flex items-center gap-2">
                 <div className="flex gap-1.5">
@@ -198,13 +281,19 @@ export default function WidgetPage() {
                   </div>
                 </div>
 
-                {/* Widget FAB — positioned like the real widget */}
+                {/* Widget FAB */}
                 <div className="absolute" style={{
                   bottom: '24px',
                   [position === 'bottom-left' ? 'left' : 'right']: '24px',
                 }}>
                   {/* Chat window (always open in preview) */}
-                  <div className="mb-3 w-[280px] md:w-[320px] rounded-2xl bg-white shadow-2xl border border-[rgba(0,0,0,0.06)] overflow-hidden" style={{ direction: 'rtl' }}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92, y: 12 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                    className="mb-3 w-[280px] md:w-[320px] rounded-2xl bg-white shadow-2xl border border-[rgba(0,0,0,0.06)] overflow-hidden"
+                    style={{ direction: 'rtl' }}
+                  >
                     {/* Header */}
                     <div className="px-4 py-3 flex items-center gap-3 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${primaryColor}, #7c3aed)` }}>
                       <div className="absolute top-[-20px] right-[-20px] w-20 h-20 rounded-full bg-white/10" />
@@ -212,9 +301,9 @@ export default function WidgetPage() {
                         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 110 2h-1.27A7 7 0 0112 22a7 7 0 01-7.73-6H3a1 1 0 110-2h1a7 7 0 017-7h1V5.73A2 2 0 0112 2zm-2 13a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-white">{business?.name || 'שירות לקוחות'}</p>
+                        <p className="text-sm font-bold text-white">{business?.name || '\u05E9\u05D9\u05E8\u05D5\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA'}</p>
                         <p className="text-[10px] text-white/60 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> מקוון
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> \u05DE\u05E7\u05D5\u05D5\u05DF
                         </p>
                       </div>
                     </div>
@@ -222,23 +311,23 @@ export default function WidgetPage() {
                     <div className="p-3 bg-[#fafbfe] space-y-2" style={{ minHeight: '160px' }}>
                       <div className="flex justify-end">
                         <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
-                          שלום! איך אפשר לעזור? 👋
+                          \u05E9\u05DC\u05D5\u05DD! \u05D0\u05D9\u05DA \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E2\u05D6\u05D5\u05E8? \uD83D\uDC4B
                         </div>
                       </div>
                       <div className="flex justify-start">
                         <div className="rounded-2xl rounded-tr-lg px-3 py-2 text-xs text-white max-w-[80%]" style={{ background: primaryColor }}>
-                          מה שעות הפעילות?
+                          \u05DE\u05D4 \u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA?
                         </div>
                       </div>
                       <div className="flex justify-end">
                         <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
-                          אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00.
+                          \u05D0\u05E0\u05D7\u05E0\u05D5 \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D0\u05F3-\u05D4\u05F3 8:00-20:00, \u05E9\u05D9\u05E9\u05D9 8:00-14:00.
                         </div>
                       </div>
                     </div>
                     {/* Input */}
                     <div className="border-t border-[rgba(0,0,0,0.04)] p-2.5 flex gap-2 bg-white" dir="rtl">
-                      <div className="flex-1 bg-[#fafbfe] rounded-xl px-3 py-2 text-xs text-gray-400 border border-[rgba(0,0,0,0.06)]">שאל אותי משהו...</div>
+                      <div className="flex-1 bg-[#fafbfe] rounded-xl px-3 py-2 text-xs text-gray-400 border border-[rgba(0,0,0,0.06)]">\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05DE\u05E9\u05D4\u05D5...</div>
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: primaryColor }}>
                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                       </div>
@@ -246,20 +335,26 @@ export default function WidgetPage() {
                     {!whiteLabel && (
                       <div className="text-center py-1.5 text-[9px] text-gray-400 border-t border-[rgba(0,0,0,0.03)]">Powered by BotPress AI</div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* FAB bubble */}
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg" style={{ background: primaryColor, marginRight: position === 'bottom-left' ? 'auto' : '0', marginLeft: position === 'bottom-left' ? '0' : 'auto' }}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.15 }}
+                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-200"
+                    style={{ background: primaryColor, marginRight: position === 'bottom-left' ? 'auto' : '0', marginLeft: position === 'bottom-left' ? '0' : 'auto' }}
+                  >
                     <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/></svg>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </div>
 
             <p className="text-center text-xs text-gray-400 mt-3">{t.widget.preview_footer}</p>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }

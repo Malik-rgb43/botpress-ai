@@ -9,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, Save, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from '@/i18n/provider'
 import type { Language } from '@/i18n'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function adjustColorSimple(hex: string, amount: number): string {
   const h = hex.replace('#', '')
@@ -120,25 +121,47 @@ export default function SettingsPage() {
   }
 
   if (bizLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
-  }
-
-  if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <Save className="h-10 w-10 text-blue-300 mb-3" />
-        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
-        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
       </div>
     )
   }
 
+  if (!business) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center justify-center h-64 text-center"
+      >
+        <Settings className="h-10 w-10 text-blue-300 mb-3" />
+        <p className="text-gray-500 font-medium">{t.common.need_business}</p>
+        <p className="text-gray-400 text-sm mt-1">
+          <a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a>
+        </p>
+      </motion.div>
+    )
+  }
+
+  const sectionDelay = (index: number) => 0.05 + index * 0.07
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="max-w-4xl mx-auto"
+    >
       <div className="mb-6 md:mb-8">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.settings.title}</h1>
-          <Button onClick={save} disabled={saving} className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg shadow-sm h-9 px-4 text-sm">
+          <Button
+            onClick={save}
+            disabled={saving}
+            className="bg-gradient-to-r from-blue-600 to-blue-500 text-white border-0 rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-blue-500/30 h-9 px-4 text-sm transition-all duration-200"
+          >
             {saving ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <Save className="h-4 w-4 ml-1" />}
             {t.common.save}
           </Button>
@@ -146,48 +169,59 @@ export default function SettingsPage() {
         <p className="text-gray-400 text-sm mt-1">{t.settings.subtitle}</p>
       </div>
 
-      <div className="space-y-4">
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+      <div className="space-y-6">
+        {/* Business Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(0) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.business_title}</h2>
           </div>
-          <div className="p-4 space-y-4">
+          <div className="p-6 space-y-4">
             <div className="space-y-2">
               <Label>{t.settings.business_name}</Label>
-              <Input value={name} onChange={e => setName(e.target.value)} />
+              <Input value={name} onChange={e => setName(e.target.value)} className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
             <div className="space-y-2">
               <Label>{t.settings.business_story}</Label>
-              <Textarea value={story} onChange={e => setStory(e.target.value)} rows={4} />
+              <Textarea value={story} onChange={e => setStory(e.target.value)} rows={4} className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t.settings.phone}</Label>
-                <Input value={phone} onChange={e => setPhone(e.target.value)} dir="ltr" />
+                <Input value={phone} onChange={e => setPhone(e.target.value)} dir="ltr" className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
               </div>
               <div className="space-y-2">
                 <Label>{t.settings.email}</Label>
-                <Input value={email} onChange={e => setEmail(e.target.value)} dir="ltr" />
+                <Input value={email} onChange={e => setEmail(e.target.value)} dir="ltr" className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
               </div>
             </div>
             <div className="space-y-2">
               <Label>{t.settings.address}</Label>
-              <Input value={address} onChange={e => setAddress(e.target.value)} />
+              <Input value={address} onChange={e => setAddress(e.target.value)} className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
             <div className="space-y-2">
               <Label>{t.settings.website}</Label>
-              <Input value={website} onChange={e => setWebsite(e.target.value)} dir="ltr" />
+              <Input value={website} onChange={e => setWebsite(e.target.value)} dir="ltr" className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Language Settings */}
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(1) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.language_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.language_desc}</p>
           </div>
-          <div className="p-4 space-y-5">
+          <div className="p-6 space-y-5">
             <div className="space-y-2">
               <Label>{t.settings.app_language}</Label>
               <p className="text-xs text-gray-400">{t.settings.app_language_desc}</p>
@@ -196,9 +230,15 @@ export default function SettingsPage() {
                   { value: 'he', label: 'עברית', flag: '🇮🇱' },
                   { value: 'en', label: 'English', flag: '🇺🇸' },
                   { value: 'ar', label: 'العربية', flag: '🇸🇦' },
-                ].map(appLang => (
-                  <button key={appLang.value} type="button" onClick={() => { setAppLanguage(appLang.value); setLanguage(appLang.value as Language) }}
-                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all flex items-center gap-2 ${
+                ].map((appLang, i) => (
+                  <motion.button
+                    key={appLang.value}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: sectionDelay(1) + 0.05 + i * 0.04 }}
+                    type="button"
+                    onClick={() => { setAppLanguage(appLang.value); setLanguage(appLang.value as Language) }}
+                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all duration-200 flex items-center gap-2 ${
                       appLanguage === appLang.value
                         ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
                         : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
@@ -206,7 +246,7 @@ export default function SettingsPage() {
                   >
                     <span className="text-lg">{appLang.flag}</span>
                     {appLang.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -221,9 +261,15 @@ export default function SettingsPage() {
                   { value: 'ar', label: 'العربية', flag: '🇸🇦' },
                   { value: 'ru', label: 'Русский', flag: '🇷🇺' },
                   { value: 'fr', label: 'Français', flag: '🇫🇷' },
-                ].map(botLang => (
-                  <button key={botLang.value} type="button" onClick={() => setBotLanguage(botLang.value)}
-                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all flex items-center gap-2 ${
+                ].map((botLang, i) => (
+                  <motion.button
+                    key={botLang.value}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: sectionDelay(1) + 0.08 + i * 0.03 }}
+                    type="button"
+                    onClick={() => setBotLanguage(botLang.value)}
+                    className={`px-4 py-2.5 rounded-xl text-sm border transition-all duration-200 flex items-center gap-2 ${
                       botLanguage === botLang.value
                         ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
                         : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
@@ -232,167 +278,206 @@ export default function SettingsPage() {
                     <span className="text-lg">{botLang.flag}</span>
                     <span>{botLang.label}</span>
                     {'desc' in botLang && <span className="text-[10px] text-gray-400">({botLang.desc})</span>}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
+        {/* Summaries */}
         {business?.contact_info?.gmail_connected && (
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(2) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.summaries_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.summaries_desc}</p>
           </div>
-          <div className="p-4 space-y-4">
+          <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <Label>{t.settings.summaries_enable}</Label>
               <Switch checked={summaryEnabled} onCheckedChange={setSummaryEnabled} />
             </div>
-            {summaryEnabled && (
-              <>
-                <div className="space-y-2">
-                  <Label>{t.settings.frequency}</Label>
-                  <div className="flex gap-2">
-                    {[
-                      { value: 'daily', label: t.settings.daily },
-                      { value: 'weekly', label: t.settings.weekly },
-                      { value: 'monthly', label: t.settings.monthly },
-                    ].map(f => (
-                      <button key={f.value} type="button" onClick={() => setSummaryFreq(f.value)}
-                        className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-                          summaryFreq === f.value
-                            ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
-                            : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
-                        }`}
-                      >{f.label}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t.settings.summary_email}</Label>
-                  <Input value={summaryEmail} onChange={e => setSummaryEmail(e.target.value)} dir="ltr" />
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!summaryEmail.trim()}
-                  className="gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={async () => {
-                    if (!summaryEmail.trim()) return
-                    toast.loading('שולח סיכום לדוגמה...')
-                    try {
-                      const res = await fetch('/api/summary/demo', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ businessId: business!.id, email: summaryEmail.trim() }),
-                      })
-                      const data = await res.json()
-                      toast.dismiss()
-                      if (data.success) toast.success(t.settings.demo_sent)
-                      else toast.error(data.error || t.common.error)
-                    } catch { toast.dismiss(); toast.error(t.common.error) }
-                  }}
+            <AnimatePresence>
+              {summaryEnabled && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden space-y-4"
                 >
-                  📊 {t.settings.send_demo}
-                </Button>
-              </>
-            )}
+                  <div className="space-y-2">
+                    <Label>{t.settings.frequency}</Label>
+                    <div className="flex gap-2">
+                      {[
+                        { value: 'daily', label: t.settings.daily },
+                        { value: 'weekly', label: t.settings.weekly },
+                        { value: 'monthly', label: t.settings.monthly },
+                      ].map(f => (
+                        <button key={f.value} type="button" onClick={() => setSummaryFreq(f.value)}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all duration-200 ${
+                            summaryFreq === f.value
+                              ? 'border-[#2e90fa] bg-[#2e90fa]/5 text-[#2e90fa] font-medium shadow-sm'
+                              : 'border-gray-200 text-gray-500 hover:border-[#2e90fa]/30'
+                          }`}
+                        >{f.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t.settings.summary_email}</Label>
+                    <Input value={summaryEmail} onChange={e => setSummaryEmail(e.target.value)} dir="ltr" className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!summaryEmail.trim()}
+                    className="gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+                    onClick={async () => {
+                      if (!summaryEmail.trim()) return
+                      toast.loading('שולח סיכום לדוגמה...')
+                      try {
+                        const res = await fetch('/api/summary/demo', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ businessId: business!.id, email: summaryEmail.trim() }),
+                        })
+                        const data = await res.json()
+                        toast.dismiss()
+                        if (data.success) toast.success(t.settings.demo_sent)
+                        else toast.error(data.error || t.common.error)
+                      } catch { toast.dismiss(); toast.error(t.common.error) }
+                    }}
+                  >
+                    📊 {t.settings.send_demo}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
         )}
 
         {/* Agent Availability */}
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(3) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.agent_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.agent_desc}</p>
           </div>
-          <div className="p-4 space-y-4">
+          <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <Label>{t.settings.agent_enable}</Label>
               <Switch checked={agentEnabled} onCheckedChange={setAgentEnabled} />
             </div>
-            {agentEnabled && (
-              <>
-                <div className="space-y-2">
-                  {[
-                    { key: 'sunday', label: t.settings.day_sunday },
-                    { key: 'monday', label: t.settings.day_monday },
-                    { key: 'tuesday', label: t.settings.day_tuesday },
-                    { key: 'wednesday', label: t.settings.day_wednesday },
-                    { key: 'thursday', label: t.settings.day_thursday },
-                    { key: 'friday', label: t.settings.day_friday },
-                    { key: 'saturday', label: t.settings.day_saturday },
-                  ].map(day => {
-                    const sched = agentSchedule[day.key as keyof typeof agentSchedule]
-                    return (
-                      <div key={day.key} className="flex flex-wrap items-center gap-2 md:gap-3 py-1">
-                        <Switch
-                          checked={sched.active}
-                          onCheckedChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], active: v } }))}
-                        />
-                        <span className="w-14 text-sm font-medium">{day.label}</span>
-                        {sched.active ? (
-                          <div className="flex items-center gap-2" dir="ltr">
-                            <Select
-                              value={sched.start}
-                              onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], start: v } }))}
-                            >
-                              <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="max-h-56">
-                                {timeOptions.map(opt => (
-                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <span className="text-gray-400 text-sm">—</span>
-                            <Select
-                              value={sched.end}
-                              onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], end: v } }))}
-                            >
-                              <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="max-h-56">
-                                {timeOptions.map(opt => (
-                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-red-400/70">{t.settings.closed}</span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="space-y-2">
-                  <Label>{t.settings.offline_message}</Label>
-                  <Textarea
-                    value={offlineMessage}
-                    onChange={(e) => setOfflineMessage(e.target.value)}
-                    rows={2}
-                    className="rounded-xl"
-                    placeholder="למשל: אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות."
-                  />
-                  <p className="text-xs text-gray-400">ההודעה שהבוט ישלח כשלקוח מבקש נציג מחוץ לשעות הפעילות</p>
-                </div>
-              </>
-            )}
+            <AnimatePresence>
+              {agentEnabled && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden space-y-4"
+                >
+                  <div className="space-y-2">
+                    {[
+                      { key: 'sunday', label: t.settings.day_sunday },
+                      { key: 'monday', label: t.settings.day_monday },
+                      { key: 'tuesday', label: t.settings.day_tuesday },
+                      { key: 'wednesday', label: t.settings.day_wednesday },
+                      { key: 'thursday', label: t.settings.day_thursday },
+                      { key: 'friday', label: t.settings.day_friday },
+                      { key: 'saturday', label: t.settings.day_saturday },
+                    ].map((day, i) => {
+                      const sched = agentSchedule[day.key as keyof typeof agentSchedule]
+                      return (
+                        <motion.div
+                          key={day.key}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: i * 0.03 }}
+                          className="flex flex-wrap items-center gap-2 md:gap-3 py-1.5"
+                        >
+                          <Switch
+                            checked={sched.active}
+                            onCheckedChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], active: v } }))}
+                          />
+                          <span className="w-14 text-sm font-medium">{day.label}</span>
+                          {sched.active ? (
+                            <div className="flex items-center gap-2" dir="ltr">
+                              <Select
+                                value={sched.start}
+                                onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], start: v } }))}
+                              >
+                                <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-56">
+                                  {timeOptions.map(opt => (
+                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <span className="text-gray-400 text-sm">—</span>
+                              <Select
+                                value={sched.end}
+                                onValueChange={(v) => setAgentSchedule(prev => ({ ...prev, [day.key]: { ...prev[day.key as keyof typeof prev], end: v } }))}
+                              >
+                                <SelectTrigger className="w-24 h-9 rounded-xl text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-56">
+                                  {timeOptions.map(opt => (
+                                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-red-400/70">{t.settings.closed}</span>
+                          )}
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t.settings.offline_message}</Label>
+                    <Textarea
+                      value={offlineMessage}
+                      onChange={(e) => setOfflineMessage(e.target.value)}
+                      rows={2}
+                      className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                      placeholder="למשל: אנחנו לא זמינים כרגע. נחזור אליך בשעות הפעילות."
+                    />
+                    <p className="text-xs text-gray-400">ההודעה שהבוט ישלח כשלקוח מבקש נציג מחוץ לשעות הפעילות</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+        {/* Email Design */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(4) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.email_design_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.email_design_desc}</p>
           </div>
-          <div className="p-4 space-y-5">
+          <div className="p-6 space-y-5">
             {/* Template Picker */}
             <div className="space-y-2">
               <Label>{t.settings.template_label}</Label>
@@ -402,11 +487,14 @@ export default function SettingsPage() {
                   { id: 'classic' as const, label: t.settings.template_classic, desc: 'פס צד צבעוני, נקי ומקצועי', icon: '📋', preview: 'accent' },
                   { id: 'minimal' as const, label: t.settings.template_minimal, desc: 'טקסט בלבד, בלי עיצוב', icon: '📝', preview: 'text' },
                   { id: 'none' as const, label: t.settings.template_none, desc: 'טקסט פשוט כמו Gmail רגיל', icon: '📨', preview: 'plain' },
-                ].map(tpl => {
+                ].map((tpl, i) => {
                   const isSelected = selectedTemplate === tpl.id
                   return (
-                    <button
+                    <motion.button
                       key={tpl.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: sectionDelay(4) + 0.05 + i * 0.04 }}
                       onClick={() => {
                         setSelectedTemplate(tpl.id)
                         const info = business?.contact_info || {}
@@ -462,7 +550,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-xs font-medium">{tpl.label}</div>
                       <div className="text-[10px] text-gray-400 leading-tight mt-0.5">{tpl.desc}</div>
-                    </button>
+                    </motion.button>
                   )
                 })}
               </div>
@@ -472,15 +560,15 @@ export default function SettingsPage() {
             <div className="space-y-2">
               <Label>{t.settings.primary_color}</Label>
               <div className="flex gap-2">
-                <Input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-12 h-10 p-1 cursor-pointer" />
-                <Input value={brandColor} onChange={e => setBrandColor(e.target.value)} dir="ltr" className="flex-1" />
+                <Input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="w-12 h-10 p-1 cursor-pointer rounded-xl" />
+                <Input value={brandColor} onChange={e => setBrandColor(e.target.value)} dir="ltr" className="flex-1 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
               </div>
             </div>
 
             {/* Footer */}
             <div className="space-y-2">
               <Label>{t.settings.footer_text}</Label>
-              <Input value={emailFooter} onChange={e => setEmailFooter(e.target.value)} placeholder="למשל: טלפון: 050-1234567 | כתובת: רחוב הרצל 1" />
+              <Input value={emailFooter} onChange={e => setEmailFooter(e.target.value)} placeholder="למשל: טלפון: 050-1234567 | כתובת: רחוב הרצל 1" className="rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
 
             {/* White Label */}
@@ -492,10 +580,10 @@ export default function SettingsPage() {
               <Switch checked={false} disabled />
             </div>
 
-            {/* Email Preview — Full Example */}
+            {/* Email Preview */}
             <div>
               <Label className="mb-3 block text-base font-semibold">{t.settings.email_preview}</Label>
-              <div className="bg-gray-100 rounded-xl p-4 md:p-8">
+              <div className="bg-gray-100 rounded-2xl p-4 md:p-8">
                 {/* Email client chrome */}
                 <div className="bg-white rounded-xl overflow-hidden shadow-lg max-w-lg mx-auto">
                   {/* Email header bar */}
@@ -514,7 +602,7 @@ export default function SettingsPage() {
                     <p className="text-xs text-gray-400 mt-0.5">אל: sarah@gmail.com</p>
                   </div>
 
-                  {/* Email body — matches selected template */}
+                  {/* Email body */}
                   {selectedTemplate === 'modern' && (
                     <>
                       <div style={{ background: `linear-gradient(135deg, ${brandColor}, ${adjustColorSimple(brandColor, -30)})` }} className="p-6 text-center">
@@ -563,16 +651,27 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white border border-gray-200/60 rounded-xl transition-all duration-200">
-          <div className="p-4 pb-3 border-b border-gray-100">
+        {/* Channels */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: sectionDelay(5) }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
+          <div className="p-6 pb-4 border-b border-gray-100">
             <h2 className="text-base font-semibold text-gray-900">{t.settings.channels_title}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{t.settings.channels_desc}</p>
           </div>
-          <div className="p-4 space-y-4">
+          <div className="p-6 space-y-4">
             {/* Email */}
-            <div className={`border ${business?.contact_info?.gmail_connected ? 'border-green-200 bg-green-50/50' : 'border-blue-200 bg-blue-50/50'} rounded-lg p-4`}>
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: sectionDelay(5) + 0.05 }}
+              className={`border ${business?.contact_info?.gmail_connected ? 'border-green-200 bg-green-50/50' : 'border-blue-200 bg-blue-50/50'} rounded-xl p-4`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-lg">📧</span>
@@ -588,7 +687,7 @@ export default function SettingsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-green-200 text-green-600 hover:bg-green-50 text-xs"
+                      className="border-green-200 text-green-600 hover:bg-green-50 text-xs rounded-xl"
                       onClick={async () => {
                         const testEmail = business?.contact_info?.email
                         if (!testEmail) { toast.error('אין אימייל מחובר'); return }
@@ -611,7 +710,7 @@ export default function SettingsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-red-200 text-red-500 hover:bg-red-50 text-xs"
+                      className="border-red-200 text-red-500 hover:bg-red-50 text-xs rounded-xl"
                       onClick={async () => {
                         if (!confirm('בטוח שאתה רוצה לנתק את ה-Gmail?')) return
                         const supabase = createClient()
@@ -633,7 +732,7 @@ export default function SettingsPage() {
                   </div>
                 ) : (
                   <a href="/api/auth/gmail">
-                    <Button size="sm" className="bg-[#2e90fa] border-0 text-xs shadow-sm rounded-xl">
+                    <Button size="sm" className="bg-gradient-to-r from-blue-600 to-blue-500 border-0 text-xs shadow-sm shadow-blue-500/20 rounded-xl">
                       {t.settings.connect_gmail}
                     </Button>
                   </a>
@@ -644,25 +743,35 @@ export default function SettingsPage() {
                   ? `הבוט עונה מ-${business.contact_info.email} · לנתק ולחבר אימייל אחר? לחץ "נתק" ואז "חבר Gmail"`
                   : 'חבר את ה-Gmail שלך כדי שהבוט יענה ללקוחות מהאימייל של העסק'}
               </p>
-            </div>
+            </motion.div>
 
             {/* WhatsApp */}
-            <div className="border border-gray-200 bg-gray-50/50 rounded-lg p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: sectionDelay(5) + 0.1 }}
+              className="border border-gray-200 bg-gray-50/50 rounded-xl p-4"
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">💬</span>
                   <span className="font-medium text-sm">{t.common.channel_whatsapp}</span>
                   <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">{t.settings.coming_soon}</span>
                 </div>
-                <Button size="sm" variant="outline" className="text-xs" disabled>
+                <Button size="sm" variant="outline" className="text-xs rounded-xl" disabled>
                   {t.settings.connect_whatsapp}
                 </Button>
               </div>
               <p className="text-xs text-gray-400">חיבור WhatsApp Business API דרך Meta — הבוט יענה ללקוחות ישירות מהמספר של העסק</p>
-            </div>
+            </motion.div>
 
             {/* Widget */}
-            <div className="border border-blue-200 bg-blue-50/50 rounded-lg p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: sectionDelay(5) + 0.15 }}
+              className="border border-blue-200 bg-blue-50/50 rounded-xl p-4"
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🌐</span>
@@ -670,16 +779,16 @@ export default function SettingsPage() {
                   <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">{t.settings.widget_ready}</span>
                 </div>
                 <a href="/dashboard/widget">
-                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs">
+                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 text-xs rounded-xl">
                     {t.settings.title}
                   </Button>
                 </a>
               </div>
               <p className="text-xs text-blue-600">הטמע צ׳אט בוט באתר שלך עם שורת קוד אחת</p>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }

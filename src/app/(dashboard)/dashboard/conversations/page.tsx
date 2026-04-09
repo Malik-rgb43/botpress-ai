@@ -12,6 +12,7 @@ import { useEscalationContext } from '@/components/providers/escalation-provider
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Conversation } from '@/types/database'
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month'
@@ -28,32 +29,49 @@ function FilterChip({
   children: React.ReactNode
 }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
         active
-          ? 'bg-blue-500 text-white shadow-sm shadow-blue-500/25'
+          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm shadow-blue-500/25'
           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
       }`}
     >
       {children}
-    </button>
+    </motion.button>
   )
 }
 
 function ChannelBadge({ channel }: { channel: string }) {
   const { t } = useTranslation()
   const config: Record<string, { bg: string; text: string; label: string }> = {
-    email: { bg: 'bg-blue-100', text: 'text-blue-700', label: t.common.channel_email },
-    whatsapp: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t.common.channel_whatsapp },
-    widget: { bg: 'bg-purple-100', text: 'text-purple-700', label: t.common.channel_widget },
+    email: { bg: 'bg-blue-50', text: 'text-blue-600', label: t.common.channel_email },
+    whatsapp: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: t.common.channel_whatsapp },
+    widget: { bg: 'bg-purple-50', text: 'text-purple-600', label: t.common.channel_widget },
   }
-  const c = config[channel] || { bg: 'bg-gray-100', text: 'text-gray-600', label: channel }
+  const c = config[channel] || { bg: 'bg-gray-50', text: 'text-gray-500', label: channel }
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${c.bg} ${c.text}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide ${c.bg} ${c.text} border border-current/10`}>
       {c.label}
     </span>
   )
+}
+
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, x: 20 },
+  show: { opacity: 1, x: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+  exit: { opacity: 0, x: -20, transition: { duration: 0.2 } },
 }
 
 export default function ConversationsPage() {
@@ -218,14 +236,14 @@ export default function ConversationsPage() {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Failed to send')
       }
-      toast.success('ההודעה נשלחה בהצלחה')
+      toast.success('\u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05e0\u05e9\u05dc\u05d7\u05d4 \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4')
       setSendDialogOpen(false)
       setSendRecipient('')
       setSendMessage('')
       setSendChannel('whatsapp')
       loadConversations()
     } catch (err: any) {
-      toast.error(err.message || 'שגיאה בשליחת ההודעה')
+      toast.error(err.message || '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05e9\u05dc\u05d9\u05d7\u05ea \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4')
     } finally {
       setSending(false)
     }
@@ -241,7 +259,12 @@ export default function ConversationsPage() {
 
   if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center justify-center h-64 text-center"
+      >
         <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
           <MessageSquare className="h-6 w-6 text-blue-400" />
         </div>
@@ -249,34 +272,39 @@ export default function ConversationsPage() {
         <p className="text-gray-400 text-sm mt-1.5">
           <a href="/onboarding" className="text-blue-500 hover:underline font-medium">{t.common.go_to_setup}</a>
         </p>
-      </div>
+      </motion.div>
     )
   }
 
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-6 md:mb-8 flex items-start justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="mb-6 md:mb-8 flex items-start justify-between"
+      >
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.conversations.title}</h1>
           <p className="text-gray-400 text-sm mt-1">{t.conversations.subtitle}</p>
         </div>
         <Button
           onClick={() => setSendDialogOpen(true)}
-          className="gap-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white h-8 px-4 rounded-lg shadow-sm"
+          className="gap-1.5 text-xs bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white h-8 px-4 rounded-lg shadow-sm"
         >
           <Send className="h-3.5 w-3.5" />
-          שלח הודעה
+          {'\u05e9\u05dc\u05d7 \u05d4\u05d5\u05d3\u05e2\u05d4'}
         </Button>
-      </div>
+      </motion.div>
 
       {/* Send Message Dialog */}
       <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
-        <DialogContent className="sm:max-w-lg p-0 overflow-hidden" dir="rtl">
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-2xl border border-gray-200/60 shadow-sm" dir="rtl">
           {/* Header with gradient */}
           <div className="bg-gradient-to-l from-blue-600 to-purple-600 px-6 py-5">
-            <DialogTitle className="text-white text-lg font-bold">הודעה חדשה</DialogTitle>
-            <p className="text-white/60 text-sm mt-1">שלח הודעה ישירה ללקוח דרך WhatsApp או Email</p>
+            <DialogTitle className="text-white text-lg font-bold">{'\u05d4\u05d5\u05d3\u05e2\u05d4 \u05d7\u05d3\u05e9\u05d4'}</DialogTitle>
+            <p className="text-white/60 text-sm mt-1">{'\u05e9\u05dc\u05d7 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05d9\u05e9\u05d9\u05e8\u05d4 \u05dc\u05dc\u05e7\u05d5\u05d7 \u05d3\u05e8\u05da WhatsApp \u05d0\u05d5 Email'}</p>
           </div>
 
           <div className="p-6 space-y-5">
@@ -295,7 +323,7 @@ export default function ConversationsPage() {
                   sendChannel === 'whatsapp' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'
                 }`}>W</div>
                 <div className="text-sm font-semibold text-gray-900">WhatsApp</div>
-                <div className="text-[10px] text-gray-400 mt-0.5">שליחה מיידית</div>
+                <div className="text-[10px] text-gray-400 mt-0.5">{'\u05e9\u05dc\u05d9\u05d7\u05d4 \u05de\u05d9\u05d9\u05d3\u05d9\u05ea'}</div>
                 {sendChannel === 'whatsapp' && (
                   <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
                     <Check className="h-3 w-3 text-white" />
@@ -315,7 +343,7 @@ export default function ConversationsPage() {
                   sendChannel === 'email' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500'
                 }`}>@</div>
                 <div className="text-sm font-semibold text-gray-900">Email</div>
-                <div className="text-[10px] text-gray-400 mt-0.5">מהGmail שלך</div>
+                <div className="text-[10px] text-gray-400 mt-0.5">{'\u05de\u05d4Gmail \u05e9\u05dc\u05da'}</div>
                 {sendChannel === 'email' && (
                   <div className="absolute top-2 left-2 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
                     <Check className="h-3 w-3 text-white" />
@@ -327,7 +355,7 @@ export default function ConversationsPage() {
             {/* Recipient */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {sendChannel === 'whatsapp' ? 'מספר טלפון' : 'כתובת אימייל'}
+                {sendChannel === 'whatsapp' ? '\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df' : '\u05db\u05ea\u05d5\u05d1\u05ea \u05d0\u05d9\u05de\u05d9\u05d9\u05dc'}
               </label>
               <div className="relative">
                 <input
@@ -343,11 +371,11 @@ export default function ConversationsPage() {
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">תוכן ההודעה</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{'\u05ea\u05d5\u05db\u05df \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4'}</label>
               <Textarea
                 value={sendMessage}
                 onChange={(e) => setSendMessage(e.target.value)}
-                placeholder="היי, רציתי לעדכן אותך ש..."
+                placeholder={'\u05d4\u05d9\u05d9, \u05e8\u05e6\u05d9\u05ea\u05d9 \u05dc\u05e2\u05d3\u05db\u05df \u05d0\u05d5\u05ea\u05da \u05e9...'}
                 rows={4}
                 className="resize-none rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
               />
@@ -372,14 +400,19 @@ export default function ConversationsPage() {
               ) : (
                 <Send className="h-5 w-5" />
               )}
-              {sending ? 'שולח...' : `שלח ב-${sendChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}`}
+              {sending ? '\u05e9\u05d5\u05dc\u05d7...' : `\u05e9\u05dc\u05d7 \u05d1-${sendChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}`}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 mb-6 p-3 bg-white rounded-xl border border-gray-200/60">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="flex flex-wrap items-center gap-2 mb-6 p-3 rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+      >
         {/* Time filter */}
         {([
           { value: 'all' as const, label: t.conversations.filter_all },
@@ -418,145 +451,171 @@ export default function ConversationsPage() {
             {f.label}
           </FilterChip>
         ))}
-      </div>
+      </motion.div>
 
       {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center h-40">
-          <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-        </div>
-      ) : conversations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-gray-200/60">
-          <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
-            <MessageSquare className="h-6 w-6 text-gray-300" />
-          </div>
-          <p className="text-gray-500 font-medium">{t.conversations.no_conversations}</p>
-          <p className="text-gray-400 text-sm mt-1">{t.conversations.will_appear}</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {conversations.map(conv => {
-            const isEscalated = escalatedIds.has(conv.id)
-            const isResolved = resolvedIds.has(conv.id)
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center h-40"
+          >
+            <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+          </motion.div>
+        ) : conversations.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col items-center justify-center py-16 text-center rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
+              <MessageSquare className="h-6 w-6 text-gray-300" />
+            </div>
+            <p className="text-gray-500 font-medium">{t.conversations.no_conversations}</p>
+            <p className="text-gray-400 text-sm mt-1">{t.conversations.will_appear}</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="list"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="space-y-2"
+          >
+            <AnimatePresence>
+              {conversations.map(conv => {
+                const isEscalated = escalatedIds.has(conv.id)
+                const isResolved = resolvedIds.has(conv.id)
 
-            return (
-              <div
-                key={conv.id}
-                className={`group relative bg-white rounded-xl border transition-all duration-200 hover:shadow-md ${
-                  isEscalated
-                    ? 'border-gray-200/60 border-r-4 border-r-orange-400 bg-orange-50/30'
-                    : isResolved
-                    ? 'border-gray-200/60 border-r-4 border-r-emerald-400'
-                    : 'border-gray-200/60'
-                }`}
-              >
-                <div className="p-3 md:p-4 flex items-center justify-between gap-2 md:gap-4">
-                  {/* Main clickable area */}
-                  <Link
-                    href={`/dashboard/conversations/${conv.id}`}
-                    className="flex items-center gap-4 flex-1 min-w-0"
+                return (
+                  <motion.div
+                    key={conv.id}
+                    variants={itemVariants}
+                    exit="exit"
+                    layout
+                    className={`group relative rounded-2xl border transition-all duration-200 hover:shadow-sm hover:border-gray-300/80 bg-white shadow-sm ${
+                      isEscalated
+                        ? 'border-gray-200/60 border-r-4 border-r-orange-400 bg-orange-50/30'
+                        : isResolved
+                        ? 'border-gray-200/60 border-r-4 border-r-emerald-400'
+                        : 'border-gray-200/60'
+                    }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2.5 mb-1">
-                        <span className="text-sm font-medium text-gray-900 truncate">
-                          {conv.customer_identifier}
-                        </span>
-
-                        {/* Status badge */}
-                        {isEscalated && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-100 text-orange-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                            {t.conversations.status_awaiting}
-                          </span>
-                        )}
-                        {isResolved && !isEscalated && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
-                            <CheckCircle2 className="h-2.5 w-2.5" />
-                            {t.conversations.status_resolved}
-                          </span>
-                        )}
-                      </div>
-
-                      <span className="text-xs text-gray-400">
-                        {new Date(conv.started_at).toLocaleDateString(locale, {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}{' '}
-                        {new Date(conv.started_at).toLocaleTimeString(locale, {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                  </Link>
-
-                  {/* Actions area */}
-                  <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0">
-                    <span className="hidden sm:inline-flex"><ChannelBadge channel={conv.channel} /></span>
-
-                    {conv.satisfaction_rating && (
-                      <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
-                        {'★'.repeat(conv.satisfaction_rating)}
-                      </Badge>
-                    )}
-
-                    {/* Resolve button -- only for escalated */}
-                    {isEscalated && (
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-3 rounded-lg shadow-sm"
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          await handleResolve(conv.id)
-                        }}
-                        disabled={resolvingId === conv.id}
+                    <div className="p-3 md:p-4 flex items-center justify-between gap-2 md:gap-4">
+                      {/* Main clickable area */}
+                      <Link
+                        href={`/dashboard/conversations/${conv.id}`}
+                        className="flex items-center gap-4 flex-1 min-w-0"
                       >
-                        {resolvingId === conv.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <CheckCircle2 className="h-3 w-3" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2.5 mb-1">
+                            <span className="text-sm font-medium text-gray-900 truncate">
+                              {conv.customer_identifier}
+                            </span>
+
+                            {/* Status badge */}
+                            {isEscalated && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-100 text-orange-700">
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                {t.conversations.status_awaiting}
+                              </span>
+                            )}
+                            {isResolved && !isEscalated && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
+                                <CheckCircle2 className="h-2.5 w-2.5" />
+                                {t.conversations.status_resolved}
+                              </span>
+                            )}
+                          </div>
+
+                          <span className="text-xs text-gray-400">
+                            {new Date(conv.started_at).toLocaleDateString(locale, {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}{' '}
+                            {new Date(conv.started_at).toLocaleTimeString(locale, {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                      </Link>
+
+                      {/* Actions area */}
+                      <div className="flex items-center gap-1.5 md:gap-2.5 shrink-0">
+                        <span className="hidden sm:inline-flex"><ChannelBadge channel={conv.channel} /></span>
+
+                        {conv.satisfaction_rating && (
+                          <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
+                            {'\u2605'.repeat(conv.satisfaction_rating)}
+                          </Badge>
                         )}
-                        {t.common.resolved}
-                      </Button>
-                    )}
 
-                    {/* Delete button */}
-                    <button
-                      aria-label="מחק שיחה"
-                      className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                        if (!confirm(t.conversations.confirm_delete)) return
-                        await handleDelete(conv.id)
-                      }}
-                      disabled={deletingId === conv.id}
-                    >
-                      {deletingId === conv.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
-                    </button>
+                        {/* Resolve button -- only for escalated */}
+                        {isEscalated && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-3 rounded-lg shadow-sm"
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              await handleResolve(conv.id)
+                            }}
+                            disabled={resolvingId === conv.id}
+                          >
+                            {resolvingId === conv.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            {t.common.resolved}
+                          </Button>
+                        )}
 
-                    {/* Arrow link */}
-                    <Link
-                      href={`/dashboard/conversations/${conv.id}`}
-                      aria-label="צפה בשיחה"
-                      className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-colors"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+                        {/* Delete button */}
+                        <button
+                          aria-label={'\u05de\u05d7\u05e7 \u05e9\u05d9\u05d7\u05d4'}
+                          className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            if (!confirm(t.conversations.confirm_delete)) return
+                            await handleDelete(conv.id)
+                          }}
+                          disabled={deletingId === conv.id}
+                        >
+                          {deletingId === conv.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+
+                        {/* Arrow link */}
+                        <Link
+                          href={`/dashboard/conversations/${conv.id}`}
+                          aria-label={'\u05e6\u05e4\u05d4 \u05d1\u05e9\u05d9\u05d7\u05d4'}
+                          className="h-7 w-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { useTranslation } from '@/i18n/provider'
-import { Bot, ChevronRight, ChevronLeft, Loader2, Check } from 'lucide-react'
+import { Bot, ChevronRight, ChevronLeft, Loader2, Check, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import StepBusinessInfo from '@/components/onboarding/step-business-info'
 import StepBusinessStory from '@/components/onboarding/step-business-story'
 import StepFAQ from '@/components/onboarding/step-faq'
@@ -48,6 +49,68 @@ export interface OnboardingData {
 
 const STEP_ICONS = ['🏢', '📝', '❓', '📋', '🎯', '💬', '✅']
 
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 80 : -80,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 80 : -80,
+    opacity: 0,
+  }),
+}
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  }),
+}
+
+// Confetti particle component for completion
+function ConfettiParticles() {
+  const particles = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 300 - 150,
+    y: Math.random() * -200 - 50,
+    rotate: Math.random() * 720 - 360,
+    scale: Math.random() * 0.5 + 0.5,
+    color: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'][i % 6],
+    delay: Math.random() * 0.3,
+  }))
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ x: 0, y: 0, rotate: 0, scale: 0, opacity: 1 }}
+          animate={{
+            x: p.x,
+            y: p.y,
+            rotate: p.rotate,
+            scale: p.scale,
+            opacity: 0,
+          }}
+          transition={{
+            duration: 1.2,
+            delay: p.delay,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full"
+          style={{ backgroundColor: p.color }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
   const { t } = useTranslation()
@@ -63,6 +126,8 @@ export default function OnboardingPage() {
   ]
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
+  const [direction, setDirection] = useState(0)
+  const [showConfetti, setShowConfetti] = useState(false)
   const [data, setData] = useState<OnboardingData>({
     businessName: '',
     logoUrl: null,
@@ -85,11 +150,31 @@ export default function OnboardingPage() {
     setData(prev => ({ ...prev, ...partial }))
   }
 
+  function goToStep(newStep: number) {
+    setDirection(newStep > step ? 1 : -1)
+    setStep(newStep)
+  }
+
+  function goNext() {
+    if (step === 6) {
+      // Arriving at summary (step 7) — trigger confetti
+      setShowConfetti(true)
+      setTimeout(() => setShowConfetti(false), 1500)
+    }
+    setDirection(1)
+    setStep(s => s + 1)
+  }
+
+  function goPrev() {
+    setDirection(-1)
+    setStep(s => s - 1)
+  }
+
   async function handleFinish() {
     // Validate required fields
     if (!data.businessName.trim()) {
       toast.error(t.onboarding.missing_name)
-      setStep(1)
+      goToStep(1)
       return
     }
 
@@ -262,10 +347,28 @@ export default function OnboardingPage() {
 
   const progress = (step / 7) * 100
 
+  function renderStepContent() {
+    switch (step) {
+      case 1: return <StepBusinessInfo data={data} updateData={updateData} />
+      case 2: return <StepBusinessStory data={data} updateData={updateData} />
+      case 3: return <StepFAQ data={data} updateData={updateData} />
+      case 4: return <StepPolicies data={data} updateData={updateData} />
+      case 5: return <StepTone data={data} updateData={updateData} />
+      case 6: return <StepTemplates data={data} updateData={updateData} />
+      case 7: return <StepSummary data={data} />
+      default: return null
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200/60">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white border-b border-gray-200/60"
+      >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Image src="/images/logo.png" alt="BotPress AI" width={32} height={32} className="rounded-lg" />
@@ -273,7 +376,7 @@ export default function OnboardingPage() {
           </div>
           <span className="text-sm text-gray-400">{t.onboarding.step_of.replace('{step}', String(step)).replace('{total}', '7')}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Progress bar */}
       <div className="bg-white border-b border-gray-100">
@@ -284,10 +387,12 @@ export default function OnboardingPage() {
               <span className="text-xs font-medium text-gray-500">{STEPS[step - 1].label}</span>
               <span className="text-xs text-gray-400">{step}/7</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+              <motion.div
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full"
+                initial={false}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
           </div>
@@ -300,37 +405,59 @@ export default function OnboardingPage() {
                 const isDone = step > stepNum
                 const isCurrent = step === stepNum
                 return (
-                  <button
+                  <motion.button
                     key={i}
-                    onClick={() => stepNum <= step && setStep(stepNum)}
+                    onClick={() => stepNum <= step && goToStep(stepNum)}
+                    whileHover={stepNum <= step ? { scale: 1.05 } : {}}
+                    whileTap={stepNum <= step ? { scale: 0.95 } : {}}
                     className={`flex flex-col items-center gap-1.5 transition-all ${
                       stepNum <= step ? 'cursor-pointer' : 'cursor-default'
                     }`}
                   >
-                    <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                        isDone
-                          ? 'bg-emerald-500 text-white'
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        scale: isCurrent ? 1 : 1,
+                        backgroundColor: isDone
+                          ? '#10b981'
                           : isCurrent
-                          ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30'
-                          : 'bg-gray-100 text-gray-400'
+                          ? '#3b82f6'
+                          : '#f3f4f6',
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${
+                        isDone
+                          ? 'text-white'
+                          : isCurrent
+                          ? 'text-white shadow-md shadow-blue-500/30'
+                          : 'text-gray-400'
                       }`}
                     >
-                      {isDone ? <Check className="h-4 w-4" /> : stepNum}
-                    </div>
-                    <span className={`text-[11px] font-medium ${
+                      {isDone ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        >
+                          <Check className="h-4 w-4" />
+                        </motion.div>
+                      ) : stepNum}
+                    </motion.div>
+                    <span className={`text-[11px] font-medium transition-colors duration-300 ${
                       isCurrent ? 'text-blue-600' : isDone ? 'text-emerald-600' : 'text-gray-400'
                     }`}>
                       {s.label}
                     </span>
-                  </button>
+                  </motion.button>
                 )
               })}
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+              <motion.div
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 h-1.5 rounded-full"
+                initial={false}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
           </div>
@@ -339,47 +466,96 @@ export default function OnboardingPage() {
 
       {/* Content */}
       <main id="main-content" className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {step === 1 && <StepBusinessInfo data={data} updateData={updateData} />}
-        {step === 2 && <StepBusinessStory data={data} updateData={updateData} />}
-        {step === 3 && <StepFAQ data={data} updateData={updateData} />}
-        {step === 4 && <StepPolicies data={data} updateData={updateData} />}
-        {step === 5 && <StepTone data={data} updateData={updateData} />}
-        {step === 6 && <StepTemplates data={data} updateData={updateData} />}
-        {step === 7 && <StepSummary data={data} />}
+        <div className="relative">
+          {/* Confetti on reaching summary */}
+          {showConfetti && <ConfettiParticles />}
+
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={step}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {/* Step card wrapper for step 7 (summary) with celebration */}
+              {step === 7 ? (
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="relative">
+                    {/* Celebration header */}
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-center mb-6"
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.4 }}
+                        className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/25"
+                      >
+                        <Sparkles className="h-8 w-8 text-white" />
+                      </motion.div>
+                    </motion.div>
+                    {renderStepContent()}
+                  </div>
+                </motion.div>
+              ) : (
+                renderStepContent()
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={() => setStep(s => s - 1)}
-            disabled={step === 1}
-            className="rounded-lg border-gray-200 h-10 px-5"
-          >
-            <ChevronRight className="h-4 w-4 ml-1" />
-            {t.onboarding.prev}
-          </Button>
-          {step < 7 ? (
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          className="flex items-center justify-between mt-8"
+        >
+          <motion.div variants={fadeUp} custom={0}>
             <Button
-              onClick={() => setStep(s => s + 1)}
-              className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg h-10 px-6 shadow-sm"
+              variant="outline"
+              onClick={goPrev}
+              disabled={step === 1}
+              className="rounded-xl border-gray-200 h-11 px-5 hover:bg-gray-50 transition-all duration-200"
             >
-              {t.onboarding.next}
-              <ChevronLeft className="h-4 w-4 mr-1" />
+              <ChevronRight className="h-4 w-4 ml-1" />
+              {t.onboarding.prev}
             </Button>
-          ) : (
-            <Button
-              onClick={handleFinish}
-              disabled={saving}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 rounded-lg h-10 px-6 shadow-sm"
-            >
-              {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />{t.onboarding.saving}</>
-              ) : (
-                <><Check className="h-4 w-4 ml-1.5" />{t.onboarding.finish}</>
-              )}
-            </Button>
-          )}
-        </div>
+          </motion.div>
+
+          <motion.div variants={fadeUp} custom={1}>
+            {step < 7 ? (
+              <Button
+                onClick={goNext}
+                className="bg-gradient-to-r from-blue-600 to-blue-500 hover:brightness-105 text-white border-0 rounded-xl h-11 px-6 shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 transition-all duration-200"
+              >
+                {t.onboarding.next}
+                <ChevronLeft className="h-4 w-4 mr-1" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleFinish}
+                disabled={saving}
+                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:brightness-105 text-white border-0 rounded-xl h-11 px-6 shadow-sm shadow-emerald-500/20 hover:shadow-md hover:shadow-emerald-500/25 transition-all duration-200"
+              >
+                {saving ? (
+                  <><Loader2 className="h-4 w-4 animate-spin ml-1.5" />{t.onboarding.saving}</>
+                ) : (
+                  <><Check className="h-4 w-4 ml-1.5" />{t.onboarding.finish}</>
+                )}
+              </Button>
+            )}
+          </motion.div>
+        </motion.div>
       </main>
     </div>
   )

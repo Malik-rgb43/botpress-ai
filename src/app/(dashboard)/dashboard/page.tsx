@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { useEscalationContext } from '@/components/providers/escalation-provider'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Conversation, Message, Escalation } from '@/types/database'
 
 type Period = 'today' | 'week' | 'month'
@@ -73,6 +74,40 @@ function getDateRange(period: Period): { start: Date; prevStart: Date; prevEnd: 
   }
 
   return { start, prevStart, prevEnd }
+}
+
+// Animation variants
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.4, ease: 'easeOut' as const } },
+}
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+}
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: 'easeOut' as const } },
+}
+
+const listItem = {
+  hidden: { opacity: 0, x: -8 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
+}
+
+const emptyState = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
 }
 
 export default function AnalyticsPage() {
@@ -189,7 +224,12 @@ export default function AnalyticsPage() {
 
   if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
+      <motion.div
+        variants={emptyState}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col items-center justify-center h-64 text-center"
+      >
         <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
           <BarChart3 className="h-7 w-7 text-[#3b82f6]" />
         </div>
@@ -197,7 +237,7 @@ export default function AnalyticsPage() {
         <p className="text-gray-400 text-sm mt-1">
           <a href="/onboarding" className="text-[#3b82f6] hover:underline">{t.common.go_to_setup}</a>
         </p>
-      </div>
+      </motion.div>
     )
   }
 
@@ -256,7 +296,12 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <motion.div
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+      className="max-w-4xl mx-auto space-y-8"
+    >
       {/* ───── Header Row ───── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -277,7 +322,7 @@ export default function AnalyticsPage() {
 
         <div className="flex items-center gap-3">
           <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <TabsList className="bg-white border border-gray-200/60 shadow-sm">
+            <TabsList className="bg-white border border-gray-200/60 shadow-sm relative">
               <TabsTrigger value="today">{t.analytics.today}</TabsTrigger>
               <TabsTrigger value="week">{t.analytics.week}</TabsTrigger>
               <TabsTrigger value="month">{t.analytics.month}</TabsTrigger>
@@ -297,77 +342,111 @@ export default function AnalyticsPage() {
       </div>
 
       {/* ───── Escalation Alert ───── */}
-      {openEscalations.length > 0 && (
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm overflow-hidden">
-          <div className="border-r-4 border-[#ef4444] p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-[#ef4444]" />
+      <AnimatePresence>
+        {openEscalations.length > 0 && (
+          <motion.div
+            variants={scaleIn}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+            className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden"
+          >
+            <div className="border-l-4 border-transparent p-6" style={{ borderImage: 'linear-gradient(to bottom, #ef4444, #f87171) 1' }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                    <AlertTriangle className="h-5 w-5 text-[#ef4444]" />
+                  </div>
+                  <span className="absolute -top-0.5 -left-0.5 w-3 h-3 bg-[#ef4444] rounded-full animate-pulse" />
                 </div>
-                <span className="absolute -top-0.5 -left-0.5 w-3 h-3 bg-[#ef4444] rounded-full animate-pulse" />
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">
+                    {openEscalations.length} {t.analytics.pending_human}
+                  </h3>
+                  <p className="text-sm text-gray-400">{t.analytics.bot_escalated}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-gray-900">
-                  {openEscalations.length} {t.analytics.pending_human}
-                </h3>
-                <p className="text-sm text-gray-400">{t.analytics.bot_escalated}</p>
-              </div>
-            </div>
 
-            <div className="space-y-3">
-              {openEscalations.map(esc => (
-                <div key={esc.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/80 rounded-xl p-4 border border-gray-100">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {esc.conversation?.customer_identifier || t.analytics.customer}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate mt-0.5">{esc.reason}</p>
-                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(esc.created_at).toLocaleDateString(locale)}{' '}
-                        {new Date(esc.created_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-3"
+              >
+                {openEscalations.map(esc => (
+                  <motion.div
+                    key={esc.id}
+                    variants={listItem}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/80 rounded-xl p-4 border border-gray-100"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {esc.conversation?.customer_identifier || t.analytics.customer}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">{esc.reason}</p>
+                        <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(esc.created_at).toLocaleDateString(locale)}{' '}
+                          {new Date(esc.created_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Link href={`/dashboard/conversations/${esc.conversation_id}`}>
-                      <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-xl border-gray-200/60">
-                        <ExternalLink className="h-3 w-3" />
-                        {t.analytics.go_to_conversation}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link href={`/dashboard/conversations/${esc.conversation_id}`}>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-xl border-gray-200/60">
+                          <ExternalLink className="h-3 w-3" />
+                          {t.analytics.go_to_conversation}
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs bg-[#10b981] hover:bg-emerald-600 text-white rounded-xl"
+                        onClick={() => resolveEscalation(esc.id)}
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
+                        {t.analytics.mark_resolved}
                       </Button>
-                    </Link>
-                    <Button
-                      size="sm"
-                      className="gap-1.5 text-xs bg-[#10b981] hover:bg-emerald-600 text-white rounded-xl"
-                      onClick={() => resolveEscalation(esc.id)}
-                    >
-                      <CheckCircle2 className="h-3 w-3" />
-                      {t.analytics.mark_resolved}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ───── KPI Grid ───── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {kpis.map((kpi, i) => (
-          <div
+          <motion.div
             key={i}
-            className="bg-white border border-gray-200/60 rounded-xl shadow-sm p-6"
+            variants={fadeInUp}
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="bg-white border border-gray-200/60 rounded-2xl shadow-sm p-6 hover:shadow-md hover:border-gray-300/80 hover:scale-[1.01] transition-all duration-300 cursor-default"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className={`w-10 h-10 rounded-xl ${kpi.iconBg} flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-xl ${kpi.iconBg} flex items-center justify-center`}>
                 <kpi.icon className={`h-5 w-5 ${kpi.iconColor}`} />
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-1">{kpi.label}</p>
-            <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{kpi.value}</p>
+            <motion.p
+              className="text-2xl md:text-3xl font-bold text-gray-900 mb-2"
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 + i * 0.05 }}
+            >
+              {kpi.value}
+            </motion.p>
             <div className="flex items-center gap-1.5 text-xs">
               {kpi.change.up ? (
                 <span className={`inline-flex items-center gap-0.5 font-medium px-1.5 py-0.5 rounded-md ${kpi.invertColor ? 'bg-red-50 text-[#ef4444]' : 'bg-emerald-50 text-[#10b981]'}`}>
@@ -382,91 +461,140 @@ export default function AnalyticsPage() {
               )}
               <span className="text-gray-400">{t.analytics.from_previous}</span>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* ───── Top Questions + Recent Conversations ───── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
         {/* Top Questions */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <motion.div variants={fadeInUp} className="rounded-2xl border border-gray-200/60 bg-white shadow-sm">
           <div className="p-6 pb-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">{t.analytics.top_questions}</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.top_questions_sub}</p>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                <BarChart3 className="h-3.5 w-3.5 text-[#3b82f6]" />
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">{t.analytics.top_questions}</h2>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">{t.analytics.top_questions_sub}</p>
           </div>
           <div className="p-6">
             {topQuestions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
+              <motion.div
+                variants={emptyState}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col items-center justify-center py-10 text-center"
+              >
                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
                   <BarChart3 className="h-6 w-6 text-[#3b82f6]/40" />
                 </div>
                 <p className="text-sm text-gray-500 font-medium">{t.common.no_data}</p>
                 <p className="text-xs text-gray-400 mt-1">{t.analytics.questions_appear}</p>
-              </div>
+              </motion.div>
             ) : (
-              <div className="space-y-1">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-1"
+              >
                 {topQuestions.slice(0, 5).map((q, i) => (
-                  <div key={i} className="flex items-center gap-2.5 py-1.5">
+                  <motion.div key={i} variants={listItem} className="flex items-center gap-2.5 py-1.5">
                     <span className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-[11px] font-semibold text-gray-400 shrink-0">
                       {i + 1}
                     </span>
                     <p className="text-sm text-gray-700 truncate flex-1">{q.question}</p>
                     <span className="text-[11px] text-gray-400 shrink-0">{q.count}x</span>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent Conversations */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <motion.div variants={fadeInUp} className="rounded-2xl border border-gray-200/60 bg-white shadow-sm">
           <div className="p-6 pb-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">{t.analytics.recent_conversations}</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.recent_conversations_sub}</p>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <MessageSquare className="h-3.5 w-3.5 text-[#10b981]" />
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">{t.analytics.recent_conversations}</h2>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">{t.analytics.recent_conversations_sub}</p>
           </div>
           <div className="p-6">
             {recentConversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
+              <motion.div
+                variants={emptyState}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col items-center justify-center py-10 text-center"
+              >
                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
                   <MessageSquare className="h-6 w-6 text-[#3b82f6]/40" />
                 </div>
                 <p className="text-sm text-gray-500 font-medium">{t.analytics.no_conversations}</p>
                 <p className="text-xs text-gray-400 mt-1">{t.analytics.conversations_appear}</p>
-              </div>
+              </motion.div>
             ) : (
-              <div className="space-y-0.5">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-0.5"
+              >
                 {recentConversations.slice(0, 5).map(conv => (
-                  <Link key={conv.id} href={`/dashboard/conversations/${conv.id}`} className="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                        <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                  <motion.div key={conv.id} variants={listItem}>
+                    <Link href={`/dashboard/conversations/${conv.id}`} className="flex items-center justify-between gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                          <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-800 truncate">{conv.customer_identifier}</p>
+                          <p className="text-[11px] text-gray-400">
+                            {new Date(conv.started_at).toLocaleDateString(locale)} · {conv.messages?.length || 0} {t.analytics.kpi_messages}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm text-gray-800 truncate">{conv.customer_identifier}</p>
-                        <p className="text-[11px] text-gray-400">
-                          {new Date(conv.started_at).toLocaleDateString(locale)} · {conv.messages?.length || 0} {t.analytics.kpi_messages}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[11px] text-gray-400 shrink-0">
-                      {conv.channel === 'email' ? t.analytics.channel_email : conv.channel === 'whatsapp' ? t.analytics.channel_whatsapp : t.common.channel_widget}
-                    </span>
-                  </Link>
+                      <span className="text-[11px] text-gray-400 shrink-0">
+                        {conv.channel === 'email' ? t.analytics.channel_email : conv.channel === 'whatsapp' ? t.analytics.channel_whatsapp : t.common.channel_widget}
+                      </span>
+                    </Link>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* ───── Sentiment + Channels ───── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
         {/* Sentiment Analysis */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <motion.div variants={fadeInUp} className="rounded-2xl border border-gray-200/60 bg-white shadow-sm">
           <div className="p-6 pb-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">{t.analytics.sentiment_title}</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.sentiment_sub}</p>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                <Star className="h-3.5 w-3.5 text-[#f59e0b]" />
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">{t.analytics.sentiment_title}</h2>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">{t.analytics.sentiment_sub}</p>
           </div>
           <div className="p-6">
             <div className="space-y-5">
@@ -476,23 +604,31 @@ export default function AnalyticsPage() {
                     <span className="text-gray-900 font-medium">{s.label}</span>
                     <span className="text-gray-500 font-medium">{s.value}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2.5">
-                    <div
-                      className={`${s.color} h-2.5 rounded-full transition-all duration-500`}
-                      style={{ width: `${s.value}%` }}
+                  <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <motion.div
+                      className={`${s.color} h-2.5 rounded-full`}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${s.value}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: i * 0.1, ease: 'easeOut' }}
                     />
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Channel Distribution */}
-        <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm">
+        <motion.div variants={fadeInUp} className="rounded-2xl border border-gray-200/60 bg-white shadow-sm">
           <div className="p-6 pb-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">{t.analytics.channels_title}</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{t.analytics.channels_sub}</p>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center">
+                <Globe className="h-3.5 w-3.5 text-purple-500" />
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">{t.analytics.channels_title}</h2>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">{t.analytics.channels_sub}</p>
           </div>
           <div className="p-6">
             <div className="space-y-5">
@@ -502,18 +638,21 @@ export default function AnalyticsPage() {
                     <span className="text-gray-900 font-medium">{c.label}</span>
                     <span className="text-gray-500 font-medium">{c.value}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2.5">
-                    <div
-                      className={`${c.color} h-2.5 rounded-full transition-all duration-500`}
-                      style={{ width: `${c.value}%` }}
+                  <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <motion.div
+                      className={`${c.color} h-2.5 rounded-full`}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${c.value}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: i * 0.1, ease: 'easeOut' }}
                     />
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }

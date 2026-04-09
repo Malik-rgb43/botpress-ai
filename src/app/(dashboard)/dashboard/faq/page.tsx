@@ -11,7 +11,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Plus, Trash2, Pencil, Loader2, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from '@/i18n/provider'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { FAQ } from '@/types/database'
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.06 },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] } },
+  exit: { opacity: 0, height: 0, marginBottom: 0, transition: { duration: 0.25, ease: 'easeInOut' as const } },
+}
 
 export default function FAQPage() {
   const { t } = useTranslation()
@@ -93,31 +107,53 @@ export default function FAQPage() {
   }
 
   if (bizLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-blue-400" /></div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+      </div>
+    )
   }
 
   if (!business) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="flex flex-col items-center justify-center h-64 text-center"
+      >
         <HelpCircle className="h-10 w-10 text-blue-300 mb-3" />
         <p className="text-gray-500 font-medium">{t.common.need_business}</p>
-        <p className="text-gray-400 text-sm mt-1"><a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a></p>
-      </div>
+        <p className="text-gray-400 text-sm mt-1">
+          <a href="/onboarding" className="text-blue-500 hover:underline">{t.common.go_to_setup}</a>
+        </p>
+      </motion.div>
     )
   }
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-6 md:mb-8">
+      {/* Section Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="mb-6 md:mb-8"
+      >
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.faq.title}</h1>
-          <Button onClick={openCreate} className="bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-lg shadow-sm h-9 px-4 text-sm">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.faq.title}</h1>
+            <p className="text-gray-400 text-sm mt-1">{t.faq.subtitle}</p>
+          </div>
+          <Button
+            onClick={openCreate}
+            className="bg-gradient-to-r from-blue-600 to-blue-500 text-white border-0 rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 h-9 px-4 text-sm transition-all duration-200"
+          >
             <Plus className="h-4 w-4 ml-1" />
             {t.faq.add_button}
           </Button>
         </div>
-        <p className="text-gray-400 text-sm mt-1">{t.faq.subtitle}</p>
-      </div>
+      </motion.div>
 
       {/* Add/Edit FAQ Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -138,7 +174,12 @@ export default function FAQPage() {
               <Label>{t.faq.label_answer}</Label>
               <Textarea placeholder={t.faq.placeholder_answer} value={answer} onChange={(e) => setAnswer(e.target.value)} rows={4} className="rounded-xl" />
             </div>
-            <Button onClick={saveFaq} className="w-full bg-[#2e90fa] border-0 rounded-xl h-11 shadow-md shadow-[#2e90fa]/25 hover:shadow-lg transition-all">{t.common.save}</Button>
+            <Button
+              onClick={saveFaq}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-500 border-0 rounded-xl h-11 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200"
+            >
+              {t.common.save}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -149,37 +190,67 @@ export default function FAQPage() {
           <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
         </div>
       ) : faqs.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200/60">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="rounded-2xl border border-gray-200/60 bg-white shadow-sm"
+        >
           <div className="p-6 flex flex-col items-center justify-center py-12 text-center">
             <HelpCircle className="h-10 w-10 text-blue-300 mb-3" />
             <p className="text-gray-500">{t.faq.empty_title}</p>
             <p className="text-gray-400 text-sm">{t.faq.empty_subtitle}</p>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="space-y-2">
-          {faqs.map((faq, index) => (
-            <div key={faq.id} className={`bg-white rounded-xl border border-gray-200/60 transition-all duration-200 hover:shadow-md ${index % 2 === 0 ? '' : 'bg-blue-50/30'}`}>
-              <div className="p-3 md:p-4 flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  {faq.category && (
-                    <span className="text-xs bg-blue-100/80 text-blue-700 px-2.5 py-0.5 rounded-full mb-1.5 inline-block font-medium">{faq.category}</span>
-                  )}
-                  <p className="font-medium text-sm">{faq.question}</p>
-                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">{faq.answer}</p>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-2"
+        >
+          <AnimatePresence mode="popLayout">
+            {faqs.map((faq) => (
+              <motion.div
+                key={faq.id}
+                variants={itemVariants}
+                exit={{ opacity: 0, height: 0, marginBottom: 0, transition: { duration: 0.25, ease: 'easeInOut' } }}
+                layout
+                className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-200"
+              >
+                <div className="p-3 md:p-4 flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    {faq.category && (
+                      <span className="text-xs bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full mb-1.5 inline-block font-medium border border-blue-100/80">
+                        {faq.category}
+                      </span>
+                    )}
+                    <p className="font-medium text-sm text-gray-900">{faq.question}</p>
+                    <p className="text-sm text-gray-500 mt-1 leading-relaxed">{faq.answer}</p>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors duration-150"
+                      onClick={() => openEdit(faq)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors duration-150"
+                      onClick={() => deleteFaq(faq.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button variant="ghost" size="sm" className="hover:bg-blue-50 hover:text-blue-600" onClick={() => openEdit(faq)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="hover:bg-red-50 hover:text-red-500" onClick={() => deleteFaq(faq.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   )
