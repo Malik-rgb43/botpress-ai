@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Check, ChevronDown, X, Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { useRef, useEffect, useState } from "react"
-import { motion, useInView, type Variants } from 'framer-motion'
+import { motion, useInView, AnimatePresence, type Variants } from 'framer-motion'
 import HeroChat from "@/components/landing/hero-chat"
 import RotatingText from "@/components/landing/rotating-text"
 
@@ -195,14 +195,21 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.06 }}
     >
-      <details className="group rounded-2xl border border-gray-200/60 bg-white overflow-hidden hover:border-gray-300/80 hover:shadow-md transition-all duration-300">
-        <summary className="flex items-center justify-between p-5 md:p-6 cursor-pointer hover:bg-blue-50/30 transition-colors">
-          <span className="font-semibold text-gray-900 text-[15px]">{q}</span>
-          <ChevronDown className="h-4 w-4 text-gray-500 group-open:rotate-180 transition-transform duration-300 shrink-0 mr-3" />
+      <details className="group rounded-xl bg-white border border-gray-100 overflow-hidden hover:border-blue-200/60 hover:shadow-lg hover:shadow-blue-500/[0.03] transition-all duration-300">
+        <summary className="flex items-center justify-between gap-4 p-5 md:p-6 cursor-pointer select-none">
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100/60 flex items-center justify-center shrink-0 group-open:from-blue-500 group-open:to-purple-500 group-open:border-transparent transition-all duration-300">
+              <span className="text-blue-500 text-xs font-bold group-open:text-white transition-colors duration-300">?</span>
+            </div>
+            <span className="font-semibold text-gray-900 text-[15px] leading-snug">{q}</span>
+          </div>
+          <div className="w-7 h-7 rounded-lg bg-gray-50 group-hover:bg-blue-50 group-open:bg-blue-500 flex items-center justify-center shrink-0 transition-all duration-300">
+            <ChevronDown className="h-3.5 w-3.5 text-gray-400 group-open:text-white group-open:rotate-180 transition-all duration-300" />
+          </div>
         </summary>
-        <div className="px-5 md:px-6 pb-5 md:pb-6 text-sm text-gray-500 leading-relaxed">{a}</div>
+        <div className="px-5 md:px-6 pb-5 md:pb-6 pr-[60px] text-sm text-gray-500 leading-relaxed border-t border-gray-50">{a}</div>
       </details>
     </motion.div>
   )
@@ -230,6 +237,319 @@ function FloatingOrb({ className, color, size, blur }: { className?: string; col
         ease: 'easeInOut',
       }}
     />
+  )
+}
+
+/* ── Feature Showcase Data & Component ──────── */
+
+const featureTabs = [
+  {
+    title: 'AI שעונה על הכל',
+    description: '3 שכבות: FAQ, מדיניות ו-AI מתקדם. עונה בפחות מ-2 שניות.',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'סריקה אוטומטית',
+    description: 'הדבק URL — הבוט לומד הכל בשניות',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+    ),
+  },
+  {
+    title: '3 ערוצים, מערכת אחת',
+    description: 'וואטסאפ, אימייל וצ׳אט — ממקום אחד.',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'אנליטיקס בזמן אמת',
+    description: 'כל הנתונים על פעילות הבוט — בדשבורד אחד',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    ),
+  },
+]
+
+/* Preview: AI Chat */
+function PreviewAIChat() {
+  return (
+    <div className="p-5 space-y-3">
+      <motion.div className="flex gap-2 justify-end" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+        <div className="bg-blue-500 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">מה שעות הפתיחה שלכם?</div>
+      </motion.div>
+      <motion.div className="flex gap-2.5" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-[11px] shrink-0 shadow-sm">&#x1F916;</div>
+        <div className="space-y-1">
+          <div className="bg-gray-50 text-gray-700 text-xs px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm max-w-[300px]">
+            אנחנו פתוחים א׳-ה׳ 9:00-18:00 וביום ו׳ 9:00-13:00. רוצה לקבוע פגישה? 😊
+          </div>
+          <div className="flex gap-1.5 mr-1">
+            <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">FAQ</span>
+            <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">0.8s</span>
+          </div>
+        </div>
+      </motion.div>
+      <motion.div className="flex gap-2 justify-end" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.5 }}>
+        <div className="bg-blue-500 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">כן, מחר בבוקר</div>
+      </motion.div>
+      <motion.div className="flex gap-2.5" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.7 }}>
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-[11px] shrink-0 shadow-sm">&#x1F916;</div>
+        <div className="bg-gray-50 text-gray-700 text-xs px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm max-w-[300px]">
+          מצוין! מחר יש לנו פנוי ב-10:00 וב-11:30. מה מתאים לך?
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+/* Preview: Site Scanning */
+function PreviewScanning() {
+  const items = [
+    { label: 'שאלות נפוצות', pct: 100, delay: 0 },
+    { label: 'מדיניות החזרות', pct: 100, delay: 0.15 },
+    { label: 'שעות פעילות', pct: 100, delay: 0.3 },
+    { label: 'פרטי קשר', pct: 85, delay: 0.45 },
+  ]
+  return (
+    <div className="p-5 space-y-4">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="text-xs text-gray-500 font-medium" dir="ltr">https://my-business.co.il</span>
+      </div>
+      {items.map((item) => (
+        <motion.div key={item.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: item.delay }}>
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-gray-500">{item.label}</span>
+            <span className={item.pct === 100 ? 'text-emerald-500 font-semibold' : 'text-blue-500 font-semibold'}>{item.pct === 100 ? '✓' : `${item.pct}%`}</span>
+          </div>
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <motion.div
+              className={`h-full rounded-full ${item.pct === 100 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-blue-400 to-blue-500'}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${item.pct}%` }}
+              transition={{ duration: 1, delay: item.delay + 0.2, ease: 'easeOut' }}
+            />
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+/* Preview: 3 Channels */
+function PreviewChannels() {
+  const channels = [
+    { name: 'WhatsApp', sub: 'מענה אוטומטי מהמספר שלך', color: '#25D366', icon: 'W', delay: 0 },
+    { name: 'Email', sub: 'תשובות מהGmail שלך', color: '#3B82F6', icon: '@', delay: 0.15 },
+    { name: 'וידג׳ט באתר', sub: 'שורת קוד אחת', color: '#8B5CF6', icon: '</>', delay: 0.3 },
+  ]
+  return (
+    <div className="p-5 space-y-3">
+      {channels.map((ch) => (
+        <motion.div
+          key={ch.name}
+          className="flex items-center gap-3 p-3 rounded-xl border transition-all"
+          style={{ backgroundColor: `${ch.color}08`, borderColor: `${ch.color}20` }}
+          initial={{ opacity: 0, x: -15 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: ch.delay }}
+        >
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm shadow-sm" style={{ backgroundColor: ch.color }}>{ch.icon}</div>
+          <div className="flex-1">
+            <div className="text-xs font-bold text-gray-800">{ch.name}</div>
+            <div className="text-[10px] text-gray-400">{ch.sub}</div>
+          </div>
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: ch.color }} />
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+/* Preview: Analytics */
+function PreviewAnalytics() {
+  const kpis = [
+    { label: 'שיחות היום', value: '47', change: '+12%', up: true },
+    { label: 'זמן תגובה', value: '2.3s', change: '-18%', up: false },
+    { label: 'שביעות רצון', value: '96%', change: '+5%', up: true },
+    { label: 'חסכון יומי', value: '₪840', change: '+23%', up: true },
+  ]
+  const bars = [30, 45, 35, 55, 40, 65, 50, 75, 60, 85, 70, 90]
+  return (
+    <div className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs text-gray-500 font-medium">סקירה יומית</span>
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          LIVE
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-2.5 mb-4">
+        {kpis.map((kpi, i) => (
+          <motion.div key={i} className="rounded-xl bg-gray-50 p-2.5 text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: i * 0.08 }}>
+            <div className="text-base font-bold text-gray-900">{kpi.value}</div>
+            <div className="text-[10px] text-gray-400 mb-0.5">{kpi.label}</div>
+            <div className={`text-[10px] font-semibold ${kpi.up ? 'text-emerald-500' : 'text-blue-500'}`}>{kpi.change}</div>
+          </motion.div>
+        ))}
+      </div>
+      <div className="flex items-end gap-1.5 h-16">
+        {bars.map((h, i) => (
+          <motion.div
+            key={i}
+            className="flex-1 rounded-t bg-gradient-to-t from-blue-400 to-blue-500"
+            initial={{ height: 0 }}
+            animate={{ height: `${h}%` }}
+            transition={{ duration: 0.6, delay: i * 0.04, ease: 'easeOut' }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const featurePreviews = [PreviewAIChat, PreviewScanning, PreviewChannels, PreviewAnalytics]
+
+function FeatureShowcase() {
+  const [activeTab, setActiveTab] = useState(0)
+  const [userClicked, setUserClicked] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Auto-rotate every 4s, pause on manual click
+  useEffect(() => {
+    if (userClicked) {
+      // Resume auto-rotate after 8s of inactivity
+      const resume = setTimeout(() => setUserClicked(false), 8000)
+      return () => clearTimeout(resume)
+    }
+    timerRef.current = setInterval(() => {
+      setActiveTab((prev) => (prev + 1) % featureTabs.length)
+    }, 4000)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [userClicked])
+
+  const handleTabClick = (i: number) => {
+    setActiveTab(i)
+    setUserClicked(true)
+  }
+
+  const ActivePreview = featurePreviews[activeTab]
+
+  return (
+    <section id="features" className="py-24 md:py-32 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          className="text-center mb-14"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+        >
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-3">
+            הכל כלול. בלי הפתעות.
+          </motion.h2>
+          <motion.p variants={fadeInUp} className="text-gray-500 text-base max-w-md mx-auto">כל מה שצריך כדי לתת שירות מעולה — בלי לשבור את הראש</motion.p>
+        </motion.div>
+
+        <motion.div
+          className="grid md:grid-cols-5 gap-8 items-start"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={staggerContainer}
+        >
+          {/* Preview area — 3 cols */}
+          <motion.div variants={fadeInUp} className="md:col-span-3 order-2 md:order-1">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-gray-200/50 overflow-hidden">
+              {/* Browser chrome */}
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-300" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-300" />
+                  <div className="w-3 h-3 rounded-full bg-green-300" />
+                </div>
+                <div className="flex-1 mx-3">
+                  <div className="bg-white rounded-lg border border-gray-200 px-3 py-1.5 text-[11px] text-gray-400 font-mono" dir="ltr">
+                    app.botpress.ai/dashboard
+                  </div>
+                </div>
+              </div>
+              {/* Preview content */}
+              <div className="min-h-[320px] bg-gradient-to-br from-gray-50/50 to-blue-50/30 relative">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  >
+                    <ActivePreview />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Feature tabs — 2 cols */}
+          <motion.div variants={fadeInUp} className="md:col-span-2 space-y-3 order-1 md:order-2">
+            {featureTabs.map((tab, i) => (
+              <motion.button
+                key={i}
+                onClick={() => handleTabClick(i)}
+                className={`w-full text-right rounded-xl p-4 transition-all duration-300 cursor-pointer ${
+                  activeTab === i
+                    ? 'bg-blue-50/50 border-r-2 border-blue-500 border-l border-t border-b border-l-gray-100 border-t-gray-100 border-b-gray-100 shadow-sm'
+                    : 'bg-white hover:bg-gray-50 border border-gray-100'
+                }`}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-0.5 p-2 rounded-lg transition-colors ${activeTab === i ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                    {tab.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className={`text-sm font-bold mb-1 transition-colors ${activeTab === i ? 'text-gray-900' : 'text-gray-600'}`}>{tab.title}</h4>
+                    <p className={`text-xs leading-relaxed transition-colors ${activeTab === i ? 'text-gray-500' : 'text-gray-400'}`}>{tab.description}</p>
+                  </div>
+                  {activeTab === i && (
+                    <motion.div
+                      className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500 }}
+                    />
+                  )}
+                </div>
+                {/* Progress bar for auto-rotate */}
+                {activeTab === i && !userClicked && (
+                  <div className="mt-3 h-0.5 bg-gray-100 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 4, ease: 'linear' }}
+                    />
+                  </div>
+                )}
+              </motion.button>
+            ))}
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
   )
 }
 
@@ -449,229 +769,59 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* SOCIAL PROOF STRIP                              */}
       {/* ═══════════════════════════════════════════════ */}
-      <motion.section
-        className="py-8 bg-gray-50/50 border-b border-gray-100"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeIn}
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            <span className="text-sm text-gray-400 font-medium ml-2">עסקים שכבר משתמשים:</span>
-            {['מסעדות', 'קליניקות', 'חנויות אונליין', 'משרדי עו״ד', 'סטודיואים', 'סוכנויות'].map((type) => (
-              <span key={type} className="text-xs text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full font-medium">
-                {type}
-              </span>
+      <section className="py-10 bg-gradient-to-b from-gray-50/80 to-white border-b border-gray-100 overflow-hidden">
+        <motion.p
+          className="text-center text-sm text-gray-400 font-medium mb-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          +500 עסקים כבר משתמשים בפלטפורמה
+        </motion.p>
+        {/* Infinite scroll carousel */}
+        <div className="relative">
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-l from-transparent to-white z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-r from-transparent to-white z-10 pointer-events-none" />
+          <motion.div
+            className="flex gap-4 w-max"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+          >
+            {[...Array(2)].map((_, setIdx) => (
+              <div key={setIdx} className="flex gap-4">
+                {[
+                  { name: 'מסעדות', icon: '🍽️', count: '84' },
+                  { name: 'קליניקות', icon: '🏥', count: '62' },
+                  { name: 'חנויות אונליין', icon: '🛍️', count: '120' },
+                  { name: 'משרדי עו״ד', icon: '⚖️', count: '45' },
+                  { name: 'סטודיואים', icon: '🎨', count: '38' },
+                  { name: 'סוכנויות', icon: '🏢', count: '55' },
+                  { name: 'מכוני כושר', icon: '💪', count: '29' },
+                  { name: 'יועצים', icon: '💼', count: '41' },
+                  { name: 'חינוך', icon: '📚', count: '33' },
+                  { name: 'נדל״ן', icon: '🏠', count: '27' },
+                ].map((biz) => (
+                  <div
+                    key={`${setIdx}-${biz.name}`}
+                    className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300 shrink-0 cursor-default"
+                  >
+                    <span className="text-lg">{biz.icon}</span>
+                    <div>
+                      <span className="text-sm font-semibold text-gray-700">{biz.name}</span>
+                      <span className="text-[10px] text-gray-400 block">{biz.count} עסקים</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* ═══════════════════════════════════════════════ */}
-      {/* FEATURES — BENTO GRID                           */}
-      {/* ═══════════════════════════════════════════════ */}
-      <section id="features" className="py-24 md:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            className="text-center mb-14"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-3">
-              הכל כלול. בלי הפתעות.
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-gray-500 text-base max-w-md mx-auto">כל מה שצריך כדי לתת שירות מעולה — בלי לשבור את הראש</motion.p>
-          </motion.div>
-
-          <motion.div
-            className="grid md:grid-cols-5 gap-5"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            {/* AI Chat (spans 3 cols) */}
-            <motion.div variants={fadeInUp} className="md:col-span-3">
-              <div className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-300 p-7 h-full overflow-hidden relative group">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">AI שעונה על הכל</h3>
-                <p className="text-sm text-gray-500 mb-5">3 שכבות: FAQ &rarr; מדיניות &rarr; AI מתקדם. עונה בפחות מ-2 שניות.</p>
-                <div className="rounded-xl bg-gradient-to-br from-gray-50 to-blue-50/50 border border-gray-100 p-4 space-y-3">
-                  <motion.div
-                    className="flex gap-2 justify-end"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                  >
-                    <div className="bg-blue-500 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
-                      מה שעות הפתיחה שלכם?
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    className="flex gap-2.5"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                  >
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-[11px] shrink-0 shadow-sm">🤖</div>
-                    <div className="space-y-1">
-                      <div className="bg-white text-gray-700 text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm border border-gray-100 shadow-sm max-w-[280px]">
-                        אנחנו פתוחים א׳-ה׳ 9:00-18:00 וביום ו׳ 9:00-13:00. רוצה לקבוע פגישה? 😊
-                      </div>
-                      <div className="flex gap-1.5 mr-1">
-                        <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">FAQ</span>
-                        <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">0.8s</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    className="flex gap-2 justify-end"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.5 }}
-                  >
-                    <div className="bg-blue-500 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm shadow-sm">
-                      כן, מחר בבוקר
-                    </div>
-                  </motion.div>
-                  <motion.div
-                    className="flex gap-2.5"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.7 }}
-                  >
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-[11px] shrink-0 shadow-sm">🤖</div>
-                    <div className="bg-white text-gray-700 text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-sm border border-gray-100 shadow-sm max-w-[280px]">
-                      מצוין! מחר יש לנו פנוי ב-10:00 וב-11:30. מה מתאים לך?
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Site Scanning (spans 2 cols) */}
-            <motion.div variants={fadeInUp} className="md:col-span-2">
-              <div className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-300 p-7 h-full group">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">סריקה אוטומטית</h3>
-                <p className="text-sm text-gray-500 mb-5">הדבק URL — הבוט לומד הכל בשניות</p>
-                <div className="space-y-4">
-                  {[
-                    { label: 'שאלות נפוצות', pct: 100, delay: 0 },
-                    { label: 'מדיניות החזרות', pct: 100, delay: 0.15 },
-                    { label: 'שעות פעילות', pct: 100, delay: 0.3 },
-                    { label: 'פרטי קשר', pct: 85, delay: 0.45 },
-                  ].map((item) => (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: item.delay }}
-                    >
-                      <div className="flex justify-between text-xs mb-1.5">
-                        <span className="text-gray-500">{item.label}</span>
-                        <span className={item.pct === 100 ? 'text-emerald-500 font-semibold' : 'text-blue-500 font-semibold'}>{item.pct === 100 ? '✓' : `${item.pct}%`}</span>
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <motion.div
-                          className={`h-full rounded-full ${item.pct === 100 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-blue-400 to-blue-500'}`}
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${item.pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, delay: item.delay + 0.2, ease: 'easeOut' }}
-                        />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 3 Channels (spans 2 cols) */}
-            <motion.div variants={fadeInUp} className="md:col-span-2">
-              <div className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-300 p-7 h-full group">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">3 ערוצים, מערכת אחת</h3>
-                <p className="text-sm text-gray-500 mb-5">וואטסאפ, אימייל וצ׳אט — ממקום אחד.</p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#25D366]/5 border border-[#25D366]/15 group-hover:border-[#25D366]/30 transition-all">
-                    <div className="w-9 h-9 rounded-lg bg-[#25D366] flex items-center justify-center text-white text-sm shadow-sm">W</div>
-                    <div className="flex-1">
-                      <div className="text-xs font-bold text-gray-800">WhatsApp</div>
-                      <div className="text-[10px] text-gray-400">מענה אוטומטי מהמספר שלך</div>
-                    </div>
-                    <div className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/15 group-hover:border-blue-500/30 transition-all">
-                    <div className="w-9 h-9 rounded-lg bg-blue-500 flex items-center justify-center text-white text-sm shadow-sm">@</div>
-                    <div className="flex-1">
-                      <div className="text-xs font-bold text-gray-800">Email</div>
-                      <div className="text-[10px] text-gray-400">תשובות מהGmail שלך</div>
-                    </div>
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/5 border border-purple-500/15 group-hover:border-purple-500/30 transition-all">
-                    <div className="w-9 h-9 rounded-lg bg-purple-500 flex items-center justify-center text-white text-sm shadow-sm">&lt;/&gt;</div>
-                    <div className="flex-1">
-                      <div className="text-xs font-bold text-gray-800">וידג׳ט באתר</div>
-                      <div className="text-[10px] text-gray-400">שורת קוד אחת</div>
-                    </div>
-                    <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Analytics (spans 3 cols) */}
-            <motion.div variants={fadeInUp} className="md:col-span-3">
-              <div className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-300 p-7 h-full group">
-                <div className="flex items-start justify-between mb-5">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">אנליטיקס בזמן אמת</h3>
-                    <p className="text-sm text-gray-500">כל הנתונים על פעילות הבוט — בדשבורד אחד</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    LIVE
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-3 mb-4">
-                  {[
-                    { label: 'שיחות היום', value: '47', change: '+12%', up: true },
-                    { label: 'זמן תגובה', value: '2.3s', change: '-18%', up: false },
-                    { label: 'שביעות רצון', value: '96%', change: '+5%', up: true },
-                    { label: 'חסכון יומי', value: '₪840', change: '+23%', up: true },
-                  ].map((kpi, i) => (
-                    <div key={i} className="rounded-xl bg-gray-50 p-3 text-center group-hover:bg-blue-50/50 transition-colors">
-                      <div className="text-lg font-bold text-gray-900">{kpi.value}</div>
-                      <div className="text-[10px] text-gray-400 mb-1">{kpi.label}</div>
-                      <div className={`text-[10px] font-semibold ${kpi.up ? 'text-emerald-500' : 'text-blue-500'}`}>{kpi.change}</div>
-                    </div>
-                  ))}
-                </div>
-                {/* Mini chart */}
-                <div className="flex items-end gap-1.5 h-16">
-                  {[30, 45, 35, 55, 40, 65, 50, 75, 60, 85, 70, 90].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      className="flex-1 rounded-t bg-gradient-to-t from-blue-400 to-blue-500 group-hover:from-blue-500 group-hover:to-purple-500 transition-colors duration-700"
-                      initial={{ height: 0 }}
-                      whileInView={{ height: `${h}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: i * 0.04, ease: 'easeOut' }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/* FEATURES — INTERACTIVE SHOWCASE                  */}
+      {/* ═══════════════════════════════════════════════ */}
+      <FeatureShowcase />
 
       {/* ═══════════════════════════════════════════════ */}
       {/* COMMAND CENTER — All messages in one place        */}
@@ -711,55 +861,96 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Inbox mockup */}
-              <div className="p-4 md:p-6 space-y-3" dir="rtl">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-bold text-gray-900">שיחות פעילות</h3>
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    זמן אמת
+              {/* Dashboard mockup */}
+              <div className="flex" dir="rtl">
+                {/* Mini sidebar */}
+                <div className="w-12 bg-gray-50 border-l border-gray-100 flex flex-col items-center py-3 gap-3 shrink-0">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center">
+                    <span className="text-white text-[9px] font-bold">B</span>
+                  </div>
+                  <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                  {[
+                    { icon: '📊', active: false },
+                    { icon: '💬', active: true },
+                    { icon: '👥', active: false },
+                    { icon: '⚙️', active: false },
+                  ].map((nav, i) => (
+                    <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${nav.active ? 'bg-blue-50 shadow-sm' : 'hover:bg-gray-100'} transition-colors cursor-pointer`}>
+                      {nav.icon}
+                    </div>
+                  ))}
+                  <div className="flex-1" />
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                    <span className="text-white text-[8px] font-bold">א</span>
                   </div>
                 </div>
 
-                {[
-                  { name: 'שרה כהן', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', msg: 'היי, רציתי לדעת מתי המשלוח מגיע', time: 'עכשיו', isNew: true, delay: 0 },
-                  { name: 'david@gmail.com', channel: 'Email', channelColor: 'bg-blue-500', msg: 'RE: שאלה על המנוי השנתי — תודה על המידע', time: '2 דק׳', isNew: true, delay: 0.1 },
-                  { name: 'אורח #4821', channel: 'Widget', channelColor: 'bg-purple-500', msg: 'איך אני יכול להזמין אונליין?', time: '5 דק׳', isNew: false, delay: 0.2 },
-                  { name: 'יוסי לוי', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', msg: 'מה מדיניות ההחזרות שלכם?', time: '12 דק׳', isNew: false, delay: 0.3 },
-                  { name: 'info@company.co.il', channel: 'Email', channelColor: 'bg-blue-500', msg: 'בקשת הצעת מחיר למנוי עסקי', time: '1 שעה', isNew: false, delay: 0.4 },
-                ].map((row, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex items-center gap-3 md:gap-4 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-300 cursor-pointer"
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: row.delay }}
-                  >
-                    <div className={`w-8 h-8 ${row.channelColor} rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-sm`}>
-                      {row.channel === 'WhatsApp' ? 'W' : row.channel === 'Email' ? '@' : '</>'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-semibold text-gray-900 truncate">{row.name}</span>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${row.channelColor} text-white`}>{row.channel}</span>
-                        {row.isNew && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />}
+                {/* Main content */}
+                <div className="flex-1 p-4 md:p-5">
+                  {/* Header with filters */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="text-sm font-bold text-gray-900">שיחות</h3>
+                      <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">12</span>
+                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        זמן אמת
                       </div>
-                      <p className="text-xs text-gray-500 truncate">{row.msg}</p>
                     </div>
-                    <span className="text-[11px] text-gray-400 shrink-0">{row.time}</span>
-                  </motion.div>
-                ))}
-
-                {/* Typing indicator */}
-                <div className="flex items-center gap-2 px-3 py-2">
-                  <div className="w-6 h-6 bg-[#25D366] rounded-lg flex items-center justify-center text-white text-[9px] font-bold">W</div>
-                  <div className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1.5">
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
+                    <div className="flex items-center gap-1.5">
+                      {['הכל', 'היום', 'השבוע', 'ממתינות'].map((filter, i) => (
+                        <span key={i} className={`text-[10px] px-2.5 py-1 rounded-lg font-medium cursor-pointer transition-colors ${i === 0 ? 'bg-blue-500 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>{filter}</span>
+                      ))}
+                    </div>
                   </div>
-                  <span className="text-[10px] text-gray-400">הבוט עונה...</span>
+
+                  {/* Conversation rows */}
+                  <div className="space-y-2">
+                    {[
+                      { name: 'שרה כהן', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', channelIcon: 'W', msg: 'היי, רציתי לדעת מתי המשלוח מגיע', time: 'עכשיו', isNew: true, selected: true, delay: 0 },
+                      { name: 'david@gmail.com', channel: 'Email', channelColor: 'bg-blue-500', channelIcon: '@', msg: 'RE: שאלה על המנוי השנתי — תודה על המידע', time: '2 דק׳', isNew: true, selected: false, delay: 0.1 },
+                      { name: 'אורח #4821', channel: 'Widget', channelColor: 'bg-purple-500', channelIcon: '</>', msg: 'איך אני יכול להזמין אונליין?', time: '5 דק׳', isNew: false, selected: false, delay: 0.2 },
+                      { name: 'יוסי לוי', channel: 'WhatsApp', channelColor: 'bg-[#25D366]', channelIcon: 'W', msg: 'מה מדיניות ההחזרות שלכם?', time: '12 דק׳', isNew: false, selected: false, delay: 0.3 },
+                      { name: 'info@company.co.il', channel: 'Email', channelColor: 'bg-blue-500', channelIcon: '@', msg: 'בקשת הצעת מחיר למנוי עסקי', time: '1 שעה', isNew: false, selected: false, delay: 0.4 },
+                    ].map((row, i) => (
+                      <motion.div
+                        key={i}
+                        className={`flex items-start gap-3 p-3 rounded-xl border transition-all duration-300 cursor-pointer ${row.selected ? 'border-blue-200 bg-blue-50/40 shadow-sm' : 'border-gray-100 hover:border-blue-200 hover:bg-blue-50/30'}`}
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: row.delay }}
+                      >
+                        {/* Channel icon */}
+                        <div className={`w-9 h-9 ${row.channelColor} rounded-xl flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-sm`}>
+                          {row.channelIcon}
+                        </div>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[13px] font-semibold text-gray-900 truncate">{row.name}</span>
+                              <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-medium ${row.channelColor} text-white leading-none`}>{row.channel}</span>
+                              {row.isNew && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />}
+                            </div>
+                            <span className="text-[10px] text-gray-400 shrink-0 mr-2">{row.time}</span>
+                          </div>
+                          <p className="text-[11px] text-gray-500 truncate leading-relaxed">{row.msg}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Typing indicator */}
+                  <div className="flex items-center gap-2 px-3 py-2.5 mt-1">
+                    <div className="w-6 h-6 bg-[#25D366] rounded-lg flex items-center justify-center text-white text-[9px] font-bold">W</div>
+                    <div className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1.5">
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                    </div>
+                    <span className="text-[10px] text-gray-400">הבוט עונה...</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -770,7 +961,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* HOW IT WORKS                                     */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="how" className="py-24 md:py-32 bg-white">
+      <section id="how" className="py-24 md:py-32 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             className="text-center mb-14"
@@ -786,85 +977,64 @@ export default function LandingPage() {
           </motion.div>
 
           <motion.div
-            className="grid md:grid-cols-3 gap-6"
-            variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer}
           >
-            {/* Step 01 — URL Typing Animation */}
-            <motion.div variants={fadeInUp}>
-              <div className="group rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-blue-200/80 transition-all duration-300 p-7 h-full relative overflow-hidden">
-                {/* Background number */}
-                <span className="absolute -top-2 -left-1 text-[120px] font-black text-gray-50 select-none leading-none transition-all duration-500 group-hover:text-blue-50">01</span>
-                {/* Accent top border */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-l from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                      <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    </div>
-                    <span className="font-mono text-xs font-bold tracking-wider text-blue-500">STEP 01</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">הכנס את כתובת האתר</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">הבוט סורק את כל העמודים ולומד את המידע אוטומטית.</p>
-                  </div>
-                  {/* Live URL typing animation */}
-                  <div className="pt-2">
-                    <StepUrlTyping />
-                  </div>
-                </div>
+            <div className="relative">
+              {/* Connecting line across all 3 steps (desktop only) — RTL: right-to-left flow */}
+              <div className="hidden md:block absolute top-6 right-[16.67%] left-[16.67%] h-[2px]">
+                <div className="w-full h-full bg-gradient-to-l from-blue-200 via-purple-200 to-emerald-200" />
               </div>
-            </motion.div>
 
-            {/* Step 02 — Bot Learning Animation */}
-            <motion.div variants={fadeInUp}>
-              <div className="group rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-purple-200/80 transition-all duration-300 p-7 h-full relative overflow-hidden">
-                <span className="absolute -top-2 -left-1 text-[120px] font-black text-gray-50 select-none leading-none transition-all duration-500 group-hover:text-purple-50">02</span>
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-l from-transparent via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                      <svg className="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+              <div className="grid md:grid-cols-3 gap-10">
+                {([
+                  {
+                    num: '1',
+                    title: 'הכנס את כתובת האתר',
+                    desc: 'הבוט סורק את כל העמודים ולומד את המידע אוטומטית.',
+                    Visual: StepUrlTyping,
+                    gradient: 'from-blue-500 to-blue-600',
+                    shadow: 'shadow-blue-500/25',
+                  },
+                  {
+                    num: '2',
+                    title: 'התאם את הבוט',
+                    desc: 'בחר טון דיבור, שם, צבעים — התאמה מלאה לזהות העסק שלך.',
+                    Visual: StepBotLearning,
+                    gradient: 'from-purple-500 to-purple-600',
+                    shadow: 'shadow-purple-500/25',
+                  },
+                  {
+                    num: '3',
+                    title: 'שלב ותתחיל לקבל לקוחות',
+                    desc: 'חבר וואטסאפ, אימייל או הטמע ווידג\'ט — הבוט עובד תוך דקות.',
+                    Visual: StepChannelConnect,
+                    gradient: 'from-emerald-500 to-emerald-600',
+                    shadow: 'shadow-emerald-500/25',
+                  },
+                ] as const).map((step, i) => (
+                  <motion.div key={i} variants={fadeInUp} className="text-center relative">
+                    {/* Step number circle */}
+                    <div className={`relative z-10 mx-auto w-12 h-12 rounded-full bg-gradient-to-br ${step.gradient} text-white font-bold text-lg flex items-center justify-center shadow-lg ${step.shadow} mb-6`}>
+                      {step.num}
                     </div>
-                    <span className="font-mono text-xs font-bold tracking-wider text-purple-500">STEP 02</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">התאם את הבוט</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">בחר טון דיבור, שם, צבעים — התאמה מלאה לזהות העסק שלך.</p>
-                  </div>
-                  {/* Bot learning scanning animation */}
-                  <div className="pt-2">
-                    <StepBotLearning />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
 
-            {/* Step 03 — Channels Connect Animation */}
-            <motion.div variants={fadeInUp}>
-              <div className="group rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-emerald-200/80 transition-all duration-300 p-7 h-full relative overflow-hidden">
-                <span className="absolute -top-2 -left-1 text-[120px] font-black text-gray-50 select-none leading-none transition-all duration-500 group-hover:text-emerald-50">03</span>
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-l from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                      <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    {/* Title */}
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-500 mb-6 max-w-[280px] mx-auto leading-relaxed">{step.desc}</p>
+
+                    {/* Animation in a subtle container */}
+                    <div className="bg-gray-50/80 border border-gray-100 rounded-xl p-4 mx-auto max-w-[280px]">
+                      <step.Visual />
                     </div>
-                    <span className="font-mono text-xs font-bold tracking-wider text-emerald-500">STEP 03</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">שלב ותתחיל לקבל לקוחות</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">{'חבר וואטסאפ, אימייל או הטמע ווידג\'ט — הבוט עובד תוך דקות.'}</p>
-                  </div>
-                  {/* Channel connection animation */}
-                  <div className="pt-2">
-                    <StepChannelConnect />
-                  </div>
-                </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -997,23 +1167,31 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* TESTIMONIALS                                     */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-24 md:py-32 bg-white relative overflow-hidden">
+        {/* Subtle background accents */}
+        <div className="absolute top-[20%] left-[-5%] w-[400px] h-[400px] rounded-full opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div className="absolute bottom-[10%] right-[-5%] w-[350px] h-[350px] rounded-full opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%)', filter: 'blur(70px)' }} />
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           <motion.div
-            className="text-center mb-14"
+            className="text-center mb-16"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
             variants={staggerContainer}
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-3">
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-200 bg-purple-50/50 mb-6">
+              <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              <span className="text-sm text-purple-700 font-semibold">לקוחות מרוצים</span>
+            </motion.div>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-4">
               מה אומרים <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">הלקוחות שלנו</span>
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-gray-500 text-base max-w-md mx-auto">עסקים אמיתיים שכבר חוסכים שעות ביום</motion.p>
+            <motion.p variants={fadeInUp} className="text-gray-500 text-lg max-w-lg mx-auto">עסקים אמיתיים שכבר חוסכים שעות ביום עם הבוט החכם</motion.p>
           </motion.div>
 
           <motion.div
-            className="grid md:grid-cols-3 gap-6"
+            className="grid md:grid-cols-3 gap-8"
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
@@ -1025,39 +1203,71 @@ export default function LandingPage() {
                 role: 'בעלת חנות פרחים',
                 text: 'מאז שהתחלנו להשתמש בבוט, 80% מהשאלות נענות אוטומטית. הלקוחות מרוצים ואני חוסכת שעות ביום.',
                 rating: 5,
+                stat: '80%',
+                statLabel: 'מענה אוטומטי',
+                gradient: 'from-blue-500 to-cyan-500',
               },
               {
                 name: 'יוסי לוי',
                 role: 'מנהל מסעדה',
                 text: 'ההגדרה הייתה פשוטה מטורף. תוך 10 דקות היה לי בוט שעונה על כל שאלה — שעות פעילות, תפריט, הזמנות.',
                 rating: 5,
+                stat: '10 דק׳',
+                statLabel: 'זמן הקמה',
+                gradient: 'from-purple-500 to-pink-500',
               },
               {
                 name: 'מיכל אברהם',
                 role: 'חנות אונליין',
                 text: 'הסריקה האוטומטית של האתר חסכה לי ימים של עבודה. הבוט למד הכל לבד ועונה מדויק.',
                 rating: 5,
+                stat: '100%',
+                statLabel: 'דיוק תשובות',
+                gradient: 'from-emerald-500 to-teal-500',
               },
             ].map((testimonial, i) => (
-              <motion.div key={i} variants={fadeInUp}>
-                <div className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-300 p-6 h-full flex flex-col">
-                  {/* Stars */}
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: testimonial.rating }).map((_, j) => (
-                      <span key={j} className="text-amber-400 text-sm">★</span>
-                    ))}
+              <motion.div key={i} variants={fadeInUp} whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                <div className="group rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-500 p-7 h-full flex flex-col relative overflow-hidden">
+                  {/* Hover glow accent */}
+                  <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-l ${testimonial.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                  {/* Key stat highlight */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: testimonial.rating }).map((_, j) => (
+                        <motion.span
+                          key={j}
+                          initial={{ opacity: 0, scale: 0 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.3 + j * 0.08 }}
+                          className="text-amber-400 text-sm"
+                        >★</motion.span>
+                      ))}
+                    </div>
+                    <div className="text-left">
+                      <div className={`text-lg font-black bg-gradient-to-r ${testimonial.gradient} bg-clip-text text-transparent leading-none`}>{testimonial.stat}</div>
+                      <div className="text-[10px] text-gray-400 mt-0.5">{testimonial.statLabel}</div>
+                    </div>
                   </div>
-                  {/* Quote */}
-                  <p className="text-gray-600 text-sm leading-relaxed flex-1 mb-5">&ldquo;{testimonial.text}&rdquo;</p>
+
+                  {/* Quote icon */}
+                  <div className="mb-3">
+                    <svg className="w-8 h-8 text-gray-100 group-hover:text-blue-100 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
+                  </div>
+
+                  {/* Quote text */}
+                  <p className="text-gray-600 text-[15px] leading-relaxed flex-1 mb-6">{testimonial.text}</p>
+
                   {/* Author */}
-                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 p-[2px]">
-                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-sm font-bold bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                  <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
+                    <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${testimonial.gradient} p-[2px] group-hover:scale-105 transition-transform duration-300`}>
+                      <div className={`w-full h-full rounded-full bg-gradient-to-br ${testimonial.gradient} flex items-center justify-center text-sm font-bold text-white`}>
                         {testimonial.name.charAt(0)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">{testimonial.name}</div>
+                      <div className="text-sm font-bold text-gray-900">{testimonial.name}</div>
                       <div className="text-xs text-gray-500">{testimonial.role}</div>
                     </div>
                   </div>
@@ -1065,57 +1275,103 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </motion.div>
+
+          {/* Trust bar */}
+          <motion.div
+            className="mt-12 text-center"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="inline-flex items-center gap-6 px-6 py-3 rounded-2xl bg-gray-50 border border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2 rtl:space-x-reverse">
+                  {['D', 'Y', 'M', 'A', 'R'].map((letter, i) => (
+                    <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">{letter}</div>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 font-medium">+500 עסקים</span>
+              </div>
+              <div className="w-px h-5 bg-gray-200" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-amber-400">★★★★★</span>
+                <span className="text-sm text-gray-600 font-medium">4.9/5</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
       {/* FAQ                                              */}
       {/* ═══════════════════════════════════════════════ */}
-      <section id="faq" className="py-24 md:py-32 bg-gray-50/50">
-        <div className="max-w-[700px] mx-auto px-6">
-          <motion.div
-            className="text-center mb-12"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={staggerContainer}
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-3">
-              שאלות נפוצות
-            </motion.h2>
-          </motion.div>
+      <section id="faq" className="py-24 md:py-32 bg-white relative overflow-hidden">
+        {/* Subtle accent */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-l from-transparent via-gray-200 to-transparent" />
 
-          <div className="space-y-3">
-            <FAQItem
-              index={0}
-              q="כמה זמן לוקח להקים בוט?"
-              a="פחות מ-3 דקות. מזינים את כתובת האתר, הבוט סורק את התוכן, ואפשר להתחיל מיד. בלי קוד, בלי מפתחים."
-            />
-            <FAQItem
-              index={1}
-              q="האם הבוט עונה גם בוואטסאפ?"
-              a="כן! הבוט עובד בוואטסאפ, אימייל, ובצ׳אט ווידג׳ט באתר. הכל מנוהל ממקום אחד."
-            />
-            <FAQItem
-              index={2}
-              q="מה קורה אם הבוט לא יודע את התשובה?"
-              a="הבוט מעביר את השיחה לנציג אנושי, או מתעד את השאלה כדי שתוכל לעדכן את מאגר הידע."
-            />
-            <FAQItem
-              index={3}
-              q="האם המידע שלי מאובטח?"
-              a="לחלוטין. כל המידע מוצפן, שמור בשרתים מאובטחים, ולא משותף עם צדדים שלישיים."
-            />
-            <FAQItem
-              index={4}
-              q="אפשר לבטל בכל רגע?"
-              a="כן. אין התחייבות, אין חוזה. מבטלים מתי שרוצים ישירות מלוח הבקרה."
-            />
-            <FAQItem
-              index={5}
-              q="מה ההבדל בין התוכניות?"
-              a="ההבדל העיקרי הוא בכמות ההודעות, מספר הערוצים, ורמת האנליטיקס. תוכנית הפרימיום כוללת את כל הערוצים וכלי האנליטיקס."
-            />
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-5 gap-12 items-start">
+            {/* Left side — sticky heading */}
+            <motion.div
+              className="md:col-span-2 md:sticky md:top-24"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={staggerContainer}
+            >
+              <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-200 bg-blue-50/50 mb-5">
+                <span className="text-sm text-blue-700 font-semibold">שאלות נפוצות</span>
+              </motion.div>
+              <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-4">
+                יש לך שאלה?{' '}
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">יש לנו תשובה.</span>
+              </motion.h2>
+              <motion.p variants={fadeInUp} className="text-gray-500 leading-relaxed mb-6">
+                לא מצאת תשובה? אנחנו כאן בשבילך.
+              </motion.p>
+              <motion.div variants={fadeInUp}>
+                <Link href="/signup">
+                  <Button className="rounded-xl px-6 py-5 font-semibold bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">
+                    דברו איתנו →
+                  </Button>
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Right side — FAQ items */}
+            <div className="md:col-span-3 space-y-3">
+              <FAQItem
+                index={0}
+                q="כמה זמן לוקח להקים בוט?"
+                a="פחות מ-3 דקות. מזינים את כתובת האתר, הבוט סורק את התוכן, ואפשר להתחיל מיד. בלי קוד, בלי מפתחים."
+              />
+              <FAQItem
+                index={1}
+                q="האם הבוט עונה גם בוואטסאפ?"
+                a="כן! הבוט עובד בוואטסאפ, אימייל, ובצ׳אט ווידג׳ט באתר. הכל מנוהל ממקום אחד."
+              />
+              <FAQItem
+                index={2}
+                q="מה קורה אם הבוט לא יודע את התשובה?"
+                a="הבוט מעביר את השיחה לנציג אנושי, או מתעד את השאלה כדי שתוכל לעדכן את מאגר הידע."
+              />
+              <FAQItem
+                index={3}
+                q="האם המידע שלי מאובטח?"
+                a="לחלוטין. כל המידע מוצפן, שמור בשרתים מאובטחים, ולא משותף עם צדדים שלישיים."
+              />
+              <FAQItem
+                index={4}
+                q="אפשר לבטל בכל רגע?"
+                a="כן. אין התחייבות, אין חוזה. מבטלים מתי שרוצים ישירות מלוח הבקרה."
+              />
+              <FAQItem
+                index={5}
+                q="מה ההבדל בין התוכניות?"
+                a="ההבדל העיקרי הוא בכמות ההודעות, מספר הערוצים, ורמת האנליטיקס. תוכנית הפרימיום כוללת את כל הערוצים וכלי האנליטיקס."
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -1123,42 +1379,62 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════ */}
       {/* FINAL CTA                                        */}
       {/* ═══════════════════════════════════════════════ */}
-      <section className="py-24 md:py-32 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #080810 0%, #0f172a 100%)' }}>
-        {/* Animated gradient orbs with framer-motion */}
+      <section className="py-28 md:py-36 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #080810 0%, #0f172a 100%)' }}>
+        {/* Animated gradient orbs */}
         <FloatingOrb className="top-[-20%] right-[10%]" color="rgba(37,99,235,0.15)" size={500} blur={100} />
         <FloatingOrb className="bottom-[-20%] left-[10%]" color="rgba(124,58,237,0.12)" size={400} blur={80} />
+        <FloatingOrb className="top-[30%] left-[50%]" color="rgba(16,185,129,0.06)" size={300} blur={90} />
+
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
         <motion.div
-          className="relative z-10 max-w-[600px] mx-auto px-6 text-center"
+          className="relative z-10 max-w-[700px] mx-auto px-6 text-center"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={staggerContainer}
         >
-          <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
-            מוכן להתחיל?
+          {/* Floating badge */}
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-sm text-gray-300 font-medium">הצטרפו ל-500+ עסקים שכבר משתמשים</span>
+          </motion.div>
+
+          <motion.h2 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-5">
+            מוכן <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">להתחיל?</span>
           </motion.h2>
-          <motion.p variants={fadeInUp} className="text-gray-400 text-base mb-8">תנו לבוט לעבוד בשבילכם — 24/7, בלי הפסקה.</motion.p>
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+          <motion.p variants={fadeInUp} className="text-gray-400 text-lg mb-10 max-w-md mx-auto">תנו לבוט לעבוד בשבילכם — 24/7, בלי הפסקה. התחילו היום ותראו תוצאות מחר.</motion.p>
+
+          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Link href="/signup">
-              <Button
-                size="lg"
-                className="rounded-xl px-8 py-6 text-base border-0 text-white font-semibold bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] transition-all"
-              >
-                התחל בחינם
-              </Button>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  size="lg"
+                  className="rounded-2xl px-10 py-7 text-lg border-0 text-white font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 shadow-[0_8px_32px_rgba(37,99,235,0.4)] hover:shadow-[0_12px_40px_rgba(37,99,235,0.5)] transition-shadow"
+                  style={{ backgroundSize: '200% auto' }}
+                >
+                  התחל בחינם — ₪1 בלבד
+                </Button>
+              </motion.div>
             </Link>
             <a href="#pricing">
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-xl px-8 py-6 text-base border-white/20 bg-white/10 text-white hover:bg-white/15 hover:border-white/30 font-medium transition-all"
+                className="rounded-2xl px-8 py-7 text-lg border-white/15 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/25 font-medium transition-all"
               >
                 צפה בתוכניות
               </Button>
             </a>
           </motion.div>
-          <motion.p variants={fadeInUp} className="text-sm text-gray-500">₪1 לחודש ראשון · ללא התחייבות · ביטול בכל רגע</motion.p>
+
+          {/* Trust indicators */}
+          <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+            <span className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-400" />ללא התחייבות</span>
+            <span className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-400" />ביטול בכל רגע</span>
+            <span className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-400" />התקנה ב-3 דקות</span>
+          </motion.div>
         </motion.div>
       </section>
 

@@ -301,9 +301,9 @@ export default function WidgetPage() {
                         <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 110 2h-1.27A7 7 0 0112 22a7 7 0 01-7.73-6H3a1 1 0 110-2h1a7 7 0 017-7h1V5.73A2 2 0 0112 2zm-2 13a1 1 0 100 2 1 1 0 000-2zm4 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-white">{business?.name || '\u05E9\u05D9\u05E8\u05D5\u05EA \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA'}</p>
+                        <p className="text-sm font-bold text-white">{business?.name || 'שירות לקוחות'}</p>
                         <p className="text-[10px] text-white/60 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> \u05DE\u05E7\u05D5\u05D5\u05DF
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" /> מקוון
                         </p>
                       </div>
                     </div>
@@ -311,23 +311,23 @@ export default function WidgetPage() {
                     <div className="p-3 bg-[#fafbfe] space-y-2" style={{ minHeight: '160px' }}>
                       <div className="flex justify-end">
                         <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
-                          \u05E9\u05DC\u05D5\u05DD! \u05D0\u05D9\u05DA \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E2\u05D6\u05D5\u05E8? \uD83D\uDC4B
+                          שלום! איך אפשר לעזור? 👋
                         </div>
                       </div>
                       <div className="flex justify-start">
                         <div className="rounded-2xl rounded-tr-lg px-3 py-2 text-xs text-white max-w-[80%]" style={{ background: primaryColor }}>
-                          \u05DE\u05D4 \u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA?
+                          מה שעות הפעילות?
                         </div>
                       </div>
                       <div className="flex justify-end">
                         <div className="bg-white border border-[rgba(0,0,0,0.06)] rounded-2xl rounded-tl-lg px-3 py-2 text-xs text-gray-700 shadow-sm max-w-[80%]">
-                          \u05D0\u05E0\u05D7\u05E0\u05D5 \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D0\u05F3-\u05D4\u05F3 8:00-20:00, \u05E9\u05D9\u05E9\u05D9 8:00-14:00.
+                          אנחנו פתוחים א׳-ה׳ 8:00-20:00, שישי 8:00-14:00.
                         </div>
                       </div>
                     </div>
                     {/* Input */}
                     <div className="border-t border-[rgba(0,0,0,0.04)] p-2.5 flex gap-2 bg-white" dir="rtl">
-                      <div className="flex-1 bg-[#fafbfe] rounded-xl px-3 py-2 text-xs text-gray-400 border border-[rgba(0,0,0,0.06)]">\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05DE\u05E9\u05D4\u05D5...</div>
+                      <div className="flex-1 bg-[#fafbfe] rounded-xl px-3 py-2 text-xs text-gray-400 border border-[rgba(0,0,0,0.06)]">שאל אותי משהו...</div>
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: primaryColor }}>
                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                       </div>

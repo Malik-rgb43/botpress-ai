@@ -36,14 +36,14 @@ export default function PlanPage() {
       price: 1,
       limit: 100,
       trial: true,
-      features: ['7 \u05D9\u05DE\u05D9 \u05E0\u05D9\u05E1\u05D9\u05D5\u05DF \u05DE\u05DC\u05D0', '100 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA', '\u05DB\u05DC \u05D4\u05E2\u05E8\u05D5\u05E6\u05D9\u05DD', 'FAQ + AI \u05DE\u05DC\u05D0'],
+      features: ['7 ימי ניסיון מלא', '100 הודעות', 'כל הערוצים', 'FAQ + AI מלא'],
     },
     {
       tier: 'basic',
       name: t.plan.tier_basic,
       price: 99,
       limit: 1000,
-      features: ['1,000 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA/\u05D7\u05D5\u05D3\u05E9', '\u05DB\u05DC \u05D4\u05E2\u05E8\u05D5\u05E6\u05D9\u05DD', 'AI \u05DE\u05EA\u05E7\u05D3\u05DD + \u05D6\u05D9\u05DB\u05E8\u05D5\u05DF', '\u05D0\u05E0\u05DC\u05D9\u05D8\u05D9\u05E7\u05E1 \u05DE\u05DC\u05D0', '\u05E1\u05D9\u05DB\u05D5\u05DE\u05D9\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05D9\u05DD'],
+      features: ['1,000 הודעות/חודש', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים'],
       popular: true,
     },
     {
@@ -51,7 +51,7 @@ export default function PlanPage() {
       name: t.plan.tier_premium,
       price: 299,
       limit: -1,
-      features: ['\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05DC\u05DC\u05D0 \u05D4\u05D2\u05D1\u05DC\u05D4', '\u05DB\u05DC \u05D4\u05E2\u05E8\u05D5\u05E6\u05D9\u05DD', 'AI \u05DE\u05EA\u05E7\u05D3\u05DD + \u05D6\u05D9\u05DB\u05E8\u05D5\u05DF', '\u05D0\u05E0\u05DC\u05D9\u05D8\u05D9\u05E7\u05E1 \u05DE\u05DC\u05D0', '\u05E1\u05D9\u05DB\u05D5\u05DE\u05D9\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05D9\u05DD', 'White Label', '\u05EA\u05DE\u05D9\u05DB\u05D4 \u05DE\u05D5\u05E2\u05D3\u05E4\u05EA'],
+      features: ['הודעות ללא הגבלה', 'כל הערוצים', 'AI מתקדם + זיכרון', 'אנליטיקס מלא', 'סיכומים אוטומטיים', 'White Label', 'תמיכה מועדפת'],
     },
   ]
   const [messagesUsed, setMessagesUsed] = useState(0)
@@ -189,7 +189,7 @@ export default function PlanPage() {
               <h2 className="text-base font-semibold text-gray-900">{plan.name}</h2>
               <div className="mt-2">
                 <span className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  {plan.trial ? '\u20AA1' : `\u20AA${plan.price}`}
+                  {plan.trial ? '₪1' : `₪${plan.price}`}
                 </span>
                 {plan.trial
                   ? <span className="text-blue-500 text-sm font-medium mr-1">{t.plan.trial_period}</span>
