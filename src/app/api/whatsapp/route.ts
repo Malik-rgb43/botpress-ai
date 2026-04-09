@@ -75,12 +75,13 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Find business by WhatsApp phone number ID
-    const { data: allBiz } = await supabase.from('businesses').select('*')
-    const business = (allBiz || []).find((b: Record<string, unknown>) => {
-      const info = b.contact_info as Record<string, unknown> | null
-      return info?.whatsapp_phone_id === phoneNumberId || info?.whatsapp_connected
-    })
+    // Find business by WhatsApp phone number ID — indexed JSONB query instead of scanning all
+    const { data: bizByPhone } = await supabase
+      .from('businesses')
+      .select('*')
+      .eq('contact_info->>whatsapp_phone_id', phoneNumberId)
+      .limit(1)
+    const business = bizByPhone?.[0] || null
 
     if (!business) {
       console.log('No business found for WhatsApp phone:', phoneNumberId)

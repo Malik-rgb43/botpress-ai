@@ -41,19 +41,13 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // Find business by email — match the recipient email to a business contact email
-    // First try exact match on contact_info->email
-    const { data: businesses } = await supabase
+    // Find business by email — indexed JSONB query instead of scanning all
+    const { data: bizByEmail } = await supabase
       .from('businesses')
       .select('*')
-
-    // Find business where contact email matches recipient
-    const business = businesses?.find(b => {
-      const contactEmail = b.contact_info?.email
-      if (!contactEmail) return false
-      // Check if the recipient email contains the business contact email domain
-      return recipientEmail?.includes(contactEmail) || contactEmail === recipientEmail
-    })
+      .eq('contact_info->>email', recipientEmail)
+      .limit(1)
+    const business = bizByEmail?.[0] || null
 
     if (!business) {
       console.log('No business found for recipient:', recipientEmail)
