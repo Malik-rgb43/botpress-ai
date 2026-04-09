@@ -6,10 +6,12 @@ import { useBusiness } from '@/hooks/use-business'
 import { useTranslation } from '@/i18n/provider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Loader2, MessageSquare, ArrowLeft, Trash2, AlertTriangle, CheckCircle2, ChevronLeft } from 'lucide-react'
+import { Loader2, MessageSquare, ArrowLeft, Trash2, AlertTriangle, CheckCircle2, ChevronLeft, Send } from 'lucide-react'
 import Link from 'next/link'
 import { useEscalationContext } from '@/components/providers/escalation-provider'
 import { toast } from 'sonner'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import type { Conversation } from '@/types/database'
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month'
@@ -68,6 +70,11 @@ export default function ConversationsPage() {
   const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set())
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [resolvingId, setResolvingId] = useState<string | null>(null)
+  const [sendDialogOpen, setSendDialogOpen] = useState(false)
+  const [sendChannel, setSendChannel] = useState<'whatsapp' | 'email'>('whatsapp')
+  const [sendRecipient, setSendRecipient] = useState('')
+  const [sendMessage, setSendMessage] = useState('')
+  const [sending, setSending] = useState(false)
 
   const loadConversations = useCallback(async () => {
     if (!business) return
@@ -194,6 +201,36 @@ export default function ConversationsPage() {
     setDeletingId(null)
   }
 
+  async function handleSendMessage() {
+    if (!sendRecipient.trim() || !sendMessage.trim()) return
+    setSending(true)
+    try {
+      const res = await fetch('/api/agent/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: sendRecipient.trim(),
+          message: sendMessage.trim(),
+          channel: sendChannel,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to send')
+      }
+      toast.success('ההודעה נשלחה בהצלחה')
+      setSendDialogOpen(false)
+      setSendRecipient('')
+      setSendMessage('')
+      setSendChannel('whatsapp')
+      loadConversations()
+    } catch (err: any) {
+      toast.error(err.message || 'שגיאה בשליחת ההודעה')
+    } finally {
+      setSending(false)
+    }
+  }
+
   if (bizLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -219,10 +256,96 @@ export default function ConversationsPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.conversations.title}</h1>
-        <p className="text-gray-400 text-sm mt-1">{t.conversations.subtitle}</p>
+      <div className="mb-6 md:mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t.conversations.title}</h1>
+          <p className="text-gray-400 text-sm mt-1">{t.conversations.subtitle}</p>
+        </div>
+        <Button
+          onClick={() => setSendDialogOpen(true)}
+          className="gap-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white h-8 px-4 rounded-lg shadow-sm"
+        >
+          <Send className="h-3.5 w-3.5" />
+          שלח הודעה
+        </Button>
       </div>
+
+      {/* Send Message Dialog */}
+      <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
+        <DialogContent className="sm:max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>שלח הודעה ללקוח</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            {/* Channel toggle */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setSendChannel('whatsapp')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  sendChannel === 'whatsapp'
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => setSendChannel('email')}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  sendChannel === 'email'
+                    ? 'bg-blue-500 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Email
+              </button>
+            </div>
+
+            {/* Recipient */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {sendChannel === 'whatsapp' ? 'מספר טלפון' : 'כתובת אימייל'}
+              </label>
+              <input
+                type={sendChannel === 'whatsapp' ? 'tel' : 'email'}
+                value={sendRecipient}
+                onChange={(e) => setSendRecipient(e.target.value)}
+                placeholder={sendChannel === 'whatsapp' ? '+972...' : 'example@email.com'}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+                dir="ltr"
+              />
+            </div>
+
+            {/* Message */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">תוכן ההודעה</label>
+              <Textarea
+                value={sendMessage}
+                onChange={(e) => setSendMessage(e.target.value)}
+                placeholder="כתוב את ההודעה כאן..."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Send button */}
+            <Button
+              onClick={handleSendMessage}
+              disabled={sending || !sendRecipient.trim() || !sendMessage.trim()}
+              className="w-full gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+            >
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {sending ? 'שולח...' : 'שלח'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Filter Bar */}
       <div className="flex flex-wrap items-center gap-2 mb-6 p-3 bg-white rounded-xl border border-gray-200/60">
