@@ -37,10 +37,19 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-hub-signature-256')
     const rawBody = await request.text()
     const appSecret = process.env.WHATSAPP_APP_SECRET
-    if (appSecret && signature) {
+    if (!appSecret) {
+      console.warn('WHATSAPP_APP_SECRET not configured — webhook signature verification SKIPPED. Set this env var in production!')
+    }
+    if (appSecret) {
+      if (!signature) {
+        return NextResponse.json({ error: 'Missing signature' }, { status: 403 })
+      }
       const crypto = await import('crypto')
       const expectedSig = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
-      if (signature !== expectedSig) {
+      // Constant-time comparison to prevent timing attacks
+      const sigBuffer = Buffer.from(signature)
+      const expectedBuffer = Buffer.from(expectedSig)
+      if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
         return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
       }
     }

@@ -1,10 +1,21 @@
 /**
  * Rate limiter for serverless environments (Vercel)
  *
- * NOTE: In-memory store does NOT persist across serverless invocations.
- * This provides per-instance rate limiting which helps with burst traffic
- * but won't enforce limits across distributed instances.
- * For production: migrate to Vercel KV, Upstash Redis, or Supabase-based limiter.
+ * ⚠️ PRODUCTION LIMITATION: In-memory store does NOT persist across serverless
+ * invocations. Each Vercel function instance has its own Map. This provides
+ * per-instance burst protection but a determined attacker hitting different
+ * instances in parallel will bypass limits.
+ *
+ * For production with real abuse protection, migrate expensive endpoints
+ * (scan-website, generate-faq) to one of:
+ *   - Vercel KV (@vercel/kv) — simplest, native integration
+ *   - Upstash Redis (@upstash/ratelimit) — purpose-built, sliding window
+ *   - The Go rate-limiter in tools/rate-limiter/ — standalone, token bucket
+ *
+ * The current in-memory approach is acceptable for:
+ *   - WhatsApp/Email inbound (senders verified by Meta/Resend)
+ *   - Widget messages (low abuse risk, high volume)
+ *   - Agent replies (authenticated users only)
  */
 
 interface RateLimitEntry {

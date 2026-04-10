@@ -33,6 +33,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'businessId is required' }, { status: 400 })
     }
 
+    // Verify business ownership — prevent users from accessing other businesses
+    const { data: ownedBiz } = await supabaseAuth
+      .from('businesses')
+      .select('id')
+      .eq('id', businessId)
+      .eq('user_id', user.id)
+      .single()
+    if (!ownedBiz) {
+      return NextResponse.json({ error: 'Business not found or not authorized' }, { status: 403 })
+    }
+
     // Validate URL to prevent SSRF
     let parsedUrl: URL
     try {

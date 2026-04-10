@@ -293,3 +293,7 @@ CREATE INDEX IF NOT EXISTS idx_customers_business_id ON public.customers(busines
 CREATE INDEX IF NOT EXISTS idx_escalations_conversation_id ON public.escalations(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_escalations_status ON public.escalations(status, created_at);
 CREATE INDEX IF NOT EXISTS idx_unanswered_business_id ON public.unanswered_questions(business_id);
+
+-- JSONB indexes for O(1) business lookup by channel identifier
+CREATE INDEX IF NOT EXISTS idx_biz_whatsapp_phone ON public.businesses ((contact_info->>'whatsapp_phone_id')) WHERE contact_info->>'whatsapp_phone_id' IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_biz_email ON public.businesses ((contact_info->>'email')) WHERE contact_info->>'email' IS NOT NULL;

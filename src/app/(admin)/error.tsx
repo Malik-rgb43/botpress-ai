@@ -20,11 +20,11 @@ export default function AdminError({
       <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-6">
         <AlertTriangle className="h-8 w-8 text-red-500" />
       </div>
-      <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Error</h2>
-      <p className="text-gray-500 text-sm mb-6">Something went wrong loading this page.</p>
-      <Button onClick={reset} className="gap-2 rounded-xl">
+      <h2 className="text-xl font-bold text-gray-900 mb-2">שגיאה בניהול</h2>
+      <p className="text-gray-500 text-sm mb-6">אירעה שגיאה בטעינת הדף. נסה לרענן.</p>
+      <Button onClick={reset} className="gap-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white">
         <RefreshCw className="h-4 w-4" />
-        Try again
+        נסה שוב
       </Button>
     </div>
   )
