@@ -4,3 +4,7 @@ node_modules/
 .env
 
 .vercel
+# Tools build artifacts
+tools/**/*.exe
+tools/**/__pycache__/
+tools/**/target/
