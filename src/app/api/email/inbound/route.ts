@@ -3,10 +3,18 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSystemPrompt, detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import { sendMessage } from '@/services/channel-service'
 import type { AIContext } from '@/services/ai-engine'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
 // This webhook receives incoming emails and auto-responds with AI
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 60 req/min for email inbound
+    const rlKey = getRateLimitKey(request, 'email-inbound')
+    const rl = checkRateLimit(rlKey, { limit: 60, windowMs: 60 * 1000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    }
+
     // Verify webhook secret
     const pushSecret = request.nextUrl.searchParams.get('secret')
     if (!pushSecret || pushSecret !== process.env.CRON_SECRET) {

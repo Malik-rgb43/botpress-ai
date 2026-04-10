@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 2,
@@ -8,6 +9,12 @@ const PLAN_LIMITS: Record<string, number> = {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 5 req/hour — AI generation is expensive
+  const rlKey = getRateLimitKey(request, 'generate-faq')
+  const rl = checkRateLimit(rlKey, { limit: 5, windowMs: 60 * 60 * 1000 })
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many FAQ generation requests', retryAfter: rl.retryAfter }, { status: 429 })
+  }
   try {
     // Auth check
     const supabaseAuth = await createClient()

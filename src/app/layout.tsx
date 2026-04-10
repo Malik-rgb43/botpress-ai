@@ -10,10 +10,37 @@ const rubik = Rubik({
 })
 
 export const metadata: Metadata = {
-  title: "BotPress AI - בוטים חכמים לעסקים",
-  description: "צור בוטים חכמים לוואטסאפ ואימייל שעונים ללקוחות שלך בצורה מותאמת אישית",
+  title: "BotPress AI - בוט AI חכם לשירות לקוחות | וואטסאפ, אימייל וצ׳אט",
+  description: "צור בוט AI שסורק את האתר שלך, לומד את העסק, ועונה ללקוחות 24/7 בוואטסאפ, אימייל ובאתר. הקמה ב-3 דקות, בלי קוד.",
+  keywords: ["בוט AI", "שירות לקוחות", "וואטסאפ", "צ׳אטבוט", "בוט לעסקים", "AI chatbot", "customer service bot"],
   icons: {
     icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
+  openGraph: {
+    title: "BotPress AI - בוט AI חכם לשירות לקוחות",
+    description: "הבוט שסורק את האתר שלך ועונה ללקוחות 24/7. וואטסאפ, אימייל וצ׳אט — ממקום אחד.",
+    url: "https://botpress-ai.vercel.app",
+    siteName: "BotPress AI",
+    locale: "he_IL",
+    type: "website",
+    images: [
+      {
+        url: "/images/logo.png",
+        width: 512,
+        height: 512,
+        alt: "BotPress AI Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BotPress AI - בוט AI חכם לשירות לקוחות",
+    description: "הבוט שסורק את האתר שלך ועונה ללקוחות 24/7",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 

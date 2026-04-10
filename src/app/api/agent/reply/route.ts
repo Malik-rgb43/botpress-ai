@@ -2,9 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildEmailHtml } from '@/services/email-template'
 import { sanitizeText, sanitizeEmail, isValidEmail } from '@/lib/sanitize'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 20 req/min
+    const rlKey = getRateLimitKey(request, 'agent-reply')
+    const rl = checkRateLimit(rlKey, { limit: 20, windowMs: 60 * 1000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Rate limit exceeded', retryAfter: rl.retryAfter }, { status: 429 })
+    }
+
     const body = await request.json()
     const to = sanitizeEmail(body.to)
     const message = sanitizeText(body.message, 5000)

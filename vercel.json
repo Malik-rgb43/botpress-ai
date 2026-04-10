@@ -5,8 +5,16 @@
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/summary",
+      "path": "/api/summary?frequency=daily",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/summary?frequency=weekly",
+      "schedule": "0 7 * * 0"
+    },
+    {
+      "path": "/api/summary?frequency=monthly",
+      "schedule": "0 7 1 * *"
     }
   ]
 }
