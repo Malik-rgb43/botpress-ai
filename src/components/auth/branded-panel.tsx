@@ -57,27 +57,30 @@ export function BrandedPanel() {
 
   return (
     <div className="hidden lg:flex lg:w-[50%] relative overflow-hidden items-center justify-center p-12">
-      {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700" />
+      {/* Base — dark gradient */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #111827 40%, #1a1a2e 70%, #0f172a 100%)' }} />
 
-      {/* Animated gradient orbs */}
+      {/* Colored accent orbs — subtle, not dominant */}
       <motion.div
         animate={floatAnimation}
-        className="absolute top-[10%] right-[15%] w-[450px] h-[450px] bg-white/[0.07] rounded-full blur-[120px]"
+        className="absolute top-[5%] right-[10%] w-[500px] h-[500px] rounded-full blur-[140px]"
+        style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)' }}
       />
       <motion.div
         animate={{ ...floatAnimation, y: [10, -10, 10] }}
-        className="absolute bottom-[15%] left-[5%] w-[350px] h-[350px] bg-purple-400/10 rounded-full blur-[100px]"
+        className="absolute bottom-[10%] left-[0%] w-[400px] h-[400px] rounded-full blur-[120px]"
+        style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)' }}
       />
       <motion.div
         animate={{ ...floatAnimation, y: [-6, 14, -6] }}
-        className="absolute top-[45%] left-[35%] w-[280px] h-[280px] bg-cyan-300/[0.06] rounded-full blur-[90px]"
+        className="absolute top-[40%] left-[30%] w-[300px] h-[300px] rounded-full blur-[100px]"
+        style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.06) 0%, transparent 70%)' }}
       />
 
       {/* Subtle dot pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: 'radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: 'radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
       }} />
 
       <motion.div
@@ -109,7 +112,7 @@ export function BrandedPanel() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -15, scale: 0.97 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.12] rounded-2xl p-6 shadow-2xl"
+              className="backdrop-blur-xl bg-white/[0.06] border border-white/[0.08] rounded-2xl p-6 shadow-2xl shadow-black/20"
             >
               {/* Stars + stat */}
               <div className="flex items-center justify-between mb-4">
@@ -164,7 +167,7 @@ export function BrandedPanel() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
-              className="flex items-center gap-2 px-3.5 py-2 backdrop-blur-xl bg-white/[0.06] border border-white/[0.1] rounded-full"
+              className="flex items-center gap-2 px-3.5 py-2 backdrop-blur-xl bg-white/[0.05] border border-white/[0.08] rounded-full"
             >
               <f.icon className="h-3.5 w-3.5 text-white/60" />
               <span className="text-xs text-white/70 font-medium">{f.text}</span>
@@ -184,7 +187,7 @@ export function BrandedPanel() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: stat.delay }}
-              className="backdrop-blur-xl bg-white/[0.05] border border-white/[0.08] rounded-xl p-3.5 text-center hover:bg-white/[0.09] transition-colors duration-300 group"
+              className="backdrop-blur-xl bg-white/[0.04] border border-white/[0.07] rounded-xl p-3.5 text-center hover:bg-white/[0.08] transition-colors duration-300 group"
             >
               <stat.icon className="h-4.5 w-4.5 text-white/30 mx-auto mb-1.5 group-hover:text-white/50 transition-colors" />
               <div className="text-white text-xl font-bold leading-none">{stat.value}</div>
