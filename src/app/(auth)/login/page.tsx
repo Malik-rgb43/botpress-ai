@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { useTranslation } from '@/i18n/provider'
-import { Bot, Loader2 } from 'lucide-react'
+import { Bot, Loader2, Mail, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BrandedPanel } from '@/components/auth/branded-panel'
+import { toast } from 'sonner'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -18,14 +19,24 @@ const fadeUp = {
 }
 
 export default function LoginPage() {
-  const { signIn, loading, error } = useAuth()
+  const { signIn, resendConfirmation, loading, error, needsConfirmation, confirmationEmail } = useAuth()
   const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [resendSent, setResendSent] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setResendSent(false)
     await signIn(email, password)
+  }
+
+  async function handleResend() {
+    const ok = await resendConfirmation(email || confirmationEmail)
+    if (ok) {
+      setResendSent(true)
+      toast.success('נשלח! בדוק את תיבת המייל שלך')
+    }
   }
 
   return (
@@ -103,7 +114,7 @@ export default function LoginPage() {
             </motion.div>
 
             <AnimatePresence>
-              {error && (
+              {error && !needsConfirmation && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -112,6 +123,45 @@ export default function LoginPage() {
                   className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 overflow-hidden"
                 >
                   <p className="text-sm text-red-600 text-center">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Email confirmation needed */}
+            <AnimatePresence>
+              {needsConfirmation && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-amber-50 border border-amber-200 rounded-xl p-4 overflow-hidden"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <Mail className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-amber-800 mb-1">צריך לאשר את האימייל</p>
+                      <p className="text-xs text-amber-600 mb-3">
+                        שלחנו לך מייל אישור ל-<span className="font-medium" dir="ltr">{confirmationEmail || email}</span>. לחץ על הקישור במייל כדי להתחבר.
+                      </p>
+                      {resendSent ? (
+                        <div className="flex items-center gap-2 text-xs text-emerald-600 font-medium">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          נשלח בהצלחה!
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleResend}
+                          disabled={loading}
+                          className="flex items-center gap-1.5 text-xs text-amber-700 font-medium hover:text-amber-900 transition-colors disabled:opacity-50"
+                        >
+                          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                          שלח שוב
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

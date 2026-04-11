@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { useTranslation } from '@/i18n/provider'
-import { Bot, Loader2 } from 'lucide-react'
+import { Bot, Loader2, Mail, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BrandedPanel } from '@/components/auth/branded-panel'
+import { toast } from 'sonner'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -18,17 +19,19 @@ const fadeUp = {
 }
 
 export default function SignupPage() {
-  const { signUp, loading, error } = useAuth()
+  const { signUp, resendConfirmation, loading, error, needsConfirmation, confirmationEmail } = useAuth()
   const { t } = useTranslation()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [localError, setLocalError] = useState<string | null>(null)
+  const [resendSent, setResendSent] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLocalError(null)
+    setResendSent(false)
     if (password !== confirmPassword) {
       setLocalError(t.auth.passwords_mismatch)
       return
@@ -38,6 +41,62 @@ export default function SignupPage() {
       return
     }
     await signUp(email, password, fullName)
+  }
+
+  async function handleResend() {
+    const ok = await resendConfirmation(email || confirmationEmail)
+    if (ok) {
+      setResendSent(true)
+      toast.success('נשלח! בדוק את תיבת המייל שלך')
+    }
+  }
+
+  // Show confirmation screen after signup
+  if (needsConfirmation) {
+    return (
+      <div className="min-h-screen flex flex-row-reverse">
+        <BrandedPanel />
+        <main className="flex-1 flex items-center justify-center px-6 py-12 bg-gray-50/50">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-sm text-center"
+          >
+            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Mail className="h-8 w-8 text-blue-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">בדוק את תיבת המייל</h1>
+            <p className="text-gray-500 text-sm mb-2">
+              שלחנו מייל אישור ל:
+            </p>
+            <p className="text-blue-600 font-medium text-sm mb-6" dir="ltr">{confirmationEmail || email}</p>
+            <p className="text-gray-400 text-xs mb-8">
+              לחץ על הקישור במייל כדי לאשר את החשבון ולהתחבר
+            </p>
+
+            {resendSent ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-emerald-600 font-medium mb-4">
+                <CheckCircle2 className="h-4 w-4" />
+                נשלח בהצלחה!
+              </div>
+            ) : (
+              <button
+                onClick={handleResend}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 mx-auto text-sm text-blue-500 font-medium hover:text-blue-600 transition-colors disabled:opacity-50 mb-4"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                לא קיבלת? שלח שוב
+              </button>
+            )}
+
+            <Link href="/login" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              חזרה להתחברות
+            </Link>
+          </motion.div>
+        </main>
+      </div>
+    )
   }
 
   return (
