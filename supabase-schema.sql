@@ -294,6 +294,140 @@ CREATE INDEX IF NOT EXISTS idx_escalations_conversation_id ON public.escalations
 CREATE INDEX IF NOT EXISTS idx_escalations_status ON public.escalations(status, created_at);
 CREATE INDEX IF NOT EXISTS idx_unanswered_business_id ON public.unanswered_questions(business_id);
 
+-- ═══════════════════════════════════════════════════════════════
+-- RPC Functions (required by dashboard pages)
+-- ═══════════════════════════════════════════════════════════════
+
+-- get_business_analytics: Dashboard analytics KPIs + lists
+create or replace function public.get_business_analytics(
+  p_business_id uuid,
+  p_start_date timestamptz,
+  p_prev_start timestamptz,
+  p_prev_end timestamptz
+) returns json as $$
+declare
+  result json;
+begin
+  select json_build_object(
+    'conversations', (select count(*) from conversations where business_id = p_business_id and started_at >= p_start_date),
+    'prev_conversations', (select count(*) from conversations where business_id = p_business_id and started_at >= p_prev_start and started_at < p_prev_end),
+    'messages', (select count(*) from messages m join conversations c on m.conversation_id = c.id where c.business_id = p_business_id and m.created_at >= p_start_date),
+    'prev_messages', (select count(*) from messages m join conversations c on m.conversation_id = c.id where c.business_id = p_business_id and m.created_at >= p_prev_start and m.created_at < p_prev_end),
+    'escalations', (select count(*) from escalations e join conversations c on e.conversation_id = c.id where c.business_id = p_business_id and e.created_at >= p_start_date),
+    'prev_escalations', (select count(*) from escalations e join conversations c on e.conversation_id = c.id where c.business_id = p_business_id and e.created_at >= p_prev_start and e.created_at < p_prev_end),
+    'satisfaction', (select coalesce(avg(satisfaction_rating), 0) from conversations where business_id = p_business_id and started_at >= p_start_date and satisfaction_rating is not null),
+    'prev_satisfaction', (select coalesce(avg(satisfaction_rating), 0) from conversations where business_id = p_business_id and started_at >= p_prev_start and started_at < p_prev_end and satisfaction_rating is not null),
+    'sentiment', (
+      select json_build_object(
+        'positive', coalesce(round(100.0 * count(*) filter (where m.sentiment = 'positive') / nullif(count(*), 0)), 0),
+        'neutral', coalesce(round(100.0 * count(*) filter (where m.sentiment = 'neutral') / nullif(count(*), 0)), 0),
+        'negative', coalesce(round(100.0 * count(*) filter (where m.sentiment = 'negative') / nullif(count(*), 0)), 0),
+        'angry', coalesce(round(100.0 * count(*) filter (where m.sentiment = 'angry') / nullif(count(*), 0)), 0)
+      )
+      from messages m join conversations c on m.conversation_id = c.id
+      where c.business_id = p_business_id and m.created_at >= p_start_date and m.role = 'customer'
+    ),
+    'channels', (
+      select json_build_object(
+        'widget', coalesce(round(100.0 * count(*) filter (where channel = 'widget') / nullif(count(*), 0)), 0),
+        'whatsapp', coalesce(round(100.0 * count(*) filter (where channel = 'whatsapp') / nullif(count(*), 0)), 0),
+        'email', coalesce(round(100.0 * count(*) filter (where channel = 'email') / nullif(count(*), 0)), 0)
+      )
+      from conversations where business_id = p_business_id and started_at >= p_start_date
+    ),
+    'top_questions', (
+      select coalesce(json_agg(row_to_json(tq)), '[]'::json) from (
+        select m.content as question, count(*) as count
+        from messages m join conversations c on m.conversation_id = c.id
+        where c.business_id = p_business_id and m.created_at >= p_start_date and m.role = 'customer'
+        group by m.content order by count desc limit 5
+      ) tq
+    ),
+    'recent_conversations', (
+      select coalesce(json_agg(row_to_json(rc)), '[]'::json) from (
+        select c.*, (
+          select coalesce(json_agg(row_to_json(msg)), '[]'::json)
+          from (select * from messages where conversation_id = c.id order by created_at limit 3) msg
+        ) as messages
+        from conversations c where c.business_id = p_business_id
+        order by c.started_at desc limit 5
+      ) rc
+    ),
+    'open_escalations', (
+      select coalesce(json_agg(row_to_json(oe)), '[]'::json) from (
+        select e.*, row_to_json(c) as conversation
+        from escalations e join conversations c on e.conversation_id = c.id
+        where c.business_id = p_business_id and e.status in ('open', 'in_progress')
+        order by e.created_at desc
+      ) oe
+    )
+  ) into result;
+  return result;
+end;
+$$ language plpgsql security definer;
+
+-- get_conversations_list: Paginated conversation list with filters
+create or replace function public.get_conversations_list(
+  p_business_id uuid,
+  p_start_date timestamptz default null,
+  p_channel text default null,
+  p_status text default null,
+  p_limit int default 50
+) returns json as $$
+declare
+  result json;
+begin
+  select json_build_object(
+    'conversations', (
+      select coalesce(json_agg(row_to_json(cv)), '[]'::json) from (
+        select c.*
+        from conversations c
+        where c.business_id = p_business_id
+          and (p_start_date is null or c.started_at >= p_start_date)
+          and (p_channel is null or c.channel = p_channel)
+          and (p_status = 'needs_agent' and exists (
+            select 1 from escalations e where e.conversation_id = c.id and e.status in ('open', 'in_progress')
+          ) or p_status = 'resolved' and exists (
+            select 1 from escalations e where e.conversation_id = c.id and e.status = 'resolved'
+          ) or p_status is null or p_status = 'all')
+        order by c.started_at desc
+        limit p_limit
+      ) cv
+    ),
+    'escalated_ids', (
+      select coalesce(json_agg(e.conversation_id), '[]'::json)
+      from escalations e join conversations c on e.conversation_id = c.id
+      where c.business_id = p_business_id and e.status in ('open', 'in_progress')
+    ),
+    'resolved_ids', (
+      select coalesce(json_agg(e.conversation_id), '[]'::json)
+      from escalations e join conversations c on e.conversation_id = c.id
+      where c.business_id = p_business_id and e.status = 'resolved'
+    )
+  ) into result;
+  return result;
+end;
+$$ language plpgsql security definer;
+
+-- resolve_escalation: Mark an escalation as resolved
+create or replace function public.resolve_escalation(p_escalation_id uuid)
+returns void as $$
+begin
+  update escalations set status = 'resolved', resolved_at = now()
+  where id = p_escalation_id;
+end;
+$$ language plpgsql security definer;
+
+-- delete_conversation: Delete a conversation and its messages
+create or replace function public.delete_conversation(p_conversation_id uuid)
+returns void as $$
+begin
+  delete from messages where conversation_id = p_conversation_id;
+  delete from escalations where conversation_id = p_conversation_id;
+  delete from conversations where id = p_conversation_id;
+end;
+$$ language plpgsql security definer;
+
 -- JSONB indexes for O(1) business lookup by channel identifier
 CREATE INDEX IF NOT EXISTS idx_biz_whatsapp_phone ON public.businesses ((contact_info->>'whatsapp_phone_id')) WHERE contact_info->>'whatsapp_phone_id' IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_biz_email ON public.businesses ((contact_info->>'email')) WHERE contact_info->>'email' IS NOT NULL;

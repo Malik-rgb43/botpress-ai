@@ -9,6 +9,7 @@ import { useRef, useEffect, useState } from "react"
 import { motion, useInView, AnimatePresence, type Variants } from 'framer-motion'
 import HeroChat from "@/components/landing/hero-chat"
 import RotatingText from "@/components/landing/rotating-text"
+import { LandingChatWidget } from "@/components/landing/chat-widget"
 
 /* ── Framer Motion Variants ──────────────────── */
 
@@ -1427,6 +1428,9 @@ export default function LandingPage() {
           </div>
         </div>
       </motion.footer>
+
+      {/* Floating Chat Widget — knows everything about BotPress AI */}
+      <LandingChatWidget />
     </div>
   )
 }
