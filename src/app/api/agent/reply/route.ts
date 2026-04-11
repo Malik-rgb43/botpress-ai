@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { buildEmailHtml } from '@/services/email-template'
 import { sanitizeText, sanitizeEmail, isValidEmail } from '@/lib/sanitize'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { requireAuth } from '@/lib/auth'
+import { badRequest, notFound, serverError, ok } from '@/lib/api-response'
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,20 +20,19 @@ export async function POST(request: NextRequest) {
     const channel = typeof body.channel === 'string' ? body.channel : ''
 
     if (!to || !message || !channel) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+      return badRequest('Missing fields')
     }
 
     if (!['email', 'whatsapp', 'widget'].includes(channel)) {
-      return NextResponse.json({ error: 'Invalid channel' }, { status: 400 })
+      return badRequest('Invalid channel')
     }
 
     if (channel === 'email' && !isValidEmail(to)) {
-      return NextResponse.json({ error: 'כתובת אימייל לא תקינה' }, { status: 400 })
+      return badRequest('כתובת אימייל לא תקינה')
     }
 
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    const { user, supabase, error: authError } = await requireAuth()
+    if (authError) return authError
 
     const { data: business } = await supabase
       .from('businesses')
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    if (!business) return NextResponse.json({ error: 'No business' }, { status: 404 })
+    if (!business) return notFound('No business')
 
     if (channel === 'email') {
       // Send via Gmail API
@@ -146,6 +146,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Agent reply error:', error)
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    return serverError('Internal error')
   }
 }

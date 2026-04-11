@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { requireAuth } from '@/lib/auth'
+import { badRequest, forbidden, serverError, ok } from '@/lib/api-response'
 
 const PLAN_LIMITS: Record<string, number> = {
   free: 2,
@@ -13,24 +15,21 @@ export async function POST(request: NextRequest) {
   const rlKey = getRateLimitKey(request, 'generate-faq')
   const rl = checkRateLimit(rlKey, { limit: 5, windowMs: 60 * 60 * 1000 })
   if (!rl.allowed) {
-    return NextResponse.json({ error: 'Too many FAQ generation requests', retryAfter: rl.retryAfter }, { status: 429 })
+    return NextResponse.json({ error: 'Too many FAQ generation requests', retryAfter: rl.retryAfter  }, { status: 429 })
   }
   try {
     // Auth check
-    const supabaseAuth = await createClient()
-    const { data: { user } } = await supabaseAuth.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { user, supabase: supabaseAuth, error: authError } = await requireAuth()
+    if (authError) return authError
 
     const { url, businessName, language, businessId } = await request.json()
 
     if (!url) {
-      return NextResponse.json({ error: 'URL is required' }, { status: 400 })
+      return badRequest('URL is required')
     }
 
     if (!businessId) {
-      return NextResponse.json({ error: 'businessId is required' }, { status: 400 })
+      return badRequest('businessId is required')
     }
 
     // Verify business ownership — prevent users from accessing other businesses
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
     if (!ownedBiz) {
-      return NextResponse.json({ error: 'Business not found or not authorized' }, { status: 403 })
+      return forbidden('Business not found or not authorized')
     }
 
     // Validate URL to prevent SSRF
@@ -49,11 +48,11 @@ export async function POST(request: NextRequest) {
     try {
       parsedUrl = new URL(url)
     } catch {
-      return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
+      return badRequest('Invalid URL')
     }
 
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return NextResponse.json({ error: 'Only HTTP/HTTPS URLs allowed' }, { status: 400 })
+      return badRequest('Only HTTP/HTTPS URLs allowed')
     }
 
     const hostname = parsedUrl.hostname.toLowerCase()
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
       hostname.startsWith('fe80') ||
       hostname.startsWith('fd')
     if (isPrivate) {
-      return NextResponse.json({ error: 'Private URLs not allowed' }, { status: 400 })
+      return badRequest('Private URLs not allowed')
     }
 
     // Check usage limit
@@ -120,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'AI not configured' }, { status: 500 })
+      return serverError('AI not configured')
     }
 
     // Fetch website content with better extraction
@@ -195,7 +194,7 @@ Example format: [{"question":"...","answer":"...","category":"..."}]`
 
     if (!aiRes.ok) {
       console.error('Gemini FAQ error:', aiRes.status)
-      return NextResponse.json({ error: 'AI generation failed' }, { status: 500 })
+      return serverError('AI generation failed')
     }
 
     const data = await aiRes.json()
@@ -209,9 +208,9 @@ Example format: [{"question":"...","answer":"...","category":"..."}]`
       faqs = []
     }
 
-    return NextResponse.json({ faqs })
+    return ok({ faqs })
   } catch (error) {
     console.error('FAQ generation error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return serverError()
   }
 }

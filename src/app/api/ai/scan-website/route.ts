@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { requireAuth } from '@/lib/auth'
+import { badRequest, notFound, serverError, ok } from '@/lib/api-response'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,17 +13,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Auth check
-    const { createClient } = await import('@/lib/supabase/server')
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { user, supabase, error: authError } = await requireAuth()
+    if (authError) return authError
 
     const { url, businessName, language, businessId } = await request.json()
 
     if (!url) {
-      return NextResponse.json({ error: 'URL is required' }, { status: 400 })
+      return badRequest('URL is required')
     }
 
     // Validate URL
@@ -29,11 +27,11 @@ export async function POST(request: NextRequest) {
     try {
       parsedUrl = new URL(url)
     } catch {
-      return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
+      return badRequest('Invalid URL')
     }
 
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return NextResponse.json({ error: 'Only HTTP/HTTPS allowed' }, { status: 400 })
+      return badRequest('Only HTTP/HTTPS allowed')
     }
 
     const hostname = parsedUrl.hostname.toLowerCase()
@@ -43,12 +41,12 @@ export async function POST(request: NextRequest) {
       /^(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|0\.)/.test(hostname) ||
       hostname.startsWith('fc') || hostname.startsWith('fe80') || hostname.startsWith('fd')
     if (isPrivate) {
-      return NextResponse.json({ error: 'Private URLs not allowed' }, { status: 400 })
+      return badRequest('Private URLs not allowed')
     }
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'AI not configured' }, { status: 500 })
+      return serverError('AI not configured')
     }
 
     // Scrape website — main page + policy pages from footer links
@@ -127,7 +125,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (websiteContent.length < 50) {
-      return NextResponse.json({ error: 'Could not extract content' }, { status: 400 })
+      return badRequest('Could not extract content')
     }
 
     const langMap: Record<string, string> = { he: 'Hebrew', en: 'English', ar: 'Arabic' }
@@ -225,7 +223,7 @@ ${fullContent}`
 
     if (!aiRes.ok) {
       console.error('Gemini scan error:', aiRes.status)
-      return NextResponse.json({ error: 'AI generation failed' }, { status: 500 })
+      return serverError('AI generation failed')
     }
 
     const data = await aiRes.json()
@@ -260,12 +258,12 @@ ${fullContent}`
     }
 
     if (Object.keys(response).length === 0) {
-      return NextResponse.json({ error: 'No content found' }, { status: 404 })
+      return notFound('No content found')
     }
 
-    return NextResponse.json(response)
+    return ok(response)
   } catch (error) {
     console.error('Website scan error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return serverError()
   }
 }
