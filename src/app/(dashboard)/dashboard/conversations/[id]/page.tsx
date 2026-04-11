@@ -55,6 +55,31 @@ export default function ConversationDetailPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Realtime subscription for new messages
+  useEffect(() => {
+    if (!params.id) return
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel(`messages:${params.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${params.id}`,
+      }, (payload) => {
+        setMessages(prev => {
+          if (prev.some(m => m.id === payload.new.id)) return prev
+          return [...prev, payload.new as Message]
+        })
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [params.id])
+
   async function loadData() {
     const supabase = createClient()
     const { data, error } = await supabase.rpc('get_conversation_detail', {

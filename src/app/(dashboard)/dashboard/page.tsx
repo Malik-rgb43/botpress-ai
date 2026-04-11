@@ -155,8 +155,8 @@ export default function AnalyticsPage() {
         prevMessages: analytics.prev_messages || 0,
         escalations: analytics.escalations || 0,
         prevEscalations: analytics.prev_escalations || 0,
-        satisfaction: 0,
-        prevSatisfaction: 0,
+        satisfaction: analytics.satisfaction || 0,
+        prevSatisfaction: analytics.prev_satisfaction || 0,
       })
 
       setSentiment(analytics.sentiment || { positive: 0, neutral: 0, negative: 0, angry: 0 })
@@ -200,6 +200,19 @@ export default function AnalyticsPage() {
   }
 
   async function addToFAQ(question: string) {
+    if (!business) return
+    const supabase = createClient()
+    const { error } = await supabase.from('faqs').insert({
+      business_id: business.id,
+      question: question,
+      answer: '',
+      category: 'מאנליטיקס',
+      order: 0,
+    })
+    if (error) {
+      toast.error(t.common.error_loading)
+      return
+    }
     toast.success(t.analytics.added_to_faq)
   }
 

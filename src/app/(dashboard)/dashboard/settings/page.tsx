@@ -111,7 +111,8 @@ export default function SettingsPage() {
         offline_message: offlineMessage,
       },
     }).eq('id', business!.id)
-    await supabase.from('summary_settings').update({
+    await supabase.from('summary_settings').upsert({
+      business_id: business!.id,
       enabled: summaryEnabled,
       frequency: summaryFreq,
       email: summaryEmail,

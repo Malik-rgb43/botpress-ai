@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Loader2, Check, Zap, Crown, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 
 const fadeIn = {
   initial: { opacity: 0, y: 16 },
@@ -55,13 +56,35 @@ export default function PlanPage() {
     },
   ]
   const [messagesUsed, setMessagesUsed] = useState(0)
+  const [currentPlan, setCurrentPlan] = useState('free')
+  const [messageLimit, setMessageLimit] = useState(100)
   const [statsLoading, setStatsLoading] = useState(true)
 
   useEffect(() => {
     if (!business) { setStatsLoading(false); return }
     async function loadUsage() {
       const supabase = createClient()
-      // Count messages for this business only (messages linked via conversations)
+
+      // Fetch subscription with plan details
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('*, plans(*)')
+        .eq('business_id', business!.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (sub) {
+        setCurrentPlan(sub.plans?.name?.toLowerCase() || 'free')
+        setMessageLimit(sub.plans?.message_limit ?? 100)
+        if (sub.messages_used != null) {
+          setMessagesUsed(sub.messages_used)
+          setStatsLoading(false)
+          return
+        }
+      }
+
+      // Fallback: count messages for this business from conversations
       const startOfMonth = new Date()
       startOfMonth.setDate(1)
       startOfMonth.setHours(0, 0, 0, 0)
@@ -84,9 +107,6 @@ export default function PlanPage() {
     }
     loadUsage()
   }, [business])
-
-  const currentPlan = 'free'
-  const messageLimit = 100
   const usagePercent = messageLimit > 0 ? Math.min((messagesUsed / messageLimit) * 100, 100) : 0
 
   if (bizLoading) {
@@ -221,6 +241,7 @@ export default function PlanPage() {
               ) : plan.popular ? (
                 <Button
                   className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200"
+                  onClick={() => toast.info('מערכת התשלומים תהיה זמינה בקרוב')}
                 >
                   {plan.trial ? t.plan.start_trial : t.plan.upgrade}
                 </Button>
@@ -228,6 +249,7 @@ export default function PlanPage() {
                 <Button
                   className="w-full rounded-xl border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200"
                   variant="outline"
+                  onClick={() => toast.info('מערכת התשלומים תהיה זמינה בקרוב')}
                 >
                   {plan.trial ? t.plan.start_trial : t.plan.upgrade}
                 </Button>

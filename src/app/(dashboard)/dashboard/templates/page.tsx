@@ -56,7 +56,7 @@ export default function TemplatesPage() {
     const supabase = createClient()
     await supabase.from('businesses').update({ tone, tone_custom: toneCustom || null }).eq('id', business!.id)
     for (const [type, content] of Object.entries(templates)) {
-      await supabase.from('response_templates').update({ content }).eq('business_id', business!.id).eq('type', type)
+      await supabase.from('response_templates').upsert({ business_id: business!.id, type, content }).eq('business_id', business!.id).eq('type', type)
     }
     toast.success(t.templates.saved)
     setSaving(false)
