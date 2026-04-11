@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
     const rawBusinessId = body.businessId
     const rawConvId = body.conversationId || null
     const rawVisitorId = body.visitorId || null
+    const isPlayground = body.isPlayground === true // Playground mode — don't save to DB
 
     // Sanitize all inputs
     const message = sanitizeMessage(rawMessage)
@@ -178,31 +179,33 @@ export async function POST(request: NextRequest) {
           : `הצוות שלנו לא זמין כרגע. ${agentStatus.message} נחזור אליך בהקדם האפשרי!`
       }
 
-      // Save escalation to DB (fire-and-forget for speed)
-      const supabase = createAdminClient()
+      // Save escalation to DB (skip in playground mode)
       let savedConvId = existingConvId
-      try {
-        if (!savedConvId) {
-          const { data: newId } = await supabase.rpc('insert_conversation', {
-            p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
-          })
-          savedConvId = newId
-        }
-        if (savedConvId) {
-          await supabase.rpc('insert_messages', {
-            p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
-            p_bot_content: transferMsg, p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
-          })
-          await supabase.rpc('insert_escalation', {
-            p_conversation_id: savedConvId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
-          })
-        }
-      } catch {}
+      if (!isPlayground) {
+        const supabase = createAdminClient()
+        try {
+          if (!savedConvId) {
+            const { data: newId } = await supabase.rpc('insert_conversation', {
+              p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+            })
+            savedConvId = newId
+          }
+          if (savedConvId) {
+            await supabase.rpc('insert_messages', {
+              p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
+              p_bot_content: transferMsg, p_intent: intent, p_sentiment: sentiment, p_layer: 'transfer',
+            })
+            await supabase.rpc('insert_escalation', {
+              p_conversation_id: savedConvId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
+            })
+          }
+        } catch {}
+      }
 
       return NextResponse.json({
         content: transferMsg,
         layer: 'transfer',
-        conversationId: savedConvId,
+        conversationId: isPlayground ? null : savedConvId,
         intent,
         sentiment,
         confidence: 1,
@@ -221,23 +224,25 @@ export async function POST(request: NextRequest) {
     if (quickResponse) {
       console.log(`Chat: QUICK response for "${message.substring(0, 30)}" intent=${intent} layer=${quickResponse.layer}`)
 
-      // Save to DB in background (don't block response)
-      const supabase = createAdminClient()
+      // Save to DB in background (skip in playground mode)
       let savedConvId = existingConvId
-      try {
-        if (!savedConvId) {
-          const { data: newId } = await supabase.rpc('insert_conversation', {
-            p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
-          })
-          savedConvId = newId
-        }
-        if (savedConvId) {
-          await supabase.rpc('insert_messages', {
-            p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
-            p_bot_content: quickResponse.content, p_intent: intent, p_sentiment: sentiment, p_layer: quickResponse.layer,
-          })
-        }
-      } catch {}
+      if (!isPlayground) {
+        const supabase = createAdminClient()
+        try {
+          if (!savedConvId) {
+            const { data: newId } = await supabase.rpc('insert_conversation', {
+              p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+            })
+            savedConvId = newId
+          }
+          if (savedConvId) {
+            await supabase.rpc('insert_messages', {
+              p_conv_id: savedConvId, p_customer_content: message.slice(0, 2000),
+              p_bot_content: quickResponse.content, p_intent: intent, p_sentiment: sentiment, p_layer: quickResponse.layer,
+            })
+          }
+        } catch {}
+      }
 
       return NextResponse.json({
         content: quickResponse.content,
@@ -385,37 +390,39 @@ export async function POST(request: NextRequest) {
       const layer = isTransfer ? 'transfer' : 'ai'
       const confidence = finalContent.length > 10 && !isTransfer ? 0.85 : 0.5
 
-      // ── Save to DB ────────────────────────────────────
-      const supabase = createAdminClient()
+      // ── Save to DB (skip in playground mode) ──────────
       let savedConvId2 = existingConvId
-      try {
-        if (!savedConvId2) {
-          const { data: newId } = await supabase.rpc('insert_conversation', {
-            p_business_id: businessId,
-            p_channel: 'widget',
-            p_customer: visitorId || 'widget-visitor',
-            p_language: language,
-          })
-          savedConvId2 = newId
-        }
-        if (savedConvId2) {
-          await supabase.rpc('insert_messages', {
-            p_conv_id: savedConvId2,
-            p_customer_content: message.slice(0, 2000),
-            p_bot_content: finalContent,
-            p_intent: intent,
-            p_sentiment: sentiment,
-            p_layer: layer,
-          })
-          if (isTransfer) {
-            await supabase.rpc('insert_escalation', {
-              p_conversation_id: savedConvId2,
-              p_reason: 'לקוח ביקש נציג דרך הווידג׳ט',
+      if (!isPlayground) {
+        const supabase = createAdminClient()
+        try {
+          if (!savedConvId2) {
+            const { data: newId } = await supabase.rpc('insert_conversation', {
+              p_business_id: businessId,
+              p_channel: 'widget',
+              p_customer: visitorId || 'widget-visitor',
+              p_language: language,
             })
+            savedConvId2 = newId
           }
+          if (savedConvId2) {
+            await supabase.rpc('insert_messages', {
+              p_conv_id: savedConvId2,
+              p_customer_content: message.slice(0, 2000),
+              p_bot_content: finalContent,
+              p_intent: intent,
+              p_sentiment: sentiment,
+              p_layer: layer,
+            })
+            if (isTransfer) {
+              await supabase.rpc('insert_escalation', {
+                p_conversation_id: savedConvId2,
+                p_reason: 'לקוח ביקש נציג דרך הווידג׳ט',
+              })
+            }
+          }
+        } catch (dbErr) {
+          console.error('Chat DB save error:', dbErr)
         }
-      } catch (dbErr) {
-        console.error('Chat DB save error:', dbErr)
       }
 
       // Log token usage from Gemini metadata

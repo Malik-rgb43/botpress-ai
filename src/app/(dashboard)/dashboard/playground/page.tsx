@@ -67,6 +67,7 @@ export default function PlaygroundPage() {
           message: userMessage,
           businessId: business.id,
           conversationHistory: history,
+          isPlayground: true,
         }),
       })
 
