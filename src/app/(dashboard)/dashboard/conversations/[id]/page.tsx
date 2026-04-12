@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useBusiness } from '@/hooks/use-business'
@@ -47,9 +47,25 @@ export default function ConversationDetailPage() {
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const loadData = useCallback(async () => {
+    const supabase = createClient()
+    const { data, error } = await supabase.rpc('get_conversation_detail', {
+      p_conversation_id: params.id as string
+    })
+    if (error || !data) {
+      setLoading(false)
+      return
+    }
+    const detail = data as any
+    setConversation(detail.conversation)
+    setMessages(detail.messages || [])
+    setEscalation(detail.escalation || null)
+    setLoading(false)
+  }, [params.id])
+
   useEffect(() => {
     loadData()
-  }, [params.id])
+  }, [loadData])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -79,24 +95,6 @@ export default function ConversationDetailPage() {
       supabase.removeChannel(channel)
     }
   }, [params.id])
-
-  async function loadData() {
-    const supabase = createClient()
-    const { data, error } = await supabase.rpc('get_conversation_detail', {
-      p_conversation_id: params.id as string
-    })
-
-    if (error || !data) {
-      setLoading(false)
-      return
-    }
-
-    const detail = data as any
-    setConversation(detail.conversation)
-    setMessages(detail.messages || [])
-    setEscalation(detail.escalation || null)
-    setLoading(false)
-  }
 
   async function handleResolveEscalation() {
     if (!escalation) return

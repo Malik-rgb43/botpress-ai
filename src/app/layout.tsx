@@ -10,6 +10,7 @@ const rubik = Rubik({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://botpress-ai.vercel.app'),
   title: "BotPress AI - בוט AI חכם לשירות לקוחות | וואטסאפ, אימייל וצ׳אט",
   description: "צור בוט AI שסורק את האתר שלך, לומד את העסק, ועונה ללקוחות 24/7 בוואטסאפ, אימייל ובאתר. הקמה ב-3 דקות, בלי קוד.",
   keywords: ["בוט AI", "שירות לקוחות", "וואטסאפ", "צ׳אטבוט", "בוט לעסקים", "AI chatbot", "customer service bot"],
