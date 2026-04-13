@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { sanitizeLLMInput } from '@/lib/llm-guard'
 
 // Hardcoded server-side — NEVER accept system prompts from client
 const LANDING_SYSTEM_PROMPT = `אתה הבוט של BotPress AI — פלטפורמה לשירות לקוחות חכם לעסקים בישראל.
@@ -22,9 +23,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
     }
 
-    // Truncate to prevent abuse
-    const cleanMessage = message.slice(0, 500)
-    const cleanHistory = (history || []).slice(-8)
+    // Sanitize + truncate to prevent abuse and prompt injection
+    const cleanMessage = sanitizeLLMInput(message.slice(0, 500))
+    const cleanHistory = (history || []).slice(-8).map((h: { role: string; content: string }) => ({
+      ...h,
+      content: sanitizeLLMInput(h.content || ''),
+    }))
 
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {

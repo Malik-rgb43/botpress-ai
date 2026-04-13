@@ -173,6 +173,8 @@ alter table public.widget_settings enable row level security;
 -- Users
 create policy "Users can view own profile" on public.users for select using (auth.uid() = id);
 create policy "Users can insert own profile" on public.users for insert with check (auth.uid() = id);
+-- SECURITY: Prevent role escalation — users can update their own profile but NOT their role
+create policy "Users can update own profile (no role change)" on public.users for update using (auth.uid() = id) with check (role = 'user');
 
 -- Businesses
 create policy "Users can view own businesses" on public.businesses for select using (auth.uid() = user_id);

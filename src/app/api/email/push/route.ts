@@ -6,9 +6,16 @@ import { getOrBuildPrompt } from '@/services/prompt-builder'
 // Gmail Push Notification handler — called by Google Pub/Sub when new email arrives
 export async function POST(request: NextRequest) {
   try {
-    // Verify push secret
-    const pushSecret = request.nextUrl.searchParams.get('secret')
-    if (!pushSecret || pushSecret !== process.env.CRON_SECRET) {
+    // Verify push secret — constant-time comparison
+    const pushSecret = request.headers.get('authorization')?.replace('Bearer ', '') || request.nextUrl.searchParams.get('secret')
+    const expectedSecret = process.env.CRON_SECRET
+    if (!pushSecret || !expectedSecret) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const crypto = await import('crypto')
+    const sBuf = Buffer.from(pushSecret)
+    const eBuf = Buffer.from(expectedSecret)
+    if (sBuf.length !== eBuf.length || !crypto.timingSafeEqual(sBuf, eBuf)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

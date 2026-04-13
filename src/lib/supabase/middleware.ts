@@ -12,7 +12,7 @@ const PUBLIC_API_PATHS = [
   '/api/summary',           // Cron job — verified by secret
   '/api/auth/gmail',        // OAuth flow — needs to be public
   '/api/auth/gmail/callback', // OAuth callback
-  '/api/webhook',           // Generic webhook
+  '/api/ai/landing-chat',   // Landing page chat bot — public, rate limited
 ]
 
 // Pages that don't require authentication
@@ -62,6 +62,20 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
       return NextResponse.redirect(redirectUrl)
+    }
+
+    // Admin route protection — server-side role check
+    if (user && pathname.startsWith('/admin')) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (!profile || profile.role !== 'admin') {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/dashboard'
+        return NextResponse.redirect(redirectUrl)
+      }
     }
   } catch {
     // If Supabase call fails, allow request through
