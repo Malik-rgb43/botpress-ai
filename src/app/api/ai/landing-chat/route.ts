@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 
+// Hardcoded server-side — NEVER accept system prompts from client
+const LANDING_SYSTEM_PROMPT = `אתה הבוט של BotPress AI — פלטפורמה לשירות לקוחות חכם לעסקים בישראל.
+מידע: BotPress AI מאפשר ליצור בוט AI לוואטסאפ, אימייל וצ'אט. סורק אתרים אוטומטית, 3 שכבות מענה (FAQ/AI/נציג), תמיכה בעברית/אנגלית/ערבית, הקמה ב-3 דקות.
+תוכניות: ניסיון ₪1, בסיסי ₪99/חודש, פרימיום ₪299/חודש.
+כללים: ענה בעברית, קצר, ידידותי, מקצועי. אל תענה על נושאים שלא קשורים לפלטפורמה.`
+
 export async function POST(request: NextRequest) {
   // Rate limit: 15 req/min per IP — prevent abuse on public endpoint
   const rlKey = getRateLimitKey(request, 'landing-chat')
@@ -10,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { message, systemContext, history } = await request.json()
+    const { message, history } = await request.json() // systemContext intentionally NOT accepted from client
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
@@ -39,7 +45,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemContext || 'ענה בעברית בצורה ידידותית.' }] },
+          system_instruction: { parts: [{ text: LANDING_SYSTEM_PROMPT }] },
           contents,
           generationConfig: {
             temperature: 0.7,

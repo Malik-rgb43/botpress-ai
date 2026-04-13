@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
               p_conversation_id: savedConvId, p_reason: intent === 'agent_request' ? 'לקוח ביקש נציג' : 'הבוט העביר לנציג',
             })
           }
-        } catch {}
+        } catch (dbErr) { console.error('Chat DB save error:', dbErr) }
       }
 
       return NextResponse.json({
@@ -241,7 +241,7 @@ export async function POST(request: NextRequest) {
               p_bot_content: quickResponse.content, p_intent: intent, p_sentiment: sentiment, p_layer: quickResponse.layer,
             })
           }
-        } catch {}
+        } catch (dbErr) { console.error('Chat DB save error:', dbErr) }
       }
 
       return NextResponse.json({

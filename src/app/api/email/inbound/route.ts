@@ -15,9 +15,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
 
-    // Verify webhook secret
-    const pushSecret = request.nextUrl.searchParams.get('secret')
-    if (!pushSecret || pushSecret !== process.env.CRON_SECRET) {
+    // Verify webhook secret — use header first, fallback to query param
+    const pushSecret = request.headers.get('authorization')?.replace('Bearer ', '') || request.nextUrl.searchParams.get('secret')
+    const expectedSecret = process.env.CRON_SECRET
+    if (!pushSecret || !expectedSecret) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    // Constant-time comparison to prevent timing attacks
+    const crypto = await import('crypto')
+    const secretBuf = Buffer.from(pushSecret)
+    const expectedBuf = Buffer.from(expectedSecret)
+    if (secretBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(secretBuf, expectedBuf)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

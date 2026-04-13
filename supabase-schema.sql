@@ -308,6 +308,11 @@ create or replace function public.get_business_analytics(
 declare
   result json;
 begin
+  -- Ownership check: verify calling user owns this business
+  if not exists (select 1 from businesses where id = p_business_id and user_id = auth.uid()) then
+    raise exception 'forbidden: not your business';
+  end if;
+
   select json_build_object(
     'conversations', (select count(*) from conversations where business_id = p_business_id and started_at >= p_start_date),
     'prev_conversations', (select count(*) from conversations where business_id = p_business_id and started_at >= p_prev_start and started_at < p_prev_end),
@@ -377,6 +382,11 @@ create or replace function public.get_conversations_list(
 declare
   result json;
 begin
+  -- Ownership check
+  if not exists (select 1 from businesses where id = p_business_id and user_id = auth.uid()) then
+    raise exception 'forbidden: not your business';
+  end if;
+
   select json_build_object(
     'conversations', (
       select coalesce(json_agg(row_to_json(cv)), '[]'::json) from (
@@ -413,6 +423,16 @@ $$ language plpgsql security definer;
 create or replace function public.resolve_escalation(p_escalation_id uuid)
 returns void as $$
 begin
+  -- Ownership check: verify user owns the business this escalation belongs to
+  if not exists (
+    select 1 from escalations e
+    join conversations c on e.conversation_id = c.id
+    join businesses b on c.business_id = b.id
+    where e.id = p_escalation_id and b.user_id = auth.uid()
+  ) then
+    raise exception 'forbidden: not your escalation';
+  end if;
+
   update escalations set status = 'resolved', resolved_at = now()
   where id = p_escalation_id;
 end;
@@ -422,6 +442,15 @@ $$ language plpgsql security definer;
 create or replace function public.delete_conversation(p_conversation_id uuid)
 returns void as $$
 begin
+  -- Ownership check
+  if not exists (
+    select 1 from conversations c
+    join businesses b on c.business_id = b.id
+    where c.id = p_conversation_id and b.user_id = auth.uid()
+  ) then
+    raise exception 'forbidden: not your conversation';
+  end if;
+
   delete from messages where conversation_id = p_conversation_id;
   delete from escalations where conversation_id = p_conversation_id;
   delete from conversations where id = p_conversation_id;
