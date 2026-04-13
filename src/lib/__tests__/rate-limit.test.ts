@@ -2,64 +2,61 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { checkRateLimit, getRateLimitKey, RATE_LIMITS } from '../rate-limit'
 
 describe('checkRateLimit', () => {
-  it('allows requests within the limit', () => {
+  it('allows requests within the limit', async () => {
     const key = `test-allow-${Date.now()}`
     const config = { limit: 5, windowMs: 60_000 }
 
-    const result = checkRateLimit(key, config)
+    const result = await checkRateLimit(key, config)
 
     expect(result.allowed).toBe(true)
     expect(result.remaining).toBe(4)
   })
 
-  it('remaining count decreases with each request', () => {
+  it('remaining count decreases with each request', async () => {
     const key = `test-remaining-${Date.now()}`
     const config = { limit: 5, windowMs: 60_000 }
 
-    const r1 = checkRateLimit(key, config)
+    const r1 = await checkRateLimit(key, config)
     expect(r1.remaining).toBe(4)
 
-    const r2 = checkRateLimit(key, config)
+    const r2 = await checkRateLimit(key, config)
     expect(r2.remaining).toBe(3)
 
-    const r3 = checkRateLimit(key, config)
+    const r3 = await checkRateLimit(key, config)
     expect(r3.remaining).toBe(2)
   })
 
-  it('blocks requests exceeding the limit', () => {
+  it('blocks requests exceeding the limit', async () => {
     const key = `test-block-${Date.now()}`
     const config = { limit: 3, windowMs: 60_000 }
 
-    checkRateLimit(key, config) // 1
-    checkRateLimit(key, config) // 2
-    checkRateLimit(key, config) // 3
+    await checkRateLimit(key, config) // 1
+    await checkRateLimit(key, config) // 2
+    await checkRateLimit(key, config) // 3
 
-    const result = checkRateLimit(key, config) // 4 — should be blocked
+    const result = await checkRateLimit(key, config) // 4 — should be blocked
 
     expect(result.allowed).toBe(false)
     expect(result.remaining).toBe(0)
     expect(result.retryAfter).toBeGreaterThan(0)
   })
 
-  it('starts a new window after expiry', () => {
+  it('starts a new window after expiry', async () => {
     const key = `test-expiry-${Date.now()}`
     const config = { limit: 1, windowMs: 100 } // 100ms window
 
-    const r1 = checkRateLimit(key, config)
+    const r1 = await checkRateLimit(key, config)
     expect(r1.allowed).toBe(true)
 
-    const r2 = checkRateLimit(key, config)
+    const r2 = await checkRateLimit(key, config)
     expect(r2.allowed).toBe(false)
 
     // Wait for window to expire
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const r3 = checkRateLimit(key, config)
-        expect(r3.allowed).toBe(true)
-        expect(r3.remaining).toBe(0) // limit 1, used 1 => 0 remaining
-        resolve()
-      }, 150)
-    })
+    await new Promise((resolve) => setTimeout(resolve, 150))
+
+    const r3 = await checkRateLimit(key, config)
+    expect(r3.allowed).toBe(true)
+    expect(r3.remaining).toBe(0) // limit 1, used 1 => 0 remaining
   })
 })
 

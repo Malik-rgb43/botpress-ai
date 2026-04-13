@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
     const rawConvId = body.conversationId || null
     const rawVisitorId = body.visitorId || null
     const isPlayground = body.isPlayground === true // Playground mode — don't save to DB
+    const widgetToken = typeof body.widgetToken === 'string' ? body.widgetToken.slice(0, 100) : null
 
     // Sanitize all inputs
     const message = sanitizeMessage(rawMessage)
@@ -108,13 +109,13 @@ export async function POST(request: NextRequest) {
     if (!message || message.length === 0) {
       return NextResponse.json({ error: 'Invalid message' }, { status: 400 })
     }
-    if (!businessId) {
-      return NextResponse.json({ error: 'Missing businessId' }, { status: 400 })
+    if (!businessId && !widgetToken) {
+      return NextResponse.json({ error: 'Missing businessId or widgetToken' }, { status: 400 })
     }
 
     // Rate limiting — 30 requests per minute per IP+business
-    const rlKey = getRateLimitKey(request, 'chat', businessId)
-    const rl = checkRateLimit(rlKey, RATE_LIMITS.chat)
+    const rlKey = getRateLimitKey(request, 'chat', businessId || widgetToken || 'unknown')
+    const rl = await checkRateLimit(rlKey, RATE_LIMITS.chat)
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'יותר מדי בקשות. נסה שוב בעוד רגע.' },
@@ -125,8 +126,32 @@ export async function POST(request: NextRequest) {
     // Already sanitized above
     const safeHistory = conversationHistory
 
+    // ── Widget token authentication (non-playground requests) ──
+    let resolvedBusinessId = businessId
+    if (!isPlayground) {
+      if (!widgetToken) {
+        return NextResponse.json({ error: 'Widget token required' }, { status: 403 })
+      }
+      // Look up business by widget_token — this IS the authentication
+      const supabase = createAdminClient()
+      const { data: tokenBiz } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('widget_token', widgetToken)
+        .single()
+
+      if (!tokenBiz) {
+        return NextResponse.json({ error: 'Invalid widget token' }, { status: 403 })
+      }
+      resolvedBusinessId = tokenBiz.id
+    }
+
+    if (!resolvedBusinessId) {
+      return NextResponse.json({ error: 'Missing businessId' }, { status: 400 })
+    }
+
     // ── Load business data (cached) ────────────────────
-    const bundle = await loadBusinessData(businessId)
+    const bundle = await loadBusinessData(resolvedBusinessId)
     if (!bundle) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
@@ -186,7 +211,7 @@ export async function POST(request: NextRequest) {
         try {
           if (!savedConvId) {
             const { data: newId } = await supabase.rpc('insert_conversation', {
-              p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+              p_business_id: resolvedBusinessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
             })
             savedConvId = newId
           }
@@ -231,7 +256,7 @@ export async function POST(request: NextRequest) {
         try {
           if (!savedConvId) {
             const { data: newId } = await supabase.rpc('insert_conversation', {
-              p_business_id: businessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
+              p_business_id: resolvedBusinessId, p_channel: 'widget', p_customer: visitorId || 'widget-visitor', p_language: language,
             })
             savedConvId = newId
           }
@@ -397,7 +422,7 @@ export async function POST(request: NextRequest) {
         try {
           if (!savedConvId2) {
             const { data: newId } = await supabase.rpc('insert_conversation', {
-              p_business_id: businessId,
+              p_business_id: resolvedBusinessId,
               p_channel: 'widget',
               p_customer: visitorId || 'widget-visitor',
               p_language: language,

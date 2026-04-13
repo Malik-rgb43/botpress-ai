@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 req/min
     const rlKey = getRateLimitKey(request, 'agent-reply')
-    const rl = checkRateLimit(rlKey, { limit: 20, windowMs: 60 * 1000 })
+    const rl = await checkRateLimit(rlKey, { limit: 20, windowMs: 60 * 1000 })
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Rate limit exceeded', retryAfter: rl.retryAfter }, { status: 429 })
     }

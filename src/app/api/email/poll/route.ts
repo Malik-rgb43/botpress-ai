@@ -5,6 +5,7 @@ import { getOrBuildPrompt } from '@/services/prompt-builder'
 import { buildEmailHtml } from '@/services/email-template'
 import { stripHtml } from '@/lib/sanitize'
 import { sanitizeLLMInput, validateLLMOutput } from '@/lib/llm-guard'
+import { safeDecrypt, safeEncrypt } from '@/lib/encryption'
 
 // Refresh Gmail access token using refresh token
 async function refreshGmailToken(refreshToken: string): Promise<string | null> {
@@ -215,18 +216,18 @@ export async function POST(request: NextRequest) {
 
     for (const business of connectedBusinesses) {
       try {
-        // Refresh access token
-        const accessToken = await refreshGmailToken(business.contact_info.gmail_refresh_token)
+        // Refresh access token (decrypt stored token first — handles plaintext for backwards compat)
+        const accessToken = await refreshGmailToken(safeDecrypt(business.contact_info.gmail_refresh_token))
         if (!accessToken) {
           console.error('Failed to refresh token for business:', business.id)
           continue
         }
 
-        // Update stored access token
+        // Update stored access token (encrypt before saving)
         await supabase.from('businesses').update({
           contact_info: {
             ...business.contact_info,
-            gmail_access_token: accessToken,
+            gmail_access_token: safeEncrypt(accessToken),
             gmail_token_expiry: Date.now() + 3600000,
           }
         }).eq('id', business.id)

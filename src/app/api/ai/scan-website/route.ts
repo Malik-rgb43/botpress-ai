@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 3 req/hour — this is an expensive operation (scraping + AI)
     const rlKey = getRateLimitKey(request, 'scan-website')
-    const rl = checkRateLimit(rlKey, { limit: 3, windowMs: 60 * 60 * 1000 })
+    const rl = await checkRateLimit(rlKey, { limit: 3, windowMs: 60 * 60 * 1000 })
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Too many scan requests. Try again later.', retryAfter: rl.retryAfter }, { status: 429 })
     }

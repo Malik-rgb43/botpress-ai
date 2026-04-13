@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { detectIntent, detectSentiment, detectLanguage } from '@/services/ai-engine'
 import { getOrBuildPrompt } from '@/services/prompt-builder'
+import { safeDecrypt } from '@/lib/encryption'
 
 // Gmail Push Notification handler — called by Google Pub/Sub when new email arrives
 export async function POST(request: NextRequest) {
@@ -53,8 +54,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Refresh token
-    const refreshToken = (business.contact_info as Record<string, unknown>)?.gmail_refresh_token as string
-    if (!refreshToken) return NextResponse.json({ status: 'no token' })
+    const rawRefreshToken = (business.contact_info as Record<string, unknown>)?.gmail_refresh_token as string
+    if (!rawRefreshToken) return NextResponse.json({ status: 'no token' })
+
+    // Decrypt stored token (handles plaintext for backwards compat)
+    const refreshToken = safeDecrypt(rawRefreshToken)
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',

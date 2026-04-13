@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { safeEncrypt } from '@/lib/encryption'
 
 export async function GET(request: NextRequest) {
   // Verify CSRF state parameter
@@ -67,8 +68,8 @@ export async function GET(request: NextRequest) {
             ...existingInfo,
             email: profile.emailAddress,
             gmail_connected: true,
-            gmail_refresh_token: tokens.refresh_token,
-            gmail_access_token: tokens.access_token,
+            gmail_refresh_token: safeEncrypt(tokens.refresh_token),
+            gmail_access_token: safeEncrypt(tokens.access_token),
             gmail_token_expiry: Date.now() + (tokens.expires_in * 1000),
           }
         }).eq('id', business.id)

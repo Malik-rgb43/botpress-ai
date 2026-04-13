@@ -11,7 +11,7 @@ const LANDING_SYSTEM_PROMPT = `אתה הבוט של BotPress AI — פלטפור
 export async function POST(request: NextRequest) {
   // Rate limit: 15 req/min per IP — prevent abuse on public endpoint
   const rlKey = getRateLimitKey(request, 'landing-chat')
-  const rl = checkRateLimit(rlKey, { limit: 15, windowMs: 60 * 1000 })
+  const rl = await checkRateLimit(rlKey, { limit: 15, windowMs: 60 * 1000 })
   if (!rl.allowed) {
     return NextResponse.json({ error: 'Too many requests', retryAfter: rl.retryAfter }, { status: 429 })
   }

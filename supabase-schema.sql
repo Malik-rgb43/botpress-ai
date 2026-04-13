@@ -22,9 +22,12 @@ create table public.businesses (
   story text,
   tone text default 'friendly' check (tone in ('formal', 'friendly', 'professional', 'casual', 'custom')),
   tone_custom text,
+  widget_token text unique default encode(gen_random_bytes(24), 'hex'),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+CREATE INDEX IF NOT EXISTS idx_biz_widget_token ON public.businesses(widget_token);
 
 -- FAQs
 create table public.faqs (

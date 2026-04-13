@@ -6,7 +6,7 @@ import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
 export async function POST(request: NextRequest) {
   // Rate limit: 3 test emails per hour to prevent spam abuse
   const rlKey = getRateLimitKey(request, 'email-test')
-  const rl = checkRateLimit(rlKey, { limit: 3, windowMs: 60 * 60 * 1000 })
+  const rl = await checkRateLimit(rlKey, { limit: 3, windowMs: 60 * 60 * 1000 })
   if (!rl.allowed) {
     return NextResponse.json({ error: 'Too many test emails. Try again later.', retryAfter: rl.retryAfter }, { status: 429 })
   }

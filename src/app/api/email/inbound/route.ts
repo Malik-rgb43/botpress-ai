@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 60 req/min for email inbound
     const rlKey = getRateLimitKey(request, 'email-inbound')
-    const rl = checkRateLimit(rlKey, { limit: 60, windowMs: 60 * 1000 })
+    const rl = await checkRateLimit(rlKey, { limit: 60, windowMs: 60 * 1000 })
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const rlKey = getRateLimitKey(request, 'summary', businessId)
-    const rl = checkRateLimit(rlKey, RATE_LIMITS.summary)
+    const rl = await checkRateLimit(rlKey, RATE_LIMITS.summary)
     if (!rl.allowed) {
       return NextResponse.json({ error: 'Too many requests. Try again later.' }, { status: 429 })
     }
