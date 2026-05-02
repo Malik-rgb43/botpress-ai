@@ -281,6 +281,13 @@ const he = {
     copy_code: 'העתק קוד',
     preview_title: 'תצוגה מקדימה',
     preview_footer: 'ככה הלקוחות שלך יראו את הצ׳אט באתר',
+    api_token_title: 'טוקן API',
+    api_token_desc: 'הטוקן הזה מאמת את הווידג׳ט שלך. שמור אותו בסוד.',
+    regenerate_token: 'חידוש טוקן',
+    regenerate_confirm: 'לחדש טוקן? הווידג׳ט הנוכחי יפסיק לעבוד עד שתעדכן את הקוד.',
+    token_regenerated: 'הטוקן חודש! עדכן את קוד ההטמעה.',
+    token_copied: 'הטוקן הועתק!',
+    no_token: 'עדיין לא נוצר טוקן. שמור הגדרות כדי ליצור אחד.',
   },
 
   // Plan

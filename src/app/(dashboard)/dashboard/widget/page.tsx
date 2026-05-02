@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Save, Copy, Code, Check } from 'lucide-react'
+import { Loader2, Save, Copy, Code, Check, RefreshCw, Eye, EyeOff, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 
@@ -37,6 +37,10 @@ export default function WidgetPage() {
   const [welcomeMessage, setWelcomeMessage] = useState('')
   const [whiteLabel, setWhiteLabel] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [widgetToken, setWidgetToken] = useState<string | null>(null)
+  const [tokenVisible, setTokenVisible] = useState(false)
+  const [tokenCopied, setTokenCopied] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
 
   useEffect(() => {
     if (!business) return
@@ -45,12 +49,18 @@ export default function WidgetPage() {
 
   async function loadSettings() {
     const supabase = createClient()
-    const { data } = await supabase.from('widget_settings').select('*').eq('business_id', business!.id).single()
-    if (data) {
-      setPosition(data.position)
-      setPrimaryColor(data.primary_color)
-      setWelcomeMessage(data.welcome_message)
-      setWhiteLabel(data.white_label)
+    const [settingsRes, bizRes] = await Promise.all([
+      supabase.from('widget_settings').select('*').eq('business_id', business!.id).single(),
+      supabase.from('businesses').select('widget_token').eq('id', business!.id).single(),
+    ])
+    if (settingsRes.data) {
+      setPosition(settingsRes.data.position)
+      setPrimaryColor(settingsRes.data.primary_color)
+      setWelcomeMessage(settingsRes.data.welcome_message)
+      setWhiteLabel(settingsRes.data.white_label)
+    }
+    if (bizRes.data) {
+      setWidgetToken(bizRes.data.widget_token)
     }
   }
 
@@ -69,11 +79,42 @@ export default function WidgetPage() {
 
   function copyEmbed() {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'
-    const code = `<script src="${origin}/widget.js" data-business-id="${business?.id}" data-color="${primaryColor}" data-position="${position === 'bottom-left' ? 'left' : 'right'}"></script>`
+    const code = `<script src="${origin}/widget.js" data-business-id="${business?.id}" data-widget-token="${widgetToken || ''}" data-color="${primaryColor}" data-position="${position === 'bottom-left' ? 'left' : 'right'}"></script>`
     navigator.clipboard.writeText(code)
     toast.success(t.widget.copied)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  function copyToken() {
+    if (!widgetToken) return
+    navigator.clipboard.writeText(widgetToken)
+    toast.success(t.widget.token_copied)
+    setTokenCopied(true)
+    setTimeout(() => setTokenCopied(false), 2000)
+  }
+
+  async function regenerateToken() {
+    if (!confirm(t.widget.regenerate_confirm)) return
+    setRegenerating(true)
+    try {
+      const supabase = createClient()
+      // Generate a new token client-side (48 char hex)
+      const array = new Uint8Array(24)
+      crypto.getRandomValues(array)
+      const newToken = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('')
+
+      await supabase
+        .from('businesses')
+        .update({ widget_token: newToken })
+        .eq('id', business!.id)
+
+      setWidgetToken(newToken)
+      toast.success(t.widget.token_regenerated)
+    } catch {
+      toast.error('Failed to regenerate token')
+    }
+    setRegenerating(false)
   }
 
   if (bizLoading) {
@@ -215,7 +256,7 @@ export default function WidgetPage() {
             <div className="p-4">
               <div className="relative group">
                 <div className="rounded-xl bg-gray-900 text-green-400 p-4 font-mono text-sm text-left direction-ltr overflow-x-auto border border-gray-800/50">
-                  <pre className="whitespace-pre-wrap break-all leading-relaxed">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
+                  <pre className="whitespace-pre-wrap break-all leading-relaxed">{`<script\n  src="${typeof window !== 'undefined' ? window.location.origin : 'https://botpress-ai.vercel.app'}/widget.js"\n  data-business-id="${business?.id || 'YOUR_ID'}"\n  data-widget-token="${widgetToken || 'YOUR_TOKEN'}"\n  data-color="${primaryColor}"\n  data-position="${position === 'bottom-left' ? 'left' : 'right'}">\n</script>`}</pre>
                 </div>
                 {/* Floating copy button */}
                 <button
@@ -237,6 +278,55 @@ export default function WidgetPage() {
                 </Button>
               </div>
               <p className="text-xs text-gray-400 mt-2">{t.widget.embed_desc}</p>
+            </div>
+          </motion.div>
+
+          {/* API Token Card */}
+          <motion.div
+            variants={cardItem}
+            className="rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div className="p-4 pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-blue-500" />
+                <h2 className="text-base font-semibold text-gray-900">{t.widget.api_token_title}</h2>
+              </div>
+              <p className="text-sm text-gray-400 mt-0.5">{t.widget.api_token_desc}</p>
+            </div>
+            <div className="p-4 space-y-3">
+              {widgetToken ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2.5 font-mono text-sm text-gray-600 border border-gray-200 overflow-hidden" dir="ltr">
+                      {tokenVisible ? widgetToken : widgetToken.slice(0, 6) + '••••••••••••••••••••••••••••••••••••••••••' .slice(0, widgetToken.length - 6)}
+                    </div>
+                    <button
+                      onClick={() => setTokenVisible(!tokenVisible)}
+                      className="p-2.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200"
+                    >
+                      {tokenVisible ? <EyeOff className="h-4 w-4 text-gray-500" /> : <Eye className="h-4 w-4 text-gray-500" />}
+                    </button>
+                    <button
+                      onClick={copyToken}
+                      className="p-2.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200"
+                    >
+                      {tokenCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-gray-500" />}
+                    </button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={regenerateToken}
+                    disabled={regenerating}
+                    className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
+                  >
+                    {regenerating ? <Loader2 className="h-4 w-4 animate-spin ml-1" /> : <RefreshCw className="h-4 w-4 ml-1" />}
+                    {t.widget.regenerate_token}
+                  </Button>
+                </>
+              ) : (
+                <p className="text-sm text-gray-400">{t.widget.no_token}</p>
+              )}
             </div>
           </motion.div>
         </div>

@@ -47,6 +47,7 @@ export interface Business {
   story: string | null
   tone: TonePreset
   tone_custom: string | null
+  widget_token: string | null
   created_at: string
   updated_at: string
 }

@@ -260,6 +260,13 @@ const ar: Translations = {
     copy_code: 'نسخ الكود',
     preview_title: 'معاينة',
     preview_footer: 'هكذا سيرى عملاؤك الدردشة على موقعك',
+    api_token_title: 'رمز API',
+    api_token_desc: 'هذا الرمز يصادق على الأداة. احتفظ به سريًا.',
+    regenerate_token: 'تجديد الرمز',
+    regenerate_confirm: 'تجديد الرمز؟ الأداة الحالية ستتوقف عن العمل حتى تحديث الكود.',
+    token_regenerated: 'تم تجديد الرمز! حدّث كود التضمين.',
+    token_copied: 'تم نسخ الرمز!',
+    no_token: 'لم يتم إنشاء رمز بعد. احفظ الإعدادات لإنشاء واحد.',
   },
   plan: {
     title: 'الخطة والاستخدام',

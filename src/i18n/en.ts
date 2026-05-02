@@ -260,6 +260,13 @@ const en: Translations = {
     copy_code: 'Copy Code',
     preview_title: 'Preview',
     preview_footer: 'This is how your customers will see the chat on your site',
+    api_token_title: 'API Token',
+    api_token_desc: 'This token authenticates your widget. Keep it secret.',
+    regenerate_token: 'Regenerate',
+    regenerate_confirm: 'Regenerate token? The current widget embed will stop working until you update it.',
+    token_regenerated: 'Token regenerated! Update your embed code.',
+    token_copied: 'Token copied!',
+    no_token: 'No token generated yet. Save settings to generate one.',
   },
   plan: {
     title: 'Plan & Usage',
