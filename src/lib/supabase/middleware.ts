@@ -46,10 +46,19 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
+  let user = null
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const result = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+    ])
+    if (!result) return NextResponse.next({ request })
+    user = result.data.user
+  } catch {
+    return NextResponse.next({ request })
+  }
+
+  try {
 
     const pathname = request.nextUrl.pathname
 
